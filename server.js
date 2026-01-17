@@ -436,23 +436,16 @@ app.get('/dashboard', authenticateToken, async (req, res) => {
     const owner = await Owner.findById(req.owner.id);
     
     // Get bookings from the shared bookingdb collection (same as booking-api)
-    // Filter by clinicEmail matching owner's email
+    // Filter by clinicEmail matching owner's email - include all statuses to show cancelled ones
     const bookingDb = mongoose.connection.useDb('bookingdb');
     const BookingsCollection = bookingDb.collection('bookings');
     
     const shopifyBookings = await BookingsCollection.find({ 
-      clinicEmail: owner.email,
-      status: { $ne: 'cancelled' }
+      clinicEmail: owner.email
     }).sort({ date: -1, time: -1 }).toArray();
     
-    // Also get dashboard-created bookings
-    const dashboardBookings = await Booking.find({ 
-      ownerId: owner._id,
-      status: { $ne: 'cancelled' }
-    }).sort({ date: -1, time: -1 }).lean();
-    
-    // Merge and sort all bookings
-    const allBookings = [...shopifyBookings, ...dashboardBookings].sort((a, b) => {
+    // Sort all bookings by date/time descending
+    const allBookings = shopifyBookings.sort((a, b) => {
       const dateA = new Date(a.date + 'T' + a.time);
       const dateB = new Date(b.date + 'T' + b.time);
       return dateB - dateA;
@@ -515,23 +508,86 @@ app.post('/dashboard/add-booking', authenticateToken, async (req, res) => {
   }
 });
 
-// Cancel Booking - Deletes from both dashboard and Shopify bookings
+// Cancel Booking - Marks as cancelled (doesn't delete) and frees slot if 6+ hours before
 app.post('/dashboard/cancel-booking/:id', authenticateToken, async (req, res) => {
   try {
     const owner = await Owner.findById(req.owner.id);
     const bookingId = parseInt(req.params.id);
     
-    // Try to delete from dashboard bookings
-    await Booking.deleteOne({ id: bookingId, ownerId: owner._id });
-    
-    // Also try to delete from Shopify bookings (bookingdb collection)
+    // Get the booking first
     const bookingDb = mongoose.connection.useDb('bookingdb');
     const BookingsCollection = bookingDb.collection('bookings');
-    await BookingsCollection.deleteOne({ id: bookingId, clinicEmail: owner.email });
+    const booking = await BookingsCollection.findOne({ id: bookingId, clinicEmail: owner.email });
     
-    res.redirect('/dashboard?success=Booking cancelled');
+    if (!booking) {
+      return res.redirect('/dashboard?error=Booking not found');
+    }
+    
+    // Check if cancellation is 6+ hours before appointment
+    const appointmentTime = new Date(booking.date + 'T' + booking.time);
+    const now = new Date();
+    const hoursUntilAppointment = (appointmentTime - now) / (1000 * 60 * 60);
+    
+    // Mark as cancelled (slot freed if 6+ hours before)
+    const updateData = {
+      status: 'cancelled',
+      cancelledAt: new Date(),
+      cancelledBy: 'owner',
+      slotFreed: hoursUntilAppointment >= 6
+    };
+    
+    await BookingsCollection.updateOne(
+      { id: bookingId, clinicEmail: owner.email },
+      { $set: updateData }
+    );
+    
+    const message = hoursUntilAppointment >= 6 
+      ? 'Booking cancelled and slot freed' 
+      : 'Booking cancelled (slot not freed - less than 6 hours notice)';
+    
+    res.redirect('/dashboard?success=' + encodeURIComponent(message));
   } catch (error) {
     console.error('Cancel booking error:', error);
+    res.redirect('/dashboard?error=' + error.message);
+  }
+});
+
+// Mark booking as no-show
+app.post('/dashboard/no-show/:id', authenticateToken, async (req, res) => {
+  try {
+    const owner = await Owner.findById(req.owner.id);
+    const bookingId = parseInt(req.params.id);
+    
+    const bookingDb = mongoose.connection.useDb('bookingdb');
+    const BookingsCollection = bookingDb.collection('bookings');
+    
+    await BookingsCollection.updateOne(
+      { id: bookingId, clinicEmail: owner.email },
+      { $set: { status: 'no-show', markedAt: new Date() } }
+    );
+    
+    res.redirect('/dashboard?success=Marked as no-show');
+  } catch (error) {
+    res.redirect('/dashboard?error=' + error.message);
+  }
+});
+
+// Mark booking as completed
+app.post('/dashboard/complete/:id', authenticateToken, async (req, res) => {
+  try {
+    const owner = await Owner.findById(req.owner.id);
+    const bookingId = parseInt(req.params.id);
+    
+    const bookingDb = mongoose.connection.useDb('bookingdb');
+    const BookingsCollection = bookingDb.collection('bookings');
+    
+    await BookingsCollection.updateOne(
+      { id: bookingId, clinicEmail: owner.email },
+      { $set: { status: 'completed', completedAt: new Date() } }
+    );
+    
+    res.redirect('/dashboard?success=Marked as completed');
+  } catch (error) {
     res.redirect('/dashboard?error=' + error.message);
   }
 });

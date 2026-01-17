@@ -219,6 +219,62 @@
       color: #991b1b;
     }
     
+    .status-confirmed {
+      background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+      color: #065f46;
+    }
+    
+    .status-cancelled {
+      background: linear-gradient(135deg, #fee2e2, #fecaca);
+      color: #991b1b;
+    }
+    
+    .status-no-show {
+      background: linear-gradient(135deg, #fef3c7, #fde68a);
+      color: #92400e;
+    }
+    
+    .status-completed {
+      background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+      color: #1e40af;
+    }
+    
+    .action-btn {
+      padding: 6px 12px;
+      border: none;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      margin: 2px;
+      transition: all 0.2s ease;
+    }
+    
+    .action-btn:hover {
+      transform: translateY(-1px);
+      opacity: 0.9;
+    }
+    
+    .btn-cancel {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      color: white;
+    }
+    
+    .btn-complete {
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      color: white;
+    }
+    
+    .btn-noshow {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+      color: white;
+    }
+    
+    .booking-row-cancelled {
+      opacity: 0.6;
+      background: #f5f5f5;
+    }
+    
     .empty-state {
       text-align: center;
       padding: 60px 20px;
@@ -378,18 +434,18 @@
               <th>Time</th>
               <th>Client</th>
               <th>Service</th>
-              <th>Type</th>
+              <th>Status</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
             <% bookings.forEach(booking => { %>
-              <tr>
+              <tr class="<%= booking.status === 'cancelled' || booking.status === 'no-show' ? 'booking-row-cancelled' : '' %>">
                 <td class="booking-date"><%= new Date(booking.date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) %></td>
                 <td><span class="booking-time"><%= booking.time %></span></td>
                 <td>
                   <% if (booking.type === 'blocked') { %>
-                    <span style="color: var(--neo-text-muted);">-</span>
+                    <span style="color: var(--neo-text-muted);">Blocked</span>
                   <% } else { %>
                     <strong><%= booking.name %></strong><br>
                     <small style="color: var(--neo-text-muted);"><%= booking.email %></small>
@@ -397,12 +453,22 @@
                 </td>
                 <td><%= booking.service %></td>
                 <td>
-                  <span class="type-badge type-<%= booking.type %>"><%= booking.type %></span>
+                  <span class="type-badge status-<%= booking.status || 'confirmed' %>"><%= booking.status || 'confirmed' %></span>
                 </td>
                 <td>
-                  <form method="POST" action="/dashboard/cancel-booking/<%= booking.id %>" style="display: inline;" onsubmit="return confirm('Are you sure you want to cancel this booking?');">
-                    <button type="submit" class="btn btn-danger">Cancel</button>
-                  </form>
+                  <% if (booking.status === 'confirmed' || !booking.status) { %>
+                    <form method="POST" action="/dashboard/complete/<%= booking.id %>" style="display: inline;">
+                      <button type="submit" class="action-btn btn-complete">Complete</button>
+                    </form>
+                    <form method="POST" action="/dashboard/no-show/<%= booking.id %>" style="display: inline;">
+                      <button type="submit" class="action-btn btn-noshow">No-Show</button>
+                    </form>
+                    <form method="POST" action="/dashboard/cancel-booking/<%= booking.id %>" style="display: inline;" onsubmit="return confirm('Cancel this booking?');">
+                      <button type="submit" class="action-btn btn-cancel">Cancel</button>
+                    </form>
+                  <% } else { %>
+                    <span style="color: var(--neo-text-muted); font-size: 12px;">-</span>
+                  <% } %>
                 </td>
               </tr>
             <% }) %>
