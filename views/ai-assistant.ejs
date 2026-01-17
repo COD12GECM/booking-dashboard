@@ -1,0 +1,550 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Assistant - <%= owner.clinicName || 'Dashboard' %></title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    :root {
+      --neo-bg: #e0e5ec;
+      --neo-shadow-dark: #a3b1c6;
+      --neo-shadow-light: #ffffff;
+      --neo-primary: #10b981;
+      --neo-text: #1e293b;
+      --neo-text-muted: #64748b;
+    }
+    
+    body {
+      min-height: 100vh;
+      background: var(--neo-bg);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .navbar {
+      background: var(--neo-bg);
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 12px var(--neo-shadow-dark);
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    
+    .navbar-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .navbar-logo {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .navbar-logo svg {
+      width: 22px;
+      height: 22px;
+      stroke: white;
+    }
+    
+    .navbar-title {
+      color: var(--neo-text);
+      font-size: 18px;
+      font-weight: 700;
+    }
+    
+    .navbar-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    
+    .nav-link {
+      color: var(--neo-text-muted);
+      text-decoration: none;
+      padding: 8px 16px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 14px;
+      transition: all 0.3s ease;
+      background: var(--neo-bg);
+      box-shadow: 3px 3px 6px var(--neo-shadow-dark), -3px -3px 6px var(--neo-shadow-light);
+    }
+    
+    .nav-link:hover {
+      color: var(--neo-text);
+    }
+    
+    .nav-link.active {
+      background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+      color: white;
+    }
+    
+    .chat-container {
+      flex: 1;
+      max-width: 900px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 24px 16px;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .chat-header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    
+    .chat-header h1 {
+      color: var(--neo-text);
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    
+    .chat-header p {
+      color: var(--neo-text-muted);
+      font-size: 14px;
+    }
+    
+    .quick-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 24px;
+    }
+    
+    .quick-btn {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      background: var(--neo-bg);
+      color: var(--neo-text-muted);
+      box-shadow: 3px 3px 6px var(--neo-shadow-dark), -3px -3px 6px var(--neo-shadow-light);
+      transition: all 0.2s ease;
+    }
+    
+    .quick-btn:hover {
+      color: var(--neo-text);
+      transform: translateY(-2px);
+    }
+    
+    .chat-messages {
+      flex: 1;
+      background: var(--neo-bg);
+      border-radius: 20px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: inset 4px 4px 8px var(--neo-shadow-dark), inset -4px -4px 8px var(--neo-shadow-light);
+      overflow-y: auto;
+      min-height: 300px;
+      max-height: 500px;
+    }
+    
+    .message {
+      margin-bottom: 16px;
+      display: flex;
+      gap: 12px;
+    }
+    
+    .message.user {
+      flex-direction: row-reverse;
+    }
+    
+    .message-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    
+    .message.assistant .message-avatar {
+      background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+      color: white;
+    }
+    
+    .message.user .message-avatar {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white;
+    }
+    
+    .message-content {
+      max-width: 70%;
+      padding: 14px 18px;
+      border-radius: 16px;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    
+    .message.assistant .message-content {
+      background: white;
+      color: var(--neo-text);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    
+    .message.user .message-content {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white;
+    }
+    
+    .chat-input-container {
+      display: flex;
+      gap: 12px;
+    }
+    
+    .chat-input {
+      flex: 1;
+      padding: 16px 20px;
+      background: var(--neo-bg);
+      border: none;
+      border-radius: 16px;
+      font-size: 15px;
+      color: var(--neo-text);
+      box-shadow: inset 4px 4px 8px var(--neo-shadow-dark), inset -4px -4px 8px var(--neo-shadow-light);
+    }
+    
+    .chat-input:focus {
+      outline: none;
+    }
+    
+    .chat-input::placeholder {
+      color: var(--neo-text-muted);
+    }
+    
+    .send-btn {
+      padding: 16px 24px;
+      border: none;
+      border-radius: 16px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+      color: white;
+      box-shadow: 4px 4px 8px var(--neo-shadow-dark), -4px -4px 8px var(--neo-shadow-light);
+      transition: all 0.2s ease;
+    }
+    
+    .send-btn:hover {
+      transform: translateY(-2px);
+    }
+    
+    .send-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    
+    .stats-summary {
+      background: white;
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    
+    .stats-summary h3 {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--neo-text);
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+    
+    .stat-item {
+      text-align: center;
+      padding: 12px;
+      background: #f8fafc;
+      border-radius: 10px;
+    }
+    
+    .stat-value {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--neo-primary);
+    }
+    
+    .stat-label {
+      font-size: 11px;
+      color: var(--neo-text-muted);
+      text-transform: uppercase;
+      margin-top: 4px;
+    }
+    
+    .typing-indicator {
+      display: flex;
+      gap: 4px;
+      padding: 8px 0;
+    }
+    
+    .typing-indicator span {
+      width: 8px;
+      height: 8px;
+      background: var(--neo-text-muted);
+      border-radius: 50%;
+      animation: typing 1.4s infinite ease-in-out;
+    }
+    
+    .typing-indicator span:nth-child(2) { animation-delay: 0.2s; }
+    .typing-indicator span:nth-child(3) { animation-delay: 0.4s; }
+    
+    @keyframes typing {
+      0%, 60%, 100% { transform: translateY(0); }
+      30% { transform: translateY(-8px); }
+    }
+    
+    @media (max-width: 768px) {
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+      .message-content { max-width: 85%; }
+      .quick-actions { gap: 8px; }
+      .quick-btn { padding: 8px 12px; font-size: 12px; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <div class="navbar-logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2a10 10 0 0 1 10 10c0 5.52-4.48 10-10 10S2 17.52 2 12 6.48 2 12 2z"/>
+          <path d="M12 16v-4"/>
+          <path d="M12 8h.01"/>
+        </svg>
+      </div>
+      <span class="navbar-title">AI Assistant</span>
+    </div>
+    <div class="navbar-actions">
+      <a href="/dashboard" class="nav-link">Bookings</a>
+      <a href="/dashboard/settings" class="nav-link">Settings</a>
+      <a href="/dashboard/ai-assistant" class="nav-link active">AI Assistant</a>
+      <a href="/logout" class="nav-link">Logout</a>
+    </div>
+  </nav>
+  
+  <div class="chat-container">
+    <div class="chat-header">
+      <h1>🤖 AI Business Assistant</h1>
+      <p>Ask me anything about your bookings, get insights, or tips to grow your business</p>
+    </div>
+    
+    <div class="stats-summary">
+      <h3>Your Business Overview</h3>
+      <div class="stats-grid">
+        <div class="stat-item">
+          <div class="stat-value"><%= stats.totalBookings %></div>
+          <div class="stat-label">Total Bookings</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value"><%= stats.todayBookings %></div>
+          <div class="stat-label">Today</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value"><%= stats.weekBookings %></div>
+          <div class="stat-label">This Week</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-value"><%= stats.completionRate %>%</div>
+          <div class="stat-label">Completion</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="quick-actions">
+      <button class="quick-btn" onclick="askQuestion('What are my busiest days?')">📊 Busiest Days</button>
+      <button class="quick-btn" onclick="askQuestion('How can I reduce no-shows?')">💡 Reduce No-Shows</button>
+      <button class="quick-btn" onclick="askQuestion('Tips to get more bookings')">📈 Get More Bookings</button>
+      <button class="quick-btn" onclick="askQuestion('Summarize my week')">📋 Weekly Summary</button>
+    </div>
+    
+    <div class="chat-messages" id="chatMessages">
+      <div class="message assistant">
+        <div class="message-avatar">🤖</div>
+        <div class="message-content">
+          Hello! I'm your AI business assistant. I can help you with:
+          <br><br>
+          • <strong>Booking insights</strong> - understand your busiest times
+          <br>• <strong>Business tips</strong> - reduce no-shows, increase bookings
+          <br>• <strong>Quick actions</strong> - summaries and reports
+          <br><br>
+          What would you like to know?
+        </div>
+      </div>
+    </div>
+    
+    <div class="chat-input-container">
+      <input type="text" class="chat-input" id="chatInput" placeholder="Ask me anything about your business..." onkeypress="if(event.key==='Enter')sendMessage()">
+      <button class="send-btn" onclick="sendMessage()" id="sendBtn">Send</button>
+    </div>
+  </div>
+  
+  <script>
+    const stats = {
+      totalBookings: <%= stats.totalBookings %>,
+      todayBookings: <%= stats.todayBookings %>,
+      weekBookings: <%= stats.weekBookings %>,
+      completionRate: <%= stats.completionRate %>,
+      noShowRate: <%= stats.noShowRate %>,
+      popularService: '<%= stats.popularService %>',
+      busiestDay: '<%= stats.busiestDay %>'
+    };
+    
+    const businessName = '<%= owner.clinicName || "your business" %>';
+    
+    function askQuestion(question) {
+      document.getElementById('chatInput').value = question;
+      sendMessage();
+    }
+    
+    function addMessage(content, isUser) {
+      const messagesDiv = document.getElementById('chatMessages');
+      const messageDiv = document.createElement('div');
+      messageDiv.className = 'message ' + (isUser ? 'user' : 'assistant');
+      messageDiv.innerHTML = `
+        <div class="message-avatar">${isUser ? '👤' : '🤖'}</div>
+        <div class="message-content">${content}</div>
+      `;
+      messagesDiv.appendChild(messageDiv);
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+    
+    function showTyping() {
+      const messagesDiv = document.getElementById('chatMessages');
+      const typingDiv = document.createElement('div');
+      typingDiv.className = 'message assistant';
+      typingDiv.id = 'typingIndicator';
+      typingDiv.innerHTML = `
+        <div class="message-avatar">🤖</div>
+        <div class="message-content">
+          <div class="typing-indicator">
+            <span></span><span></span><span></span>
+          </div>
+        </div>
+      `;
+      messagesDiv.appendChild(typingDiv);
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+    
+    function removeTyping() {
+      const typing = document.getElementById('typingIndicator');
+      if (typing) typing.remove();
+    }
+    
+    function generateResponse(question) {
+      const q = question.toLowerCase();
+      
+      // Busiest days analysis
+      if (q.includes('busiest') || q.includes('busy')) {
+        return `Based on your booking data, <strong>${stats.busiestDay}</strong> tends to be your busiest day. 
+        <br><br>💡 <strong>Tip:</strong> Consider offering special promotions on slower days to balance your schedule and maximize revenue.`;
+      }
+      
+      // No-shows
+      if (q.includes('no-show') || q.includes('noshow') || q.includes('cancel')) {
+        const tips = stats.noShowRate > 15 
+          ? `Your no-show rate is ${stats.noShowRate}%, which is above average.`
+          : `Your no-show rate is ${stats.noShowRate}%, which is good!`;
+        return `${tips}
+        <br><br>Here are proven strategies to reduce no-shows:
+        <br><br>• <strong>Send reminders</strong> - 24h and 2h before appointments
+        <br>• <strong>Require deposits</strong> - even small ones reduce no-shows by 50%
+        <br>• <strong>Easy rescheduling</strong> - make it simple to change appointments
+        <br>• <strong>Waitlist</strong> - fill cancelled slots quickly`;
+      }
+      
+      // More bookings
+      if (q.includes('more booking') || q.includes('increase') || q.includes('grow')) {
+        return `Here are strategies to grow ${businessName}:
+        <br><br>• <strong>Google Business Profile</strong> - claim and optimize it
+        <br>• <strong>Social media</strong> - share before/after, testimonials
+        <br>• <strong>Referral program</strong> - reward clients who refer friends
+        <br>• <strong>Email marketing</strong> - stay in touch with past clients
+        <br>• <strong>Online reviews</strong> - ask happy clients to leave reviews
+        <br><br>Your most popular service is <strong>${stats.popularService}</strong> - consider promoting it more!`;
+      }
+      
+      // Weekly summary
+      if (q.includes('summary') || q.includes('week') || q.includes('report')) {
+        return `📊 <strong>Weekly Summary for ${businessName}</strong>
+        <br><br>• Total bookings this week: <strong>${stats.weekBookings}</strong>
+        <br>• Today's appointments: <strong>${stats.todayBookings}</strong>
+        <br>• Completion rate: <strong>${stats.completionRate}%</strong>
+        <br>• Most popular service: <strong>${stats.popularService}</strong>
+        <br><br>${stats.completionRate >= 85 ? '✅ Great job! Your completion rate is excellent.' : '⚠️ Consider implementing reminder emails to improve completion rate.'}`;
+      }
+      
+      // Services
+      if (q.includes('service') || q.includes('popular')) {
+        return `Your most popular service is <strong>${stats.popularService}</strong>.
+        <br><br>💡 <strong>Tips:</strong>
+        <br>• Create packages combining popular services
+        <br>• Offer loyalty discounts for repeat bookings
+        <br>• Consider adding complementary services`;
+      }
+      
+      // Stats/numbers
+      if (q.includes('stat') || q.includes('number') || q.includes('data')) {
+        return `📈 <strong>Your Business Stats:</strong>
+        <br><br>• Total bookings: <strong>${stats.totalBookings}</strong>
+        <br>• Today: <strong>${stats.todayBookings}</strong>
+        <br>• This week: <strong>${stats.weekBookings}</strong>
+        <br>• Completion rate: <strong>${stats.completionRate}%</strong>
+        <br>• No-show rate: <strong>${stats.noShowRate}%</strong>
+        <br>• Busiest day: <strong>${stats.busiestDay}</strong>
+        <br>• Top service: <strong>${stats.popularService}</strong>`;
+      }
+      
+      // Default response
+      return `I can help you with:
+      <br><br>• <strong>"What are my busiest days?"</strong> - booking patterns
+      <br>• <strong>"How can I reduce no-shows?"</strong> - practical tips
+      <br>• <strong>"Tips to get more bookings"</strong> - growth strategies
+      <br>• <strong>"Summarize my week"</strong> - quick overview
+      <br>• <strong>"Show my stats"</strong> - detailed numbers
+      <br><br>Try asking one of these questions!`;
+    }
+    
+    function sendMessage() {
+      const input = document.getElementById('chatInput');
+      const question = input.value.trim();
+      
+      if (!question) return;
+      
+      addMessage(question, true);
+      input.value = '';
+      
+      showTyping();
+      document.getElementById('sendBtn').disabled = true;
+      
+      // Simulate AI thinking
+      setTimeout(() => {
+        removeTyping();
+        const response = generateResponse(question);
+        addMessage(response, false);
+        document.getElementById('sendBtn').disabled = false;
+      }, 1000 + Math.random() * 1000);
+    }
+  </script>
+</body>
+</html>

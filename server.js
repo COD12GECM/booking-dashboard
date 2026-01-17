@@ -771,6 +771,61 @@ app.post('/dashboard/edit-booking/:id', authenticateToken, async (req, res) => {
   }
 });
 
+// AI Assistant Page
+app.get('/dashboard/ai-assistant', authenticateToken, async (req, res) => {
+  try {
+    const owner = await Owner.findById(req.owner.id);
+    
+    const bookingDb = mongoose.connection.useDb('bookingdb');
+    const BookingsCollection = bookingDb.collection('bookings');
+    
+    const allBookings = await BookingsCollection.find({ clinicEmail: owner.email }).toArray();
+    
+    const today = new Date().toISOString().split('T')[0];
+    const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString().split('T')[0];
+    
+    const confirmedBookings = allBookings.filter(b => b.type === 'booking' && b.status !== 'cancelled');
+    const completedBookings = allBookings.filter(b => b.status === 'completed');
+    const noShowBookings = allBookings.filter(b => b.status === 'no-show');
+    const todayBookings = allBookings.filter(b => b.date === today && b.status !== 'cancelled');
+    const weekBookings = allBookings.filter(b => b.date >= weekAgo && b.status !== 'cancelled');
+    
+    // Calculate busiest day
+    const dayCount = {};
+    confirmedBookings.forEach(b => {
+      const day = new Date(b.date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'long' });
+      dayCount[day] = (dayCount[day] || 0) + 1;
+    });
+    const busiestDay = Object.entries(dayCount).sort((a, b) => b[1] - a[1])[0]?.[0] || 'N/A';
+    
+    // Calculate popular service
+    const serviceCount = {};
+    confirmedBookings.forEach(b => {
+      if (b.service) serviceCount[b.service] = (serviceCount[b.service] || 0) + 1;
+    });
+    const popularService = Object.entries(serviceCount).sort((a, b) => b[1] - a[1])[0]?.[0] || 'N/A';
+    
+    const totalFinished = completedBookings.length + noShowBookings.length;
+    const completionRate = totalFinished > 0 ? Math.round((completedBookings.length / totalFinished) * 100) : 100;
+    const noShowRate = totalFinished > 0 ? Math.round((noShowBookings.length / totalFinished) * 100) : 0;
+    
+    const stats = {
+      totalBookings: confirmedBookings.length,
+      todayBookings: todayBookings.length,
+      weekBookings: weekBookings.length,
+      completionRate,
+      noShowRate,
+      popularService,
+      busiestDay
+    };
+    
+    res.render('ai-assistant', { owner, stats });
+  } catch (error) {
+    console.error('AI Assistant error:', error);
+    res.redirect('/dashboard');
+  }
+});
+
 // Settings Page
 app.get('/dashboard/settings', authenticateToken, async (req, res) => {
   try {
