@@ -282,8 +282,64 @@
         </div>
       </div>
       
+      <div class="card">
+        <h2 class="card-title">Email Customization</h2>
+        
+        <div class="form-group">
+          <label class="form-label">Business Name (for emails)</label>
+          <input type="text" name="emailBusinessName" class="form-input" value="<%= owner.emailSettings?.businessName || owner.clinicName || '' %>" placeholder="Your Business Name">
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Primary Color</label>
+            <div style="display: flex; gap: 10px; align-items: center;">
+              <input type="color" name="primaryColor" value="<%= owner.emailSettings?.primaryColor || '#10b981' %>" style="width: 60px; height: 44px; border: none; border-radius: 8px; cursor: pointer;">
+              <input type="text" class="form-input" value="<%= owner.emailSettings?.primaryColor || '#10b981' %>" readonly style="flex: 1;">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Secondary Color</label>
+            <div style="display: flex; gap: 10px; align-items: center;">
+              <input type="color" name="secondaryColor" value="<%= owner.emailSettings?.secondaryColor || '#059669' %>" style="width: 60px; height: 44px; border: none; border-radius: 8px; cursor: pointer;">
+              <input type="text" class="form-input" value="<%= owner.emailSettings?.secondaryColor || '#059669' %>" readonly style="flex: 1;">
+            </div>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Confirmation Email Subject</label>
+          <input type="text" name="confirmationSubject" class="form-input" value="<%= owner.emailSettings?.confirmationSubject || 'Booking Confirmed' %>" placeholder="Booking Confirmed">
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Confirmation Message</label>
+          <textarea name="confirmationMessage" class="form-input" rows="3" placeholder="Your appointment has been confirmed..."><%= owner.emailSettings?.confirmationMessage || 'Your appointment has been confirmed. Here are the details:' %></textarea>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Email Footer (optional)</label>
+          <textarea name="emailFooter" class="form-input" rows="2" placeholder="Thank you for choosing us!"><%= owner.emailSettings?.emailFooter || '' %></textarea>
+        </div>
+        
+        <div style="background: #f9fafb; border-radius: 12px; padding: 16px; margin-top: 16px;">
+          <p style="color: var(--neo-text-muted); font-size: 13px; margin: 0;">
+            <strong>Preview:</strong> These settings will be used for all booking confirmation emails sent to your clients.
+          </p>
+        </div>
+      </div>
+      
       <button type="submit" class="btn">Save Settings</button>
     </form>
   </div>
+  
+  <script>
+    // Sync color picker with text input
+    document.querySelectorAll('input[type="color"]').forEach(picker => {
+      picker.addEventListener('input', (e) => {
+        e.target.nextElementSibling.value = e.target.value;
+      });
+    });
+  </script>
 </body>
 </html>

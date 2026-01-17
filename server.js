@@ -43,6 +43,14 @@ const ownerSchema = new mongoose.Schema({
     slotsPerHour: { type: Number, default: 1 },
     services: { type: [String], default: ['Consultation'] }
   },
+  emailSettings: {
+    primaryColor: { type: String, default: '#10b981' },
+    secondaryColor: { type: String, default: '#059669' },
+    businessName: { type: String, default: '' },
+    emailFooter: { type: String, default: '' },
+    confirmationSubject: { type: String, default: 'Booking Confirmed' },
+    confirmationMessage: { type: String, default: 'Your appointment has been confirmed. Here are the details:' }
+  },
   createdAt: { type: Date, default: Date.now }
 });
 
@@ -222,12 +230,21 @@ async function sendInvitationEmail(email, invitationCode, clinicName) {
   }
 }
 
-// Send Booking Confirmation Email to Client (when owner creates booking from dashboard)
+// Send Booking Confirmation Email to Client (uses owner's custom email settings)
 async function sendBookingConfirmationEmail(booking, owner) {
   if (!process.env.BREVO_API_KEY || !booking.email) {
     console.log('Skipping confirmation email - no API key or client email');
     return false;
   }
+
+  // Get custom email settings or defaults
+  const emailSettings = owner.emailSettings || {};
+  const primaryColor = emailSettings.primaryColor || '#10b981';
+  const secondaryColor = emailSettings.secondaryColor || '#059669';
+  const businessName = emailSettings.businessName || owner.clinicName || 'Your Business';
+  const emailFooter = emailSettings.emailFooter || '';
+  const confirmationSubject = emailSettings.confirmationSubject || 'Booking Confirmed';
+  const confirmationMessage = emailSettings.confirmationMessage || 'Your appointment has been confirmed. Here are the details:';
 
   const dateObj = new Date(booking.date + 'T' + booking.time);
   const formattedDate = dateObj.toLocaleDateString('en-US', { 
@@ -251,9 +268,9 @@ async function sendBookingConfirmationEmail(booking, owner) {
         <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 16px;">
           
           <tr>
-            <td style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 48px 40px; text-align: center; border-radius: 16px 16px 0 0;">
-              <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 700;">Booking Confirmed</h1>
-              <p style="color: rgba(255,255,255,0.9); margin: 12px 0 0; font-size: 16px;">${owner.clinicName || 'Your Appointment'}</p>
+            <td style="background: linear-gradient(135deg, ${primaryColor} 0%, ${secondaryColor} 100%); padding: 48px 40px; text-align: center; border-radius: 16px 16px 0 0;">
+              <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 700;">${confirmationSubject}</h1>
+              <p style="color: rgba(255,255,255,0.9); margin: 12px 0 0; font-size: 16px;">${businessName}</p>
             </td>
           </tr>
           
@@ -263,7 +280,7 @@ async function sendBookingConfirmationEmail(booking, owner) {
                 Dear <strong>${booking.name}</strong>,
               </p>
               <p style="color: #6b7280; font-size: 16px; margin: 0 0 32px; line-height: 1.7;">
-                Your appointment has been confirmed. Here are the details:
+                ${confirmationMessage}
               </p>
               
               <table width="100%" cellpadding="0" cellspacing="0" style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px; margin-bottom: 32px;">
@@ -278,12 +295,13 @@ async function sendBookingConfirmationEmail(booking, owner) {
               </table>
               
               ${owner.clinicPhone ? `<p style="color: #6b7280; font-size: 14px; margin: 0;">Questions? Contact us at ${owner.clinicPhone}</p>` : ''}
+              ${emailFooter ? `<p style="color: #9ca3af; font-size: 13px; margin: 24px 0 0; padding-top: 16px; border-top: 1px solid #e5e7eb;">${emailFooter}</p>` : ''}
             </td>
           </tr>
           
           <tr>
             <td style="padding: 24px 40px; border-top: 1px solid #e5e7eb; text-align: center;">
-              <p style="color: #9ca3af; font-size: 13px; margin: 0;">${owner.clinicName || 'Booking Dashboard'}</p>
+              <p style="color: #9ca3af; font-size: 13px; margin: 0;">${businessName}</p>
             </td>
           </tr>
           
@@ -305,11 +323,11 @@ async function sendBookingConfirmationEmail(booking, owner) {
       },
       body: JSON.stringify({
         sender: {
-          name: owner.clinicName || 'Booking Dashboard',
+          name: businessName,
           email: process.env.BREVO_SENDER_EMAIL
         },
         to: [{ email: booking.email, name: booking.name }],
-        subject: `Booking Confirmed - ${formattedDate} at ${booking.time}`,
+        subject: `${confirmationSubject} - ${formattedDate} at ${booking.time}`,
         htmlContent: emailHtml
       })
     });
@@ -713,7 +731,12 @@ app.get('/dashboard/settings', authenticateToken, async (req, res) => {
 // Update Settings
 app.post('/dashboard/settings', authenticateToken, async (req, res) => {
   try {
-    const { clinicName, clinicPhone, clinicAddress, websiteUrl, startHour, endHour, slotsPerHour, services } = req.body;
+    const { 
+      clinicName, clinicPhone, clinicAddress, websiteUrl, 
+      startHour, endHour, slotsPerHour, services,
+      emailBusinessName, primaryColor, secondaryColor, 
+      confirmationSubject, confirmationMessage, emailFooter 
+    } = req.body;
     
     await Owner.findByIdAndUpdate(req.owner.id, {
       clinicName,
@@ -723,7 +746,13 @@ app.post('/dashboard/settings', authenticateToken, async (req, res) => {
       'settings.startHour': parseInt(startHour) || 9,
       'settings.endHour': parseInt(endHour) || 17,
       'settings.slotsPerHour': parseInt(slotsPerHour) || 1,
-      'settings.services': services ? services.split(',').map(s => s.trim()) : ['Consultation']
+      'settings.services': services ? services.split(',').map(s => s.trim()) : ['Consultation'],
+      'emailSettings.businessName': emailBusinessName || clinicName || '',
+      'emailSettings.primaryColor': primaryColor || '#10b981',
+      'emailSettings.secondaryColor': secondaryColor || '#059669',
+      'emailSettings.confirmationSubject': confirmationSubject || 'Booking Confirmed',
+      'emailSettings.confirmationMessage': confirmationMessage || 'Your appointment has been confirmed. Here are the details:',
+      'emailSettings.emailFooter': emailFooter || ''
     });
     
     res.redirect('/dashboard/settings?success=Settings updated');

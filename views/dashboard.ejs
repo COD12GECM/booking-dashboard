@@ -14,6 +14,7 @@
       --neo-primary: #10b981;
       --neo-danger: #ef4444;
       --neo-warning: #f59e0b;
+      --neo-blue: #3b82f6;
       --neo-text: #1e293b;
       --neo-text-muted: #64748b;
     }
@@ -26,11 +27,13 @@
     
     .navbar {
       background: var(--neo-bg);
-      padding: 20px 40px;
+      padding: 16px 24px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       box-shadow: 0 4px 12px var(--neo-shadow-dark);
+      flex-wrap: wrap;
+      gap: 12px;
     }
     
     .navbar-brand {
@@ -40,42 +43,43 @@
     }
     
     .navbar-logo {
-      width: 44px;
-      height: 44px;
+      width: 40px;
+      height: 40px;
       background: linear-gradient(135deg, #10b981, #059669);
-      border-radius: 12px;
+      border-radius: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
     }
     
     .navbar-logo svg {
-      width: 24px;
-      height: 24px;
+      width: 22px;
+      height: 22px;
       stroke: white;
     }
     
     .navbar-title {
       color: var(--neo-text);
-      font-size: 20px;
+      font-size: 18px;
       font-weight: 700;
     }
     
     .navbar-actions {
       display: flex;
-      gap: 16px;
+      gap: 12px;
       align-items: center;
     }
     
     .nav-link {
       color: var(--neo-text-muted);
       text-decoration: none;
-      padding: 10px 20px;
-      border-radius: 12px;
+      padding: 8px 16px;
+      border-radius: 10px;
       font-weight: 600;
+      font-size: 14px;
       transition: all 0.3s ease;
       background: var(--neo-bg);
-      box-shadow: 4px 4px 8px var(--neo-shadow-dark), -4px -4px 8px var(--neo-shadow-light);
+      box-shadow: 3px 3px 6px var(--neo-shadow-dark), -3px -3px 6px var(--neo-shadow-light);
     }
     
     .nav-link:hover {
@@ -90,14 +94,16 @@
     .container {
       max-width: 1200px;
       margin: 0 auto;
-      padding: 40px 20px;
+      padding: 24px 16px;
     }
     
     .page-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 32px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      gap: 16px;
     }
     
     .page-title {
@@ -275,6 +281,142 @@
       background: #f5f5f5;
     }
     
+    .view-tabs {
+      display: flex;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    
+    .view-tab {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      background: var(--neo-bg);
+      color: var(--neo-text-muted);
+      box-shadow: 2px 2px 4px var(--neo-shadow-dark), -2px -2px 4px var(--neo-shadow-light);
+      transition: all 0.2s ease;
+    }
+    
+    .view-tab:hover {
+      color: var(--neo-text);
+    }
+    
+    .view-tab.active {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white;
+      box-shadow: none;
+    }
+    
+    .day-group {
+      margin-bottom: 24px;
+    }
+    
+    .day-header {
+      background: linear-gradient(135deg, #f8fafc, #f1f5f9);
+      padding: 12px 20px;
+      border-radius: 12px;
+      margin-bottom: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .day-title {
+      font-weight: 700;
+      color: var(--neo-text);
+      font-size: 15px;
+    }
+    
+    .day-count {
+      background: var(--neo-primary);
+      color: white;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    
+    .booking-card {
+      background: white;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      transition: all 0.2s ease;
+    }
+    
+    .booking-card:hover {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    
+    .booking-card.cancelled {
+      opacity: 0.5;
+      background: #f9fafb;
+    }
+    
+    .booking-time-badge {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white;
+      padding: 8px 14px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      min-width: 70px;
+      text-align: center;
+    }
+    
+    .booking-time-badge.blocked {
+      background: linear-gradient(135deg, #f59e0b, #d97706);
+    }
+    
+    .booking-info {
+      flex: 1;
+    }
+    
+    .booking-client {
+      font-weight: 600;
+      color: var(--neo-text);
+      font-size: 15px;
+    }
+    
+    .booking-service {
+      color: var(--neo-text-muted);
+      font-size: 13px;
+      margin-top: 2px;
+    }
+    
+    .booking-actions {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    
+    @media (max-width: 768px) {
+      .booking-card {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .booking-actions {
+        width: 100%;
+        margin-top: 12px;
+      }
+      .action-btn {
+        flex: 1;
+      }
+      .view-tabs {
+        flex-wrap: wrap;
+      }
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+    
     .empty-state {
       text-align: center;
       padding: 60px 20px;
@@ -385,23 +527,45 @@
       <div class="success-msg"><%= success %></div>
     <% } %>
     
+    <%
+      const today = new Date().toISOString().split('T')[0];
+      const confirmedBookings = bookings.filter(b => b.type === 'booking' && (b.status === 'confirmed' || !b.status));
+      const completedBookings = bookings.filter(b => b.status === 'completed');
+      const cancelledBookings = bookings.filter(b => b.status === 'cancelled');
+      const noShowBookings = bookings.filter(b => b.status === 'no-show');
+      const blockedSlots = bookings.filter(b => b.type === 'blocked' && (b.status === 'confirmed' || !b.status));
+      const todayBookings = bookings.filter(b => b.date === today && (b.status === 'confirmed' || !b.status));
+    %>
+    
     <div class="stats-grid">
       <div class="stat-card">
-        <div class="stat-label">Total Bookings</div>
-        <div class="stat-value"><%= bookings.filter(b => b.type === 'booking').length %></div>
+        <div class="stat-label">Active Bookings</div>
+        <div class="stat-value"><%= confirmedBookings.length %></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Completed</div>
+        <div class="stat-value" style="color: var(--neo-blue);"><%= completedBookings.length %></div>
       </div>
       <div class="stat-card">
         <div class="stat-label">Blocked Slots</div>
-        <div class="stat-value"><%= bookings.filter(b => b.type === 'blocked').length %></div>
+        <div class="stat-value" style="color: var(--neo-warning);"><%= blockedSlots.length %></div>
       </div>
       <div class="stat-card">
         <div class="stat-label">Today</div>
-        <div class="stat-value"><%= bookings.filter(b => b.date === new Date().toISOString().split('T')[0]).length %></div>
+        <div class="stat-value" style="color: var(--neo-primary);"><%= todayBookings.length %></div>
       </div>
     </div>
     
     <div class="page-header">
-      <h1 class="page-title">All Bookings</h1>
+      <div>
+        <h1 class="page-title">Bookings</h1>
+        <div class="view-tabs">
+          <button class="view-tab active" data-view="day">Today</button>
+          <button class="view-tab" data-view="week">This Week</button>
+          <button class="view-tab" data-view="month">This Month</button>
+          <button class="view-tab" data-view="all">All</button>
+        </div>
+      </div>
       <a href="/dashboard/add-booking" class="btn btn-primary">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
           <line x1="12" y1="5" x2="12" y2="19"/>
@@ -411,7 +575,7 @@
       </a>
     </div>
     
-    <div class="card">
+    <div class="card" id="bookings-container">
       <% if (bookings.length === 0) { %>
         <div class="empty-state">
           <div class="empty-icon">
@@ -427,38 +591,48 @@
           <a href="/dashboard/add-booking" class="btn btn-primary">Add Manual Booking</a>
         </div>
       <% } else { %>
-        <table class="bookings-table">
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Time</th>
-              <th>Client</th>
-              <th>Service</th>
-              <th>Status</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <% bookings.forEach(booking => { %>
-              <tr class="<%= booking.status === 'cancelled' || booking.status === 'no-show' ? 'booking-row-cancelled' : '' %>">
-                <td class="booking-date"><%= new Date(booking.date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) %></td>
-                <td><span class="booking-time"><%= booking.time %></span></td>
-                <td>
+        <%
+          // Group bookings by date
+          const groupedByDate = {};
+          bookings.forEach(b => {
+            if (!groupedByDate[b.date]) groupedByDate[b.date] = [];
+            groupedByDate[b.date].push(b);
+          });
+          // Sort dates descending
+          const sortedDates = Object.keys(groupedByDate).sort((a, b) => new Date(b) - new Date(a));
+        %>
+        
+        <% sortedDates.forEach(date => { 
+          const dayBookings = groupedByDate[date].sort((a, b) => a.time.localeCompare(b.time));
+          const dateObj = new Date(date + 'T00:00:00');
+          const isToday = date === today;
+          const formattedDate = dateObj.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+        %>
+          <div class="day-group" data-date="<%= date %>">
+            <div class="day-header">
+              <span class="day-title"><%= isToday ? 'Today - ' : '' %><%= formattedDate %></span>
+              <span class="day-count"><%= dayBookings.filter(b => b.status !== 'cancelled').length %> bookings</span>
+            </div>
+            
+            <% dayBookings.forEach(booking => { %>
+              <div class="booking-card <%= booking.status === 'cancelled' || booking.status === 'no-show' ? 'cancelled' : '' %>">
+                <div class="booking-time-badge <%= booking.type === 'blocked' ? 'blocked' : '' %>">
+                  <%= booking.time %>
+                </div>
+                <div class="booking-info">
                   <% if (booking.type === 'blocked') { %>
-                    <span style="color: var(--neo-text-muted);">Blocked</span>
+                    <div class="booking-client" style="color: var(--neo-warning);">Blocked Slot</div>
+                    <div class="booking-service"><%= booking.notes || 'Time blocked' %></div>
                   <% } else { %>
-                    <strong><%= booking.name %></strong><br>
-                    <small style="color: var(--neo-text-muted);"><%= booking.email %></small>
+                    <div class="booking-client"><%= booking.name %></div>
+                    <div class="booking-service"><%= booking.service %> &bull; <%= booking.email %></div>
                   <% } %>
-                </td>
-                <td><%= booking.service %></td>
-                <td>
-                  <span class="type-badge status-<%= booking.status || 'confirmed' %>"><%= booking.status || 'confirmed' %></span>
-                </td>
-                <td>
+                </div>
+                <span class="type-badge status-<%= booking.status || 'confirmed' %>" style="margin-right: 8px;"><%= booking.status || 'confirmed' %></span>
+                <div class="booking-actions">
                   <% if (booking.status === 'confirmed' || !booking.status) { %>
                     <form method="POST" action="/dashboard/complete/<%= booking.id %>" style="display: inline;">
-                      <button type="submit" class="action-btn btn-complete">Complete</button>
+                      <button type="submit" class="action-btn btn-complete">Done</button>
                     </form>
                     <form method="POST" action="/dashboard/no-show/<%= booking.id %>" style="display: inline;">
                       <button type="submit" class="action-btn btn-noshow">No-Show</button>
@@ -466,16 +640,72 @@
                     <form method="POST" action="/dashboard/cancel-booking/<%= booking.id %>" style="display: inline;" onsubmit="return confirm('Cancel this booking?');">
                       <button type="submit" class="action-btn btn-cancel">Cancel</button>
                     </form>
-                  <% } else { %>
-                    <span style="color: var(--neo-text-muted); font-size: 12px;">-</span>
                   <% } %>
-                </td>
-              </tr>
+                </div>
+              </div>
             <% }) %>
-          </tbody>
-        </table>
+          </div>
+        <% }) %>
       <% } %>
     </div>
   </div>
+  
+  <script>
+    // View tabs filtering
+    const tabs = document.querySelectorAll('.view-tab');
+    const dayGroups = document.querySelectorAll('.day-group');
+    
+    function getDateRange(view) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      
+      const todayStr = today.toISOString().split('T')[0];
+      
+      if (view === 'day') {
+        return { start: todayStr, end: todayStr };
+      }
+      
+      if (view === 'week') {
+        const weekEnd = new Date(today);
+        weekEnd.setDate(weekEnd.getDate() + 7);
+        return { start: todayStr, end: weekEnd.toISOString().split('T')[0] };
+      }
+      
+      if (view === 'month') {
+        const monthEnd = new Date(today);
+        monthEnd.setMonth(monthEnd.getMonth() + 1);
+        return { start: todayStr, end: monthEnd.toISOString().split('T')[0] };
+      }
+      
+      return null; // all
+    }
+    
+    function filterBookings(view) {
+      const range = getDateRange(view);
+      
+      dayGroups.forEach(group => {
+        const date = group.dataset.date;
+        
+        if (!range) {
+          group.style.display = 'block';
+        } else if (date >= range.start && date <= range.end) {
+          group.style.display = 'block';
+        } else {
+          group.style.display = 'none';
+        }
+      });
+    }
+    
+    tabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        tabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        filterBookings(tab.dataset.view);
+      });
+    });
+    
+    // Initialize with "Today" view
+    filterBookings('day');
+  </script>
 </body>
 </html>
