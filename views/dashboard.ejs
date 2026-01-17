@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - <%= owner.clinicName || 'Booking' %></title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    :root {
+      --neo-bg: #e0e5ec;
+      --neo-shadow-dark: #a3b1c6;
+      --neo-shadow-light: #ffffff;
+      --neo-primary: #10b981;
+      --neo-danger: #ef4444;
+      --neo-warning: #f59e0b;
+      --neo-text: #1e293b;
+      --neo-text-muted: #64748b;
+    }
+    
+    body {
+      min-height: 100vh;
+      background: var(--neo-bg);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    
+    .navbar {
+      background: var(--neo-bg);
+      padding: 20px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 12px var(--neo-shadow-dark);
+    }
+    
+    .navbar-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .navbar-logo {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, #10b981, #059669);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .navbar-logo svg {
+      width: 24px;
+      height: 24px;
+      stroke: white;
+    }
+    
+    .navbar-title {
+      color: var(--neo-text);
+      font-size: 20px;
+      font-weight: 700;
+    }
+    
+    .navbar-actions {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+    
+    .nav-link {
+      color: var(--neo-text-muted);
+      text-decoration: none;
+      padding: 10px 20px;
+      border-radius: 12px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      background: var(--neo-bg);
+      box-shadow: 4px 4px 8px var(--neo-shadow-dark), -4px -4px 8px var(--neo-shadow-light);
+    }
+    
+    .nav-link:hover {
+      color: var(--neo-text);
+    }
+    
+    .nav-link.active {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+    
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 32px;
+    }
+    
+    .page-title {
+      color: var(--neo-text);
+      font-size: 28px;
+      font-weight: 700;
+    }
+    
+    .btn {
+      padding: 14px 28px;
+      border: none;
+      border-radius: 14px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 4px 4px 8px var(--neo-shadow-dark), -4px -4px 8px var(--neo-shadow-light);
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: #ffffff;
+    }
+    
+    .btn-danger {
+      background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+      color: #ffffff;
+      padding: 10px 18px;
+      font-size: 13px;
+    }
+    
+    .btn:hover {
+      transform: translateY(-2px);
+    }
+    
+    .btn svg {
+      width: 20px;
+      height: 20px;
+    }
+    
+    .card {
+      background: var(--neo-bg);
+      border-radius: 24px;
+      padding: 32px;
+      box-shadow: 12px 12px 24px var(--neo-shadow-dark), -12px -12px 24px var(--neo-shadow-light);
+    }
+    
+    .success-msg {
+      background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+      color: #065f46;
+      padding: 16px 24px;
+      border-radius: 16px;
+      margin-bottom: 24px;
+      font-size: 15px;
+      font-weight: 500;
+    }
+    
+    .bookings-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    
+    .bookings-table th {
+      text-align: left;
+      padding: 16px;
+      color: var(--neo-text-muted);
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      border-bottom: 2px solid rgba(163, 177, 198, 0.3);
+    }
+    
+    .bookings-table td {
+      padding: 16px;
+      color: var(--neo-text);
+      font-size: 15px;
+      border-bottom: 1px solid rgba(163, 177, 198, 0.2);
+      vertical-align: middle;
+    }
+    
+    .bookings-table tr:hover {
+      background: rgba(163, 177, 198, 0.1);
+    }
+    
+    .booking-date {
+      font-weight: 600;
+    }
+    
+    .booking-time {
+      background: var(--neo-bg);
+      padding: 6px 14px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 14px;
+      box-shadow: inset 2px 2px 4px var(--neo-shadow-dark), inset -2px -2px 4px var(--neo-shadow-light);
+    }
+    
+    .type-badge {
+      display: inline-block;
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    
+    .type-booking {
+      background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+      color: #065f46;
+    }
+    
+    .type-blocked {
+      background: linear-gradient(135deg, #fee2e2, #fecaca);
+      color: #991b1b;
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+    }
+    
+    .empty-icon {
+      width: 80px;
+      height: 80px;
+      background: var(--neo-bg);
+      border-radius: 50%;
+      margin: 0 auto 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: inset 4px 4px 8px var(--neo-shadow-dark), inset -4px -4px 8px var(--neo-shadow-light);
+    }
+    
+    .empty-icon svg {
+      width: 40px;
+      height: 40px;
+      stroke: var(--neo-text-muted);
+    }
+    
+    .empty-title {
+      color: var(--neo-text);
+      font-size: 22px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    
+    .empty-text {
+      color: var(--neo-text-muted);
+      font-size: 16px;
+      margin-bottom: 24px;
+    }
+    
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+    
+    .stat-card {
+      background: var(--neo-bg);
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: 8px 8px 16px var(--neo-shadow-dark), -8px -8px 16px var(--neo-shadow-light);
+    }
+    
+    .stat-label {
+      color: var(--neo-text-muted);
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+    
+    .stat-value {
+      color: var(--neo-text);
+      font-size: 32px;
+      font-weight: 700;
+    }
+    
+    @media (max-width: 768px) {
+      .navbar {
+        flex-direction: column;
+        gap: 16px;
+        padding: 16px;
+      }
+      .page-header {
+        flex-direction: column;
+        gap: 16px;
+        text-align: center;
+      }
+      .bookings-table {
+        font-size: 13px;
+      }
+      .bookings-table th, .bookings-table td {
+        padding: 12px 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <div class="navbar-logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+          <line x1="16" y1="2" x2="16" y2="6"/>
+          <line x1="8" y1="2" x2="8" y2="6"/>
+          <line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+      </div>
+      <span class="navbar-title"><%= owner.clinicName || 'Dashboard' %></span>
+    </div>
+    <div class="navbar-actions">
+      <a href="/dashboard" class="nav-link active">Bookings</a>
+      <a href="/dashboard/settings" class="nav-link">Settings</a>
+      <a href="/logout" class="nav-link">Logout</a>
+    </div>
+  </nav>
+  
+  <div class="container">
+    <% if (success) { %>
+      <div class="success-msg"><%= success %></div>
+    <% } %>
+    
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-label">Total Bookings</div>
+        <div class="stat-value"><%= bookings.filter(b => b.type === 'booking').length %></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Blocked Slots</div>
+        <div class="stat-value"><%= bookings.filter(b => b.type === 'blocked').length %></div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Today</div>
+        <div class="stat-value"><%= bookings.filter(b => b.date === new Date().toISOString().split('T')[0]).length %></div>
+      </div>
+    </div>
+    
+    <div class="page-header">
+      <h1 class="page-title">All Bookings</h1>
+      <a href="/dashboard/add-booking" class="btn btn-primary">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="12" y1="5" x2="12" y2="19"/>
+          <line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        Add Booking
+      </a>
+    </div>
+    
+    <div class="card">
+      <% if (bookings.length === 0) { %>
+        <div class="empty-state">
+          <div class="empty-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+              <line x1="16" y1="2" x2="16" y2="6"/>
+              <line x1="8" y1="2" x2="8" y2="6"/>
+              <line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+          </div>
+          <h3 class="empty-title">No Bookings Yet</h3>
+          <p class="empty-text">Your bookings will appear here once customers start booking.</p>
+          <a href="/dashboard/add-booking" class="btn btn-primary">Add Manual Booking</a>
+        </div>
+      <% } else { %>
+        <table class="bookings-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Time</th>
+              <th>Client</th>
+              <th>Service</th>
+              <th>Type</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% bookings.forEach(booking => { %>
+              <tr>
+                <td class="booking-date"><%= new Date(booking.date + 'T00:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) %></td>
+                <td><span class="booking-time"><%= booking.time %></span></td>
+                <td>
+                  <% if (booking.type === 'blocked') { %>
+                    <span style="color: var(--neo-text-muted);">-</span>
+                  <% } else { %>
+                    <strong><%= booking.name %></strong><br>
+                    <small style="color: var(--neo-text-muted);"><%= booking.email %></small>
+                  <% } %>
+                </td>
+                <td><%= booking.service %></td>
+                <td>
+                  <span class="type-badge type-<%= booking.type %>"><%= booking.type %></span>
+                </td>
+                <td>
+                  <form method="POST" action="/dashboard/cancel-booking/<%= booking.id %>" style="display: inline;" onsubmit="return confirm('Are you sure you want to cancel this booking?');">
+                    <button type="submit" class="btn btn-danger">Cancel</button>
+                  </form>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      <% } %>
+    </div>
+  </div>
+</body>
+</html>

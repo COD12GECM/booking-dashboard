@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Account - Booking Dashboard</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    :root {
+      --neo-bg: #e0e5ec;
+      --neo-shadow-dark: #a3b1c6;
+      --neo-shadow-light: #ffffff;
+      --neo-primary: #10b981;
+      --neo-danger: #ef4444;
+      --neo-text: #1e293b;
+      --neo-text-muted: #64748b;
+    }
+    
+    body {
+      min-height: 100vh;
+      background: var(--neo-bg);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 20px;
+    }
+    
+    .register-card {
+      width: 100%;
+      max-width: 480px;
+      background: var(--neo-bg);
+      border-radius: 32px;
+      padding: 48px 40px;
+      box-shadow: 20px 20px 60px var(--neo-shadow-dark), -20px -20px 60px var(--neo-shadow-light);
+    }
+    
+    .register-icon {
+      width: 80px;
+      height: 80px;
+      background: var(--neo-bg);
+      border-radius: 50%;
+      margin: 0 auto 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 8px 8px 16px var(--neo-shadow-dark), -8px -8px 16px var(--neo-shadow-light);
+    }
+    
+    .register-icon svg {
+      width: 40px;
+      height: 40px;
+      stroke: var(--neo-primary);
+    }
+    
+    .register-title {
+      text-align: center;
+      color: var(--neo-text);
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    
+    .register-subtitle {
+      text-align: center;
+      color: var(--neo-text-muted);
+      font-size: 16px;
+      margin-bottom: 32px;
+    }
+    
+    .register-email {
+      text-align: center;
+      background: var(--neo-bg);
+      padding: 16px;
+      border-radius: 12px;
+      margin-bottom: 32px;
+      box-shadow: inset 4px 4px 8px var(--neo-shadow-dark), inset -4px -4px 8px var(--neo-shadow-light);
+    }
+    
+    .register-email-label {
+      color: var(--neo-text-muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+    }
+    
+    .register-email-value {
+      color: var(--neo-text);
+      font-size: 18px;
+      font-weight: 600;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    .form-label {
+      display: block;
+      color: var(--neo-text);
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .form-input {
+      width: 100%;
+      padding: 14px 18px;
+      background: var(--neo-bg);
+      border: none;
+      border-radius: 14px;
+      font-size: 16px;
+      color: var(--neo-text);
+      box-shadow: inset 4px 4px 8px var(--neo-shadow-dark), inset -4px -4px 8px var(--neo-shadow-light);
+      transition: all 0.3s ease;
+    }
+    
+    .form-input:focus {
+      outline: none;
+      box-shadow: inset 6px 6px 12px var(--neo-shadow-dark), inset -6px -6px 12px var(--neo-shadow-light);
+    }
+    
+    .form-input::placeholder {
+      color: var(--neo-text-muted);
+    }
+    
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    
+    .btn {
+      width: 100%;
+      padding: 18px;
+      border: none;
+      border-radius: 16px;
+      font-size: 17px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      color: #ffffff;
+      box-shadow: 6px 6px 12px var(--neo-shadow-dark), -6px -6px 12px var(--neo-shadow-light);
+      margin-top: 12px;
+    }
+    
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 8px 8px 16px var(--neo-shadow-dark), -8px -8px 16px var(--neo-shadow-light);
+    }
+    
+    .error-msg {
+      background: linear-gradient(135deg, #fee2e2, #fecaca);
+      color: #991b1b;
+      padding: 16px 20px;
+      border-radius: 12px;
+      margin-bottom: 24px;
+      font-size: 14px;
+      text-align: center;
+    }
+    
+    .section-title {
+      color: var(--neo-text);
+      font-size: 14px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin: 28px 0 20px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid rgba(163, 177, 198, 0.3);
+    }
+    
+    @media (max-width: 500px) {
+      .form-row { grid-template-columns: 1fr; }
+      .register-card { padding: 36px 24px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="register-card">
+    <% if (!owner) { %>
+      <div class="register-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="15" y1="9" x2="9" y2="15"/>
+          <line x1="9" y1="9" x2="15" y2="15"/>
+        </svg>
+      </div>
+      <h1 class="register-title">Invalid Invitation</h1>
+      <p class="register-subtitle"><%= error || 'This invitation link is invalid or has expired.' %></p>
+    <% } else { %>
+      <div class="register-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="8.5" cy="7" r="4"/>
+          <line x1="20" y1="8" x2="20" y2="14"/>
+          <line x1="23" y1="11" x2="17" y2="11"/>
+        </svg>
+      </div>
+      
+      <h1 class="register-title">Create Your Account</h1>
+      <p class="register-subtitle">Set up your dashboard access</p>
+      
+      <div class="register-email">
+        <div class="register-email-label">Your Email</div>
+        <div class="register-email-value"><%= owner.email %></div>
+      </div>
+      
+      <% if (error) { %>
+        <div class="error-msg"><%= error %></div>
+      <% } %>
+      
+      <form method="POST" action="/register">
+        <input type="hidden" name="code" value="<%= code %>">
+        
+        <div class="section-title">Security</div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Password</label>
+            <input type="password" name="password" class="form-input" placeholder="Min 6 characters" required minlength="6">
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">Confirm Password</label>
+            <input type="password" name="confirmPassword" class="form-input" placeholder="Repeat password" required>
+          </div>
+        </div>
+        
+        <div class="section-title">Clinic Information</div>
+        
+        <div class="form-group">
+          <label class="form-label">Clinic Name</label>
+          <input type="text" name="clinicName" class="form-input" placeholder="Your clinic or business name" value="<%= owner.clinicName || '' %>">
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Phone</label>
+            <input type="tel" name="clinicPhone" class="form-input" placeholder="+1 234 567 890">
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">Website URL</label>
+            <input type="url" name="websiteUrl" class="form-input" placeholder="https://...">
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Address</label>
+          <input type="text" name="clinicAddress" class="form-input" placeholder="Your clinic address">
+        </div>
+        
+        <button type="submit" class="btn">Create Account</button>
+      </form>
+    <% } %>
+  </div>
+</body>
+</html>

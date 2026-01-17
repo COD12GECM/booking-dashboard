@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Super Admin - Booking Dashboard</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    :root {
+      --neo-bg: #e0e5ec;
+      --neo-shadow-dark: #a3b1c6;
+      --neo-shadow-light: #ffffff;
+      --neo-primary: #6366f1;
+      --neo-text: #1e293b;
+      --neo-text-muted: #64748b;
+    }
+    
+    body {
+      min-height: 100vh;
+      background: var(--neo-bg);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    
+    .login-card {
+      width: 100%;
+      max-width: 420px;
+      background: var(--neo-bg);
+      border-radius: 32px;
+      padding: 48px 40px;
+      box-shadow: 20px 20px 60px var(--neo-shadow-dark), -20px -20px 60px var(--neo-shadow-light);
+    }
+    
+    .login-icon {
+      width: 80px;
+      height: 80px;
+      background: var(--neo-bg);
+      border-radius: 50%;
+      margin: 0 auto 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 8px 8px 16px var(--neo-shadow-dark), -8px -8px 16px var(--neo-shadow-light);
+    }
+    
+    .login-icon svg {
+      width: 40px;
+      height: 40px;
+      stroke: var(--neo-primary);
+    }
+    
+    .login-title {
+      text-align: center;
+      color: var(--neo-text);
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    
+    .login-subtitle {
+      text-align: center;
+      color: var(--neo-text-muted);
+      font-size: 16px;
+      margin-bottom: 32px;
+    }
+    
+    .login-badge {
+      display: inline-block;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: white;
+      padding: 6px 16px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 16px;
+    }
+    
+    .form-group {
+      margin-bottom: 24px;
+    }
+    
+    .form-label {
+      display: block;
+      color: var(--neo-text);
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .form-input {
+      width: 100%;
+      padding: 16px 20px;
+      background: var(--neo-bg);
+      border: none;
+      border-radius: 16px;
+      font-size: 16px;
+      color: var(--neo-text);
+      box-shadow: inset 4px 4px 8px var(--neo-shadow-dark), inset -4px -4px 8px var(--neo-shadow-light);
+      transition: all 0.3s ease;
+    }
+    
+    .form-input:focus {
+      outline: none;
+      box-shadow: inset 6px 6px 12px var(--neo-shadow-dark), inset -6px -6px 12px var(--neo-shadow-light);
+    }
+    
+    .btn {
+      width: 100%;
+      padding: 18px;
+      border: none;
+      border-radius: 16px;
+      font-size: 17px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      color: #ffffff;
+      box-shadow: 6px 6px 12px var(--neo-shadow-dark), -6px -6px 12px var(--neo-shadow-light);
+    }
+    
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 8px 8px 16px var(--neo-shadow-dark), -8px -8px 16px var(--neo-shadow-light);
+    }
+    
+    .error-msg {
+      background: linear-gradient(135deg, #fee2e2, #fecaca);
+      color: #991b1b;
+      padding: 16px 20px;
+      border-radius: 12px;
+      margin-bottom: 24px;
+      font-size: 14px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-card">
+    <div style="text-align: center;">
+      <span class="login-badge">Super Admin</span>
+    </div>
+    
+    <div class="login-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+      </svg>
+    </div>
+    
+    <h1 class="login-title">Admin Access</h1>
+    <p class="login-subtitle">Manage owners and invitations</p>
+    
+    <% if (error) { %>
+      <div class="error-msg"><%= error %></div>
+    <% } %>
+    
+    <form method="POST" action="/super-admin/login">
+      <div class="form-group">
+        <label class="form-label">Email</label>
+        <input type="email" name="email" class="form-input" placeholder="admin@example.com" required>
+      </div>
+      
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input type="password" name="password" class="form-input" placeholder="Enter password" required>
+      </div>
+      
+      <button type="submit" class="btn">Access Dashboard</button>
+    </form>
+  </div>
+</body>
+</html>
