@@ -117,7 +117,9 @@ async function sendInvitationEmail(email, invitationCode, clinicName) {
     return false;
   }
 
-  const inviteUrl = `${process.env.DASHBOARD_URL}/register?code=${invitationCode}`;
+  // Use DASHBOARD_URL or fallback to the correct Render URL
+  const baseUrl = process.env.DASHBOARD_URL || 'https://booking-dashboard-eco2.onrender.com';
+  const inviteUrl = `${baseUrl}/register?code=${invitationCode}`;
   
   const emailHtml = `
 <!DOCTYPE html>
@@ -126,52 +128,59 @@ async function sendInvitationEmail(email, invitationCode, clinicName) {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
-<body style="margin: 0; padding: 0; font-family: 'Helvetica Neue', Arial, sans-serif; background-color: #e0e5ec;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #e0e5ec; padding: 40px 20px;">
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #ffffff;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #ffffff; padding: 40px 20px;">
     <tr>
       <td align="center">
-        <table width="600" cellpadding="0" cellspacing="0" style="background: #e0e5ec; border-radius: 32px; box-shadow: 20px 20px 60px #a3b1c6, -20px -20px 60px #ffffff;">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 16px;">
           
+          <!-- Header with gradient -->
           <tr>
-            <td style="padding: 50px 40px; text-align: center;">
-              <div style="width: 90px; height: 90px; background: #e0e5ec; border-radius: 50%; margin: 0 auto 24px; box-shadow: 8px 8px 16px #a3b1c6, -8px -8px 16px #ffffff; display: inline-block;">
-                <table width="90" height="90"><tr><td align="center" valign="middle" style="font-size: 40px; color: #10b981;">&#10003;</td></tr></table>
-              </div>
-              <h1 style="color: #1e293b; margin: 0 0 12px; font-size: 32px; font-weight: 700;">Welcome to Booking Dashboard</h1>
-              <p style="color: #64748b; margin: 0; font-size: 18px;">You've been invited to manage your bookings</p>
+            <td style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 48px 40px; text-align: center; border-radius: 16px 16px 0 0;">
+              <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 700; letter-spacing: -0.5px;">Booking Dashboard</h1>
+              <p style="color: rgba(255,255,255,0.9); margin: 12px 0 0; font-size: 16px; font-weight: 400;">Professional Appointment Management</p>
             </td>
           </tr>
           
+          <!-- Main Content -->
           <tr>
-            <td style="padding: 0 40px 32px;">
-              <p style="color: #1e293b; font-size: 18px; margin: 0 0 20px; line-height: 1.6;">
-                Hello,<br><br>
-                You have been invited to create your Booking Dashboard account${clinicName ? ` for <strong>${clinicName}</strong>` : ''}.
+            <td style="padding: 48px 40px 32px;">
+              <h2 style="color: #111827; margin: 0 0 20px; font-size: 24px; font-weight: 700;">You're Invited</h2>
+              <p style="color: #374151; font-size: 17px; margin: 0 0 24px; line-height: 1.7;">
+                You have been invited to create your Booking Dashboard account${clinicName ? ` for <strong style="color: #10b981;">${clinicName}</strong>` : ''}.
               </p>
-              <p style="color: #64748b; font-size: 16px; margin: 0 0 32px; line-height: 1.6;">
-                Click the button below to set up your account and start managing your appointments.
+              <p style="color: #6b7280; font-size: 16px; margin: 0 0 32px; line-height: 1.7;">
+                Set up your account to start managing appointments, view your calendar, and keep your business organized.
               </p>
             </td>
           </tr>
           
+          <!-- CTA Button -->
           <tr>
             <td style="padding: 0 40px 40px; text-align: center;">
-              <a href="${inviteUrl}" style="display: inline-block; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #ffffff; text-decoration: none; padding: 18px 48px; border-radius: 16px; font-size: 18px; font-weight: 600; box-shadow: 6px 6px 12px #a3b1c6, -6px -6px 12px #ffffff;">Create My Account</a>
+              <a href="${inviteUrl}" style="display: inline-block; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: #ffffff; text-decoration: none; padding: 18px 56px; border-radius: 12px; font-size: 17px; font-weight: 600; letter-spacing: 0.3px; border: none;">Create My Account</a>
             </td>
           </tr>
           
+          <!-- Link Box -->
           <tr>
             <td style="padding: 0 40px 40px;">
-              <div style="background: #e0e5ec; border-radius: 16px; box-shadow: inset 4px 4px 8px #a3b1c6, inset -4px -4px 8px #ffffff; padding: 20px; text-align: center;">
-                <p style="color: #64748b; font-size: 14px; margin: 0 0 8px;">Or copy this link:</p>
-                <p style="color: #1e293b; font-size: 14px; margin: 0; word-break: break-all;">${inviteUrl}</p>
-              </div>
+              <table width="100%" cellpadding="0" cellspacing="0" style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px;">
+                <tr>
+                  <td style="padding: 20px; text-align: center;">
+                    <p style="color: #6b7280; font-size: 13px; margin: 0 0 10px; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">Or copy this link</p>
+                    <p style="color: #10b981; font-size: 14px; margin: 0; word-break: break-all; font-family: monospace;">${inviteUrl}</p>
+                  </td>
+                </tr>
+              </table>
             </td>
           </tr>
           
+          <!-- Footer -->
           <tr>
-            <td style="padding: 24px 40px; text-align: center;">
-              <p style="color: #94a3b8; font-size: 14px; margin: 0;">This invitation link will expire in 7 days.</p>
+            <td style="padding: 32px 40px; border-top: 1px solid #e5e7eb; text-align: center;">
+              <p style="color: #9ca3af; font-size: 14px; margin: 0 0 8px;">This invitation expires in 7 days.</p>
+              <p style="color: #d1d5db; font-size: 13px; margin: 0;">Booking Dashboard &bull; Professional Scheduling</p>
             </td>
           </tr>
           
