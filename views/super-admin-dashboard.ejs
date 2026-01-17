@@ -193,6 +193,32 @@
       color: var(--neo-text-muted);
     }
     
+    .action-btn {
+      padding: 8px 16px;
+      border: none;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      margin-right: 8px;
+      transition: all 0.2s ease;
+    }
+    
+    .resend-btn {
+      background: linear-gradient(135deg, #3b82f6, #2563eb);
+      color: white;
+    }
+    
+    .delete-btn {
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      color: white;
+    }
+    
+    .action-btn:hover {
+      transform: translateY(-1px);
+      opacity: 0.9;
+    }
+    
     @media (max-width: 768px) {
       .invite-form {
         grid-template-columns: 1fr;
@@ -249,6 +275,7 @@
               <th>Clinic</th>
               <th>Status</th>
               <th>Created</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -262,6 +289,16 @@
                   </span>
                 </td>
                 <td><%= new Date(owner.createdAt).toLocaleDateString() %></td>
+                <td>
+                  <% if (owner.status === 'pending') { %>
+                    <form method="POST" action="/super-admin/resend/<%= owner._id %>" style="display: inline;">
+                      <button type="submit" class="action-btn resend-btn">Resend</button>
+                    </form>
+                  <% } %>
+                  <form method="POST" action="/super-admin/delete/<%= owner._id %>" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this owner?');">
+                    <button type="submit" class="action-btn delete-btn">Delete</button>
+                  </form>
+                </td>
               </tr>
             <% }) %>
           </tbody>

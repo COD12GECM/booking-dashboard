@@ -286,6 +286,40 @@ app.post('/super-admin/invite', authenticateSuperAdmin, async (req, res) => {
   }
 });
 
+// Delete Owner
+app.post('/super-admin/delete/:id', authenticateSuperAdmin, async (req, res) => {
+  try {
+    await Owner.findByIdAndDelete(req.params.id);
+    res.redirect('/super-admin/dashboard?success=Owner deleted successfully');
+  } catch (error) {
+    console.error('Delete error:', error);
+    res.redirect('/super-admin/dashboard?error=' + error.message);
+  }
+});
+
+// Resend Invitation
+app.post('/super-admin/resend/:id', authenticateSuperAdmin, async (req, res) => {
+  try {
+    const owner = await Owner.findById(req.params.id);
+    if (!owner) {
+      return res.redirect('/super-admin/dashboard?error=Owner not found');
+    }
+    
+    // Generate new invitation code
+    const newCode = generateInvitationCode();
+    owner.invitationCode = newCode;
+    await owner.save();
+    
+    // Send new invitation email
+    await sendInvitationEmail(owner.email, newCode, owner.clinicName);
+    
+    res.redirect('/super-admin/dashboard?success=Invitation resent to ' + owner.email);
+  } catch (error) {
+    console.error('Resend error:', error);
+    res.redirect('/super-admin/dashboard?error=' + error.message);
+  }
+});
+
 // Super Admin Logout
 app.get('/super-admin/logout', (req, res) => {
   res.clearCookie('superToken');
