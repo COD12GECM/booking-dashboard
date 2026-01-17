@@ -6,15 +6,131 @@ const jwt = require('jsonwebtoken');
 const cookieParser = require('cookie-parser');
 const crypto = require('crypto');
 const path = require('path');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+const mongoSanitize = require('express-mongo-sanitize');
+const hpp = require('hpp');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// ===========================================
+// SECURITY MIDDLEWARE - Professional Grade
+// ===========================================
+
+// 1. Security Headers (Helmet)
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      imgSrc: ["'self'", "data:", "https:"],
+      scriptSrc: ["'self'", "'unsafe-inline'"],
+      connectSrc: ["'self'"],
+      frameSrc: ["'none'"],
+      objectSrc: ["'none'"],
+      upgradeInsecureRequests: []
+    }
+  },
+  crossOriginEmbedderPolicy: false,
+  crossOriginResourcePolicy: { policy: "cross-origin" }
+}));
+
+// 2. Rate Limiting - Prevent brute force attacks
+const generalLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // 100 requests per 15 min per IP
+  message: { error: 'Too many requests, please try again later.' },
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 5, // 5 login attempts per 15 min
+  message: { error: 'Too many login attempts, please try again after 15 minutes.' },
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+const apiLimiter = rateLimit({
+  windowMs: 60 * 1000, // 1 minute
+  max: 30, // 30 API requests per minute
+  message: { error: 'API rate limit exceeded.' },
+  standardHeaders: true,
+  legacyHeaders: false
+});
+
+app.use(generalLimiter);
+
+// 3. Body Parser with size limits
+app.use(express.json({ limit: '10kb' })); // Limit body size to prevent DoS
+app.use(express.urlencoded({ extended: true, limit: '10kb' }));
+
+// 4. Cookie Parser
 app.use(cookieParser());
-app.use(express.static(path.join(__dirname, 'public')));
+
+// 5. NoSQL Injection Prevention
+app.use(mongoSanitize({
+  replaceWith: '_',
+  onSanitize: ({ req, key }) => {
+    console.warn(`[SECURITY] NoSQL injection attempt blocked: ${key}`);
+  }
+}));
+
+// 6. HTTP Parameter Pollution Prevention
+app.use(hpp());
+
+// 7. XSS Protection (manual sanitization function)
+const sanitizeInput = (input) => {
+  if (typeof input !== 'string') return input;
+  return input
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;')
+    .replace(/\//g, '&#x2F;');
+};
+
+// 8. Security logging middleware
+app.use((req, res, next) => {
+  const suspiciousPatterns = [
+    /(\%27)|(\')|(\-\-)|(\%23)|(#)/i, // SQL injection
+    /<script/i, // XSS
+    /\$where/i, // MongoDB injection
+    /\$gt|\$lt|\$ne|\$eq/i, // MongoDB operators
+    /javascript:/i, // JS injection
+    /on\w+\s*=/i // Event handlers
+  ];
+  
+  const checkValue = (value) => {
+    if (typeof value === 'string') {
+      return suspiciousPatterns.some(pattern => pattern.test(value));
+    }
+    return false;
+  };
+  
+  const isSuspicious = Object.values(req.query).some(checkValue) ||
+                       Object.values(req.body || {}).some(checkValue);
+  
+  if (isSuspicious) {
+    console.warn(`[SECURITY ALERT] Suspicious request from ${req.ip}: ${req.method} ${req.path}`);
+  }
+  
+  next();
+});
+
+// 9. Remove X-Powered-By header
+app.disable('x-powered-by');
+
+// 10. Static files with security
+app.use(express.static(path.join(__dirname, 'public'), {
+  dotfiles: 'ignore',
+  etag: true,
+  maxAge: '1d'
+}));
 
 // EJS Setup
 app.set('view engine', 'ejs');
@@ -363,16 +479,26 @@ app.get('/super-admin/login', (req, res) => {
   res.render('super-admin-login', { error: null });
 });
 
-// Super Admin Login
-app.post('/super-admin/login', (req, res) => {
+// Super Admin Login (with rate limiting)
+app.post('/super-admin/login', authLimiter, (req, res) => {
   const { email, password } = req.body;
   
-  if (email === process.env.SUPER_ADMIN_EMAIL && password === process.env.SUPER_ADMIN_PASSWORD) {
-    const token = jwt.sign({ role: 'super-admin', email }, process.env.JWT_SECRET, { expiresIn: '24h' });
-    res.cookie('superToken', token, { httpOnly: true, secure: process.env.NODE_ENV === 'production' });
+  // Sanitize inputs
+  const sanitizedEmail = sanitizeInput(email);
+  
+  if (sanitizedEmail === process.env.SUPER_ADMIN_EMAIL && password === process.env.SUPER_ADMIN_PASSWORD) {
+    const token = jwt.sign({ role: 'super-admin', email: sanitizedEmail }, process.env.JWT_SECRET, { expiresIn: '24h' });
+    res.cookie('superToken', token, { 
+      httpOnly: true, 
+      secure: true,
+      sameSite: 'strict',
+      maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    });
     return res.redirect('/super-admin/dashboard');
   }
   
+  // Log failed login attempt
+  console.warn(`[SECURITY] Failed super-admin login attempt from ${req.ip} for email: ${sanitizedEmail}`);
   res.render('super-admin-login', { error: 'Invalid credentials' });
 });
 
@@ -482,13 +608,19 @@ app.get('/register', async (req, res) => {
   }
 });
 
-// Register Submit
-app.post('/register', async (req, res) => {
+// Register Submit (with security)
+app.post('/register', authLimiter, async (req, res) => {
   const { code, password, confirmPassword, clinicName, clinicPhone, clinicAddress, websiteUrl } = req.body;
+  
+  // Input validation
+  if (!code || !password || !confirmPassword) {
+    return res.render('register', { error: 'All fields are required', owner: null });
+  }
   
   try {
     const owner = await Owner.findOne({ invitationCode: code, status: 'pending' });
     if (!owner) {
+      console.warn(`[SECURITY] Invalid registration attempt with code from ${req.ip}`);
       return res.render('register', { error: 'Invalid invitation', owner: null });
     }
     
@@ -496,29 +628,41 @@ app.post('/register', async (req, res) => {
       return res.render('register', { error: 'Passwords do not match', owner, code });
     }
     
-    if (password.length < 6) {
-      return res.render('register', { error: 'Password must be at least 6 characters', owner, code });
+    // Strong password validation
+    if (password.length < 8) {
+      return res.render('register', { error: 'Password must be at least 8 characters', owner, code });
     }
     
-    // Hash password and activate account
-    const hashedPassword = await bcrypt.hash(password, 10);
+    if (!/[A-Z]/.test(password) || !/[a-z]/.test(password) || !/[0-9]/.test(password)) {
+      return res.render('register', { error: 'Password must contain uppercase, lowercase, and numbers', owner, code });
+    }
+    
+    // Hash password with higher cost factor
+    const hashedPassword = await bcrypt.hash(password, 12);
     owner.password = hashedPassword;
     owner.status = 'active';
-    owner.invitationCode = null; // Clear invitation code
-    owner.clinicName = clinicName || owner.clinicName;
+    owner.invitationCode = null;
+    owner.clinicName = sanitizeInput(clinicName) || owner.clinicName;
     owner.clinicEmail = owner.email;
-    owner.clinicPhone = clinicPhone || '';
-    owner.clinicAddress = clinicAddress || '';
-    owner.websiteUrl = websiteUrl || '';
+    owner.clinicPhone = sanitizeInput(clinicPhone) || '';
+    owner.clinicAddress = sanitizeInput(clinicAddress) || '';
+    owner.websiteUrl = sanitizeInput(websiteUrl) || '';
     
     await owner.save();
     
-    // Auto-login
+    // Auto-login with secure cookie
     const token = jwt.sign({ id: owner._id, email: owner.email }, process.env.JWT_SECRET, { expiresIn: '7d' });
-    res.cookie('token', token, { httpOnly: true, secure: process.env.NODE_ENV === 'production' });
+    res.cookie('token', token, { 
+      httpOnly: true, 
+      secure: true,
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000
+    });
     
+    console.log(`[AUTH] New owner registered: ${owner.email} from ${req.ip}`);
     res.redirect('/dashboard');
   } catch (error) {
+    console.error(`[ERROR] Registration error: ${error.message}`);
     res.render('register', { error: error.message, owner: null });
   }
 });
@@ -528,26 +672,43 @@ app.get('/login', (req, res) => {
   res.render('login', { error: null });
 });
 
-// Login Submit
-app.post('/login', async (req, res) => {
+// Login Submit (with rate limiting and security)
+app.post('/login', authLimiter, async (req, res) => {
   const { email, password } = req.body;
   
+  // Input validation
+  if (!email || !password) {
+    return res.render('login', { error: 'Email and password are required' });
+  }
+  
+  // Sanitize email
+  const sanitizedEmail = email.toLowerCase().trim();
+  
   try {
-    const owner = await Owner.findOne({ email: email.toLowerCase(), status: 'active' });
+    const owner = await Owner.findOne({ email: sanitizedEmail, status: 'active' });
     if (!owner) {
+      console.warn(`[SECURITY] Failed login attempt from ${req.ip} for email: ${sanitizedEmail}`);
       return res.render('login', { error: 'Invalid email or password' });
     }
     
     const validPassword = await bcrypt.compare(password, owner.password);
     if (!validPassword) {
+      console.warn(`[SECURITY] Failed login attempt from ${req.ip} for email: ${sanitizedEmail}`);
       return res.render('login', { error: 'Invalid email or password' });
     }
     
     const token = jwt.sign({ id: owner._id, email: owner.email }, process.env.JWT_SECRET, { expiresIn: '7d' });
-    res.cookie('token', token, { httpOnly: true, secure: process.env.NODE_ENV === 'production' });
+    res.cookie('token', token, { 
+      httpOnly: true, 
+      secure: true,
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+    });
     
+    console.log(`[AUTH] Successful login for ${sanitizedEmail} from ${req.ip}`);
     res.redirect('/dashboard');
   } catch (error) {
+    console.error(`[ERROR] Login error: ${error.message}`);
     res.render('login', { error: 'Something went wrong' });
   }
 });
@@ -895,16 +1056,24 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
-// 404 Handler
+// 404 Handler (don't expose route info)
 app.use((req, res) => {
-  console.log(`404 - Route not found: ${req.method} ${req.url}`);
-  res.status(404).send(`Route not found: ${req.url}. Available routes: /login, /register, /dashboard, /super-admin/login`);
+  console.warn(`[SECURITY] 404 - ${req.method} ${req.url} from ${req.ip}`);
+  res.status(404).render('error', { 
+    title: 'Page Not Found',
+    message: 'The page you are looking for does not exist.',
+    code: 404
+  });
 });
 
-// Error Handler
+// Error Handler (don't expose stack traces)
 app.use((err, req, res, next) => {
-  console.error('Server error:', err);
-  res.status(500).send('Server error: ' + err.message);
+  console.error(`[ERROR] ${err.message} - ${req.method} ${req.url} from ${req.ip}`);
+  res.status(500).render('error', {
+    title: 'Server Error',
+    message: 'Something went wrong. Please try again later.',
+    code: 500
+  });
 });
 
 // Start Server
