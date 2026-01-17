@@ -222,6 +222,109 @@ async function sendInvitationEmail(email, invitationCode, clinicName) {
   }
 }
 
+// Send Booking Confirmation Email to Client (when owner creates booking from dashboard)
+async function sendBookingConfirmationEmail(booking, owner) {
+  if (!process.env.BREVO_API_KEY || !booking.email) {
+    console.log('Skipping confirmation email - no API key or client email');
+    return false;
+  }
+
+  const dateObj = new Date(booking.date + 'T' + booking.time);
+  const formattedDate = dateObj.toLocaleDateString('en-US', { 
+    weekday: 'long', 
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric' 
+  });
+
+  const emailHtml = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #ffffff;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #ffffff; padding: 40px 20px;">
+    <tr>
+      <td align="center">
+        <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 16px;">
+          
+          <tr>
+            <td style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); padding: 48px 40px; text-align: center; border-radius: 16px 16px 0 0;">
+              <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 700;">Booking Confirmed</h1>
+              <p style="color: rgba(255,255,255,0.9); margin: 12px 0 0; font-size: 16px;">${owner.clinicName || 'Your Appointment'}</p>
+            </td>
+          </tr>
+          
+          <tr>
+            <td style="padding: 40px;">
+              <p style="color: #374151; font-size: 17px; margin: 0 0 24px; line-height: 1.7;">
+                Dear <strong>${booking.name}</strong>,
+              </p>
+              <p style="color: #6b7280; font-size: 16px; margin: 0 0 32px; line-height: 1.7;">
+                Your appointment has been confirmed. Here are the details:
+              </p>
+              
+              <table width="100%" cellpadding="0" cellspacing="0" style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px; margin-bottom: 32px;">
+                <tr>
+                  <td style="padding: 24px;">
+                    <p style="margin: 0 0 12px;"><strong style="color: #374151;">Date:</strong> <span style="color: #6b7280;">${formattedDate}</span></p>
+                    <p style="margin: 0 0 12px;"><strong style="color: #374151;">Time:</strong> <span style="color: #6b7280;">${booking.time}</span></p>
+                    <p style="margin: 0 0 12px;"><strong style="color: #374151;">Service:</strong> <span style="color: #6b7280;">${booking.service}</span></p>
+                    ${owner.clinicAddress ? `<p style="margin: 0;"><strong style="color: #374151;">Location:</strong> <span style="color: #6b7280;">${owner.clinicAddress}</span></p>` : ''}
+                  </td>
+                </tr>
+              </table>
+              
+              ${owner.clinicPhone ? `<p style="color: #6b7280; font-size: 14px; margin: 0;">Questions? Contact us at ${owner.clinicPhone}</p>` : ''}
+            </td>
+          </tr>
+          
+          <tr>
+            <td style="padding: 24px 40px; border-top: 1px solid #e5e7eb; text-align: center;">
+              <p style="color: #9ca3af; font-size: 13px; margin: 0;">${owner.clinicName || 'Booking Dashboard'}</p>
+            </td>
+          </tr>
+          
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+  `;
+
+  try {
+    const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+      method: 'POST',
+      headers: {
+        'accept': 'application/json',
+        'api-key': process.env.BREVO_API_KEY,
+        'content-type': 'application/json'
+      },
+      body: JSON.stringify({
+        sender: {
+          name: owner.clinicName || 'Booking Dashboard',
+          email: process.env.BREVO_SENDER_EMAIL
+        },
+        to: [{ email: booking.email, name: booking.name }],
+        subject: `Booking Confirmed - ${formattedDate} at ${booking.time}`,
+        htmlContent: emailHtml
+      })
+    });
+
+    if (response.ok) {
+      console.log(`Confirmation email sent to ${booking.email}`);
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.error('Confirmation email error:', error.message);
+    return false;
+  }
+}
+
 // ============================================
 // SUPER ADMIN ROUTES
 // ============================================
@@ -499,6 +602,11 @@ app.post('/dashboard/add-booking', authenticateToken, async (req, res) => {
     const bookingDb = mongoose.connection.useDb('bookingdb');
     const BookingsCollection = bookingDb.collection('bookings');
     await BookingsCollection.insertOne(bookingData);
+    
+    // Send confirmation email to client (if not a blocked slot)
+    if (type !== 'blocked' && email) {
+      await sendBookingConfirmationEmail(bookingData, owner);
+    }
     
     res.redirect('/dashboard?success=Booking added successfully');
   } catch (error) {
