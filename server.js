@@ -502,6 +502,18 @@ app.get('/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
 });
 
+// 404 Handler
+app.use((req, res) => {
+  console.log(`404 - Route not found: ${req.method} ${req.url}`);
+  res.status(404).send(`Route not found: ${req.url}. Available routes: /login, /register, /dashboard, /super-admin/login`);
+});
+
+// Error Handler
+app.use((err, req, res, next) => {
+  console.error('Server error:', err);
+  res.status(500).send('Server error: ' + err.message);
+});
+
 // Start Server
 app.listen(PORT, () => {
   console.log(`
