@@ -515,13 +515,25 @@ app.use((err, req, res, next) => {
 });
 
 // Start Server
-app.listen(PORT, () => {
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`
 ╔════════════════════════════════════════════════╗
 ║     📊 BOOKING DASHBOARD v1.0                  ║
 ╠════════════════════════════════════════════════╣
 ║  Port: ${PORT}                                    ║
+║  Host: 0.0.0.0                                 ║
 ║  Status: Running                               ║
 ╚════════════════════════════════════════════════╝
   `);
+  console.log('Routes registered:');
+  console.log('  GET  /');
+  console.log('  GET  /login');
+  console.log('  POST /login');
+  console.log('  GET  /register');
+  console.log('  POST /register');
+  console.log('  GET  /dashboard');
+  console.log('  GET  /super-admin/login');
+  console.log('  POST /super-admin/login');
+  console.log('  GET  /super-admin/dashboard');
+  console.log('  GET  /health');
 });
