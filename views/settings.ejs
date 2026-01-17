@@ -24,11 +24,13 @@
     
     .navbar {
       background: var(--neo-bg);
-      padding: 20px 40px;
+      padding: 16px 24px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       box-shadow: 0 4px 12px var(--neo-shadow-dark);
+      flex-wrap: wrap;
+      gap: 12px;
     }
     
     .navbar-brand {
@@ -38,41 +40,43 @@
     }
     
     .navbar-logo {
-      width: 44px;
-      height: 44px;
+      width: 40px;
+      height: 40px;
       background: linear-gradient(135deg, #10b981, #059669);
-      border-radius: 12px;
+      border-radius: 10px;
       display: flex;
       align-items: center;
       justify-content: center;
     }
     
     .navbar-logo svg {
-      width: 24px;
-      height: 24px;
+      width: 22px;
+      height: 22px;
       stroke: white;
     }
     
     .navbar-title {
       color: var(--neo-text);
-      font-size: 20px;
+      font-size: 18px;
       font-weight: 700;
     }
     
     .navbar-actions {
       display: flex;
-      gap: 16px;
+      gap: 12px;
+      flex-wrap: wrap;
     }
     
     .nav-link {
       color: var(--neo-text-muted);
       text-decoration: none;
-      padding: 10px 20px;
-      border-radius: 12px;
+      padding: 8px 16px;
+      border-radius: 10px;
       font-weight: 600;
+      font-size: 14px;
       transition: all 0.3s ease;
       background: var(--neo-bg);
-      box-shadow: 4px 4px 8px var(--neo-shadow-dark), -4px -4px 8px var(--neo-shadow-light);
+      box-shadow: 3px 3px 6px var(--neo-shadow-dark), -3px -3px 6px var(--neo-shadow-light);
     }
     
     .nav-link:hover {
@@ -85,61 +89,92 @@
     }
     
     .container {
-      max-width: 700px;
+      max-width: 800px;
       margin: 0 auto;
-      padding: 40px 20px;
+      padding: 24px 16px;
     }
     
     .page-header {
-      margin-bottom: 32px;
+      margin-bottom: 24px;
     }
     
     .page-title {
       color: var(--neo-text);
-      font-size: 28px;
+      font-size: 24px;
       font-weight: 700;
     }
     
+    .tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+    
+    .tab {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      background: var(--neo-bg);
+      color: var(--neo-text-muted);
+      box-shadow: 3px 3px 6px var(--neo-shadow-dark), -3px -3px 6px var(--neo-shadow-light);
+      transition: all 0.2s ease;
+    }
+    
+    .tab:hover { color: var(--neo-text); }
+    
+    .tab.active {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white;
+      box-shadow: none;
+    }
+    
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+    
     .card {
       background: var(--neo-bg);
-      border-radius: 24px;
-      padding: 36px;
-      margin-bottom: 24px;
-      box-shadow: 12px 12px 24px var(--neo-shadow-dark), -12px -12px 24px var(--neo-shadow-light);
+      border-radius: 20px;
+      padding: 28px;
+      margin-bottom: 20px;
+      box-shadow: 10px 10px 20px var(--neo-shadow-dark), -10px -10px 20px var(--neo-shadow-light);
     }
     
     .card-title {
       color: var(--neo-text);
-      font-size: 16px;
+      font-size: 14px;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 2px;
-      margin-bottom: 24px;
-      padding-bottom: 16px;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
       border-bottom: 2px solid rgba(163, 177, 198, 0.3);
     }
     
     .form-group {
-      margin-bottom: 24px;
+      margin-bottom: 20px;
     }
     
     .form-label {
       display: block;
       color: var(--neo-text);
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 600;
-      margin-bottom: 10px;
+      margin-bottom: 8px;
       text-transform: uppercase;
       letter-spacing: 1px;
     }
     
     .form-input, .form-textarea {
       width: 100%;
-      padding: 16px 20px;
+      padding: 14px 18px;
       background: var(--neo-bg);
       border: none;
-      border-radius: 14px;
-      font-size: 16px;
+      border-radius: 12px;
+      font-size: 15px;
       color: var(--neo-text);
       box-shadow: inset 4px 4px 8px var(--neo-shadow-dark), inset -4px -4px 8px var(--neo-shadow-light);
       transition: all 0.3s ease;
@@ -152,33 +187,141 @@
     .form-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 20px;
+      gap: 16px;
     }
     
     .form-row-3 {
       display: grid;
       grid-template-columns: 1fr 1fr 1fr;
-      gap: 20px;
+      gap: 16px;
+    }
+    
+    .form-row-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
     }
     
     .form-hint {
       color: var(--neo-text-muted);
+      font-size: 12px;
+      margin-top: 6px;
+    }
+    
+    .color-picker-group {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    
+    .color-picker {
+      width: 50px;
+      height: 40px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      padding: 0;
+    }
+    
+    .checkbox-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    
+    .checkbox-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      background: var(--neo-bg);
+      border-radius: 10px;
+      box-shadow: 3px 3px 6px var(--neo-shadow-dark), -3px -3px 6px var(--neo-shadow-light);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    
+    .checkbox-item:has(input:checked) {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white;
+      box-shadow: none;
+    }
+    
+    .checkbox-item input {
+      display: none;
+    }
+    
+    .checkbox-item span {
       font-size: 13px;
-      margin-top: 8px;
+      font-weight: 600;
+    }
+    
+    .template-section {
+      background: #f8fafc;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+    
+    .template-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--neo-text);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .template-icon {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .template-icon.confirm { background: #d1fae5; color: #059669; }
+    .template-icon.cancel { background: #fee2e2; color: #dc2626; }
+    .template-icon.reminder { background: #dbeafe; color: #2563eb; }
+    
+    .logo-preview {
+      width: 80px;
+      height: 80px;
+      border-radius: 12px;
+      background: #f1f5f9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 10px;
+      overflow: hidden;
+    }
+    
+    .logo-preview img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+    
+    .logo-preview-placeholder {
+      color: var(--neo-text-muted);
+      font-size: 12px;
+      text-align: center;
     }
     
     .btn {
       width: 100%;
-      padding: 18px;
+      padding: 16px;
       border: none;
-      border-radius: 16px;
-      font-size: 17px;
+      border-radius: 14px;
+      font-size: 16px;
       font-weight: 600;
       cursor: pointer;
       transition: all 0.3s ease;
       background: linear-gradient(135deg, #10b981 0%, #059669 100%);
       color: #ffffff;
-      box-shadow: 6px 6px 12px var(--neo-shadow-dark), -6px -6px 12px var(--neo-shadow-light);
+      box-shadow: 5px 5px 10px var(--neo-shadow-dark), -5px -5px 10px var(--neo-shadow-light);
     }
     
     .btn:hover {
@@ -188,17 +331,40 @@
     .success-msg {
       background: linear-gradient(135deg, #d1fae5, #a7f3d0);
       color: #065f46;
-      padding: 16px 24px;
-      border-radius: 16px;
-      margin-bottom: 24px;
-      font-size: 15px;
+      padding: 14px 20px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      font-size: 14px;
       font-weight: 500;
     }
     
-    @media (max-width: 600px) {
-      .form-row, .form-row-3 { grid-template-columns: 1fr; }
-      .card { padding: 24px; }
-      .navbar { padding: 16px; flex-direction: column; gap: 12px; }
+    .email-preview {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      margin-top: 16px;
+      border: 1px solid #e5e7eb;
+    }
+    
+    .email-preview-header {
+      padding: 20px;
+      border-radius: 8px 8px 0 0;
+      text-align: center;
+      color: white;
+    }
+    
+    .email-preview-body {
+      padding: 20px;
+    }
+    
+    @media (max-width: 768px) {
+      .form-row, .form-row-3, .form-row-4 { grid-template-columns: 1fr; }
+      .card { padding: 20px; }
+      .navbar { padding: 12px 16px; }
+      .tabs { gap: 6px; }
+      .tab { padding: 8px 14px; font-size: 13px; }
+      .checkbox-group { gap: 8px; }
+      .checkbox-item { padding: 8px 12px; }
     }
   </style>
 </head>
@@ -231,114 +397,253 @@
       <div class="success-msg"><%= success %></div>
     <% } %>
     
+    <div class="tabs">
+      <button type="button" class="tab active" data-tab="business">Business</button>
+      <button type="button" class="tab" data-tab="schedule">Schedule</button>
+      <button type="button" class="tab" data-tab="email">Email Templates</button>
+    </div>
+    
     <form method="POST" action="/dashboard/settings">
-      <div class="card">
-        <h2 class="card-title">Clinic Information</h2>
-        
-        <div class="form-group">
-          <label class="form-label">Clinic Name</label>
-          <input type="text" name="clinicName" class="form-input" value="<%= owner.clinicName || '' %>" placeholder="Your clinic name">
-        </div>
-        
-        <div class="form-row">
+      <!-- BUSINESS TAB -->
+      <div class="tab-content active" id="tab-business">
+        <div class="card">
+          <h2 class="card-title">Business Information</h2>
+          
           <div class="form-group">
-            <label class="form-label">Phone</label>
-            <input type="tel" name="clinicPhone" class="form-input" value="<%= owner.clinicPhone || '' %>" placeholder="+1 234 567 890">
+            <label class="form-label">Business / Clinic Name</label>
+            <input type="text" name="clinicName" class="form-input" value="<%= owner.clinicName || '' %>" placeholder="Your business name">
           </div>
-          <div class="form-group">
-            <label class="form-label">Website URL</label>
-            <input type="url" name="websiteUrl" class="form-input" value="<%= owner.websiteUrl || '' %>" placeholder="https://...">
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Phone</label>
+              <input type="tel" name="clinicPhone" class="form-input" value="<%= owner.clinicPhone || '' %>" placeholder="+1 234 567 890">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Website URL</label>
+              <input type="url" name="websiteUrl" class="form-input" value="<%= owner.websiteUrl || '' %>" placeholder="https://...">
           </div>
         </div>
         
         <div class="form-group">
           <label class="form-label">Address</label>
-          <input type="text" name="clinicAddress" class="form-input" value="<%= owner.clinicAddress || '' %>" placeholder="Your clinic address">
-        </div>
-      </div>
-      
-      <div class="card">
-        <h2 class="card-title">Booking Settings</h2>
-        
-        <div class="form-row-3">
-          <div class="form-group">
-            <label class="form-label">Opening Hour</label>
-            <input type="number" name="startHour" class="form-input" value="<%= owner.settings.startHour %>" min="0" max="23">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Closing Hour</label>
-            <input type="number" name="endHour" class="form-input" value="<%= owner.settings.endHour %>" min="0" max="23">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Slots Per Hour</label>
-            <input type="number" name="slotsPerHour" class="form-input" value="<%= owner.settings.slotsPerHour %>" min="1" max="10">
-          </div>
+          <input type="text" name="clinicAddress" class="form-input" value="<%= owner.clinicAddress || '' %>" placeholder="Your business address">
         </div>
         
         <div class="form-group">
-          <label class="form-label">Services</label>
+          <label class="form-label">Services Offered</label>
           <input type="text" name="services" class="form-input" value="<%= owner.settings.services.join(', ') %>" placeholder="Consultation, Follow-up, Premium">
           <p class="form-hint">Separate services with commas</p>
         </div>
       </div>
+      </div>
       
-      <div class="card">
-        <h2 class="card-title">Email Customization</h2>
-        
-        <div class="form-group">
-          <label class="form-label">Business Name (for emails)</label>
-          <input type="text" name="emailBusinessName" class="form-input" value="<%= owner.emailSettings?.businessName || owner.clinicName || '' %>" placeholder="Your Business Name">
-        </div>
-        
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Primary Color</label>
-            <div style="display: flex; gap: 10px; align-items: center;">
-              <input type="color" name="primaryColor" value="<%= owner.emailSettings?.primaryColor || '#10b981' %>" style="width: 60px; height: 44px; border: none; border-radius: 8px; cursor: pointer;">
-              <input type="text" class="form-input" value="<%= owner.emailSettings?.primaryColor || '#10b981' %>" readonly style="flex: 1;">
+      <!-- SCHEDULE TAB -->
+      <div class="tab-content" id="tab-schedule">
+        <div class="card">
+          <h2 class="card-title">Working Hours</h2>
+          
+          <div class="form-row-3">
+            <div class="form-group">
+              <label class="form-label">Opening Hour</label>
+              <input type="number" name="startHour" class="form-input" value="<%= owner.settings.startHour %>" min="0" max="23">
             </div>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Secondary Color</label>
-            <div style="display: flex; gap: 10px; align-items: center;">
-              <input type="color" name="secondaryColor" value="<%= owner.emailSettings?.secondaryColor || '#059669' %>" style="width: 60px; height: 44px; border: none; border-radius: 8px; cursor: pointer;">
-              <input type="text" class="form-input" value="<%= owner.emailSettings?.secondaryColor || '#059669' %>" readonly style="flex: 1;">
+            <div class="form-group">
+              <label class="form-label">Closing Hour</label>
+              <input type="number" name="endHour" class="form-input" value="<%= owner.settings.endHour %>" min="0" max="23">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Slots Per Hour</label>
+              <input type="number" name="slotsPerHour" class="form-input" value="<%= owner.settings.slotsPerHour %>" min="1" max="10">
             </div>
           </div>
         </div>
         
-        <div class="form-group">
-          <label class="form-label">Confirmation Email Subject</label>
-          <input type="text" name="confirmationSubject" class="form-input" value="<%= owner.emailSettings?.confirmationSubject || 'Booking Confirmed' %>" placeholder="Booking Confirmed">
-        </div>
-        
-        <div class="form-group">
-          <label class="form-label">Confirmation Message</label>
-          <textarea name="confirmationMessage" class="form-input" rows="3" placeholder="Your appointment has been confirmed..."><%= owner.emailSettings?.confirmationMessage || 'Your appointment has been confirmed. Here are the details:' %></textarea>
-        </div>
-        
-        <div class="form-group">
-          <label class="form-label">Email Footer (optional)</label>
-          <textarea name="emailFooter" class="form-input" rows="2" placeholder="Thank you for choosing us!"><%= owner.emailSettings?.emailFooter || '' %></textarea>
-        </div>
-        
-        <div style="background: #f9fafb; border-radius: 12px; padding: 16px; margin-top: 16px;">
-          <p style="color: var(--neo-text-muted); font-size: 13px; margin: 0;">
-            <strong>Preview:</strong> These settings will be used for all booking confirmation emails sent to your clients.
-          </p>
+        <div class="card">
+          <h2 class="card-title">Working Days</h2>
+          <p class="form-hint" style="margin-bottom: 16px;">Select the days you accept bookings</p>
+          
+          <% const workingDays = owner.settings.workingDays || [1, 2, 3, 4, 5]; %>
+          <div class="checkbox-group">
+            <label class="checkbox-item">
+              <input type="checkbox" name="workingDays" value="1" <%= workingDays.includes(1) ? 'checked' : '' %>>
+              <span>Monday</span>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" name="workingDays" value="2" <%= workingDays.includes(2) ? 'checked' : '' %>>
+              <span>Tuesday</span>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" name="workingDays" value="3" <%= workingDays.includes(3) ? 'checked' : '' %>>
+              <span>Wednesday</span>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" name="workingDays" value="4" <%= workingDays.includes(4) ? 'checked' : '' %>>
+              <span>Thursday</span>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" name="workingDays" value="5" <%= workingDays.includes(5) ? 'checked' : '' %>>
+              <span>Friday</span>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" name="workingDays" value="6" <%= workingDays.includes(6) ? 'checked' : '' %>>
+              <span>Saturday</span>
+            </label>
+            <label class="checkbox-item">
+              <input type="checkbox" name="workingDays" value="0" <%= workingDays.includes(0) ? 'checked' : '' %>>
+              <span>Sunday</span>
+            </label>
+          </div>
         </div>
       </div>
       
-      <button type="submit" class="btn">Save Settings</button>
+      <!-- EMAIL TEMPLATES TAB -->
+      <div class="tab-content" id="tab-email">
+        <div class="card">
+          <h2 class="card-title">Email Branding</h2>
+          
+          <div class="form-group">
+            <label class="form-label">Logo URL</label>
+            <input type="url" name="logoUrl" id="logoUrl" class="form-input" value="<%= owner.emailSettings?.logoUrl || '' %>" placeholder="https://your-domain.com/logo.png">
+            <p class="form-hint">Enter a URL to your logo image (recommended: 200x60px)</p>
+            <div class="logo-preview" id="logoPreview">
+              <% if (owner.emailSettings?.logoUrl) { %>
+                <img src="<%= owner.emailSettings.logoUrl %>" alt="Logo">
+              <% } else { %>
+                <span class="logo-preview-placeholder">No logo</span>
+              <% } %>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">Business Name (for emails)</label>
+            <input type="text" name="emailBusinessName" class="form-input" value="<%= owner.emailSettings?.businessName || owner.clinicName || '' %>" placeholder="Your Business Name">
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Primary Color</label>
+              <div class="color-picker-group">
+                <input type="color" name="primaryColor" class="color-picker" value="<%= owner.emailSettings?.primaryColor || '#10b981' %>">
+                <input type="text" class="form-input" id="primaryColorText" value="<%= owner.emailSettings?.primaryColor || '#10b981' %>" readonly style="flex: 1;">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Secondary Color</label>
+              <div class="color-picker-group">
+                <input type="color" name="secondaryColor" class="color-picker" value="<%= owner.emailSettings?.secondaryColor || '#059669' %>">
+                <input type="text" class="form-input" id="secondaryColorText" value="<%= owner.emailSettings?.secondaryColor || '#059669' %>" readonly style="flex: 1;">
+              </div>
+            </div>
+          </div>
+          
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Background Color</label>
+              <div class="color-picker-group">
+                <input type="color" name="backgroundColor" class="color-picker" value="<%= owner.emailSettings?.backgroundColor || '#ffffff' %>">
+                <input type="text" class="form-input" value="<%= owner.emailSettings?.backgroundColor || '#ffffff' %>" readonly style="flex: 1;">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Text Color</label>
+              <div class="color-picker-group">
+                <input type="color" name="textColor" class="color-picker" value="<%= owner.emailSettings?.textColor || '#374151' %>">
+                <input type="text" class="form-input" value="<%= owner.emailSettings?.textColor || '#374151' %>" readonly style="flex: 1;">
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="card">
+          <h2 class="card-title">Email Templates</h2>
+          
+          <!-- Confirmation Template -->
+          <div class="template-section">
+            <div class="template-title">
+              <span class="template-icon confirm">✓</span>
+              Confirmation Email
+            </div>
+            <div class="form-group">
+              <label class="form-label">Subject</label>
+              <input type="text" name="confirmationSubject" class="form-input" value="<%= owner.emailSettings?.confirmationSubject || 'Booking Confirmed' %>">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Message</label>
+              <textarea name="confirmationMessage" class="form-input" rows="3"><%= owner.emailSettings?.confirmationMessage || 'Your appointment has been confirmed. Here are the details:' %></textarea>
+            </div>
+          </div>
+          
+          <!-- Cancellation Template -->
+          <div class="template-section">
+            <div class="template-title">
+              <span class="template-icon cancel">✕</span>
+              Cancellation Email
+            </div>
+            <div class="form-group">
+              <label class="form-label">Subject</label>
+              <input type="text" name="cancellationSubject" class="form-input" value="<%= owner.emailSettings?.cancellationSubject || 'Booking Cancelled' %>">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Message</label>
+              <textarea name="cancellationMessage" class="form-input" rows="3"><%= owner.emailSettings?.cancellationMessage || 'Your appointment has been cancelled.' %></textarea>
+            </div>
+          </div>
+          
+          <!-- Reminder Template -->
+          <div class="template-section">
+            <div class="template-title">
+              <span class="template-icon reminder">🔔</span>
+              Reminder Email
+            </div>
+            <div class="form-group">
+              <label class="form-label">Subject</label>
+              <input type="text" name="reminderSubject" class="form-input" value="<%= owner.emailSettings?.reminderSubject || 'Appointment Reminder' %>">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Message</label>
+              <textarea name="reminderMessage" class="form-input" rows="3"><%= owner.emailSettings?.reminderMessage || 'This is a reminder for your upcoming appointment.' %></textarea>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">Email Footer (all emails)</label>
+            <textarea name="emailFooter" class="form-input" rows="2" placeholder="Thank you for choosing us!"><%= owner.emailSettings?.emailFooter || '' %></textarea>
+          </div>
+        </div>
+      </div>
+      
+      <button type="submit" class="btn">Save All Settings</button>
     </form>
   </div>
   
   <script>
-    // Sync color picker with text input
-    document.querySelectorAll('input[type="color"]').forEach(picker => {
-      picker.addEventListener('input', (e) => {
-        e.target.nextElementSibling.value = e.target.value;
+    // Tab switching
+    document.querySelectorAll('.tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+        tab.classList.add('active');
+        document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
       });
+    });
+    
+    // Sync color pickers with text inputs
+    document.querySelectorAll('.color-picker').forEach(picker => {
+      picker.addEventListener('input', (e) => {
+        const textInput = e.target.parentElement.querySelector('input[type="text"]');
+        if (textInput) textInput.value = e.target.value;
+      });
+    });
+    
+    // Logo preview
+    document.getElementById('logoUrl').addEventListener('input', (e) => {
+      const preview = document.getElementById('logoPreview');
+      if (e.target.value) {
+        preview.innerHTML = '<img src="' + e.target.value + '" alt="Logo" onerror="this.parentElement.innerHTML=\'<span class=logo-preview-placeholder>Invalid URL</span>\'">';
+      } else {
+        preview.innerHTML = '<span class="logo-preview-placeholder">No logo</span>';
+      }
     });
   </script>
 </body>

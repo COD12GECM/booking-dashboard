@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Edit Booking - <%= owner.clinicName || 'Dashboard' %></title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    :root {
+      --neo-bg: #e0e5ec;
+      --neo-shadow-dark: #a3b1c6;
+      --neo-shadow-light: #ffffff;
+      --neo-primary: #10b981;
+      --neo-text: #1e293b;
+      --neo-text-muted: #64748b;
+    }
+    
+    body {
+      min-height: 100vh;
+      background: var(--neo-bg);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    
+    .navbar {
+      background: var(--neo-bg);
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      box-shadow: 0 4px 12px var(--neo-shadow-dark);
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    
+    .navbar-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .navbar-logo {
+      width: 40px;
+      height: 40px;
+      background: linear-gradient(135deg, #10b981, #059669);
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .navbar-logo svg {
+      width: 22px;
+      height: 22px;
+      stroke: white;
+    }
+    
+    .navbar-title {
+      color: var(--neo-text);
+      font-size: 18px;
+      font-weight: 700;
+    }
+    
+    .navbar-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    
+    .nav-link {
+      color: var(--neo-text-muted);
+      text-decoration: none;
+      padding: 8px 16px;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 14px;
+      transition: all 0.3s ease;
+      background: var(--neo-bg);
+      box-shadow: 3px 3px 6px var(--neo-shadow-dark), -3px -3px 6px var(--neo-shadow-light);
+    }
+    
+    .nav-link:hover {
+      color: var(--neo-text);
+    }
+    
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 24px 16px;
+    }
+    
+    .page-header {
+      margin-bottom: 24px;
+    }
+    
+    .page-title {
+      color: var(--neo-text);
+      font-size: 24px;
+      font-weight: 700;
+    }
+    
+    .card {
+      background: var(--neo-bg);
+      border-radius: 20px;
+      padding: 28px;
+      margin-bottom: 20px;
+      box-shadow: 10px 10px 20px var(--neo-shadow-dark), -10px -10px 20px var(--neo-shadow-light);
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    .form-label {
+      display: block;
+      color: var(--neo-text);
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    
+    .form-input, .form-select {
+      width: 100%;
+      padding: 14px 18px;
+      background: var(--neo-bg);
+      border: none;
+      border-radius: 12px;
+      font-size: 15px;
+      color: var(--neo-text);
+      box-shadow: inset 4px 4px 8px var(--neo-shadow-dark), inset -4px -4px 8px var(--neo-shadow-light);
+      transition: all 0.3s ease;
+    }
+    
+    .form-input:focus, .form-select:focus {
+      outline: none;
+    }
+    
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    
+    .btn {
+      padding: 14px 24px;
+      border: none;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white;
+      box-shadow: 4px 4px 8px var(--neo-shadow-dark), -4px -4px 8px var(--neo-shadow-light);
+    }
+    
+    .btn-secondary {
+      background: var(--neo-bg);
+      color: var(--neo-text-muted);
+      box-shadow: 4px 4px 8px var(--neo-shadow-dark), -4px -4px 8px var(--neo-shadow-light);
+      text-decoration: none;
+      display: inline-block;
+      text-align: center;
+    }
+    
+    .btn:hover {
+      transform: translateY(-2px);
+    }
+    
+    .btn-group {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+    }
+    
+    .error-msg {
+      background: linear-gradient(135deg, #fee2e2, #fecaca);
+      color: #991b1b;
+      padding: 14px 20px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      font-size: 14px;
+    }
+    
+    .booking-info {
+      background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+      padding: 16px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+    }
+    
+    .booking-info p {
+      color: #166534;
+      font-size: 14px;
+      margin: 4px 0;
+    }
+    
+    @media (max-width: 600px) {
+      .form-row { grid-template-columns: 1fr; }
+      .btn-group { flex-direction: column; }
+      .navbar { padding: 12px 16px; }
+    }
+  </style>
+</head>
+<body>
+  <nav class="navbar">
+    <div class="navbar-brand">
+      <div class="navbar-logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
+          <line x1="16" y1="2" x2="16" y2="6"/>
+          <line x1="8" y1="2" x2="8" y2="6"/>
+          <line x1="3" y1="10" x2="21" y2="10"/>
+        </svg>
+      </div>
+      <span class="navbar-title"><%= owner.clinicName || 'Dashboard' %></span>
+    </div>
+    <div class="navbar-actions">
+      <a href="/dashboard" class="nav-link">← Back to Bookings</a>
+    </div>
+  </nav>
+  
+  <div class="container">
+    <div class="page-header">
+      <h1 class="page-title">Edit Booking</h1>
+    </div>
+    
+    <% if (error) { %>
+      <div class="error-msg"><%= error %></div>
+    <% } %>
+    
+    <div class="booking-info">
+      <p><strong>Booking ID:</strong> #<%= booking.id %></p>
+      <p><strong>Created:</strong> <%= new Date(booking.createdAt || Date.now()).toLocaleDateString() %></p>
+    </div>
+    
+    <form method="POST" action="/dashboard/edit-booking/<%= booking.id %>">
+      <div class="card">
+        <div class="form-group">
+          <label class="form-label">Client Name</label>
+          <input type="text" name="name" class="form-input" value="<%= booking.name || '' %>" required>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input type="email" name="email" class="form-input" value="<%= booking.email || '' %>">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Phone</label>
+            <input type="tel" name="phone" class="form-input" value="<%= booking.phone || '' %>">
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Service</label>
+          <select name="service" class="form-select">
+            <% owner.settings.services.forEach(service => { %>
+              <option value="<%= service %>" <%= booking.service === service ? 'selected' : '' %>><%= service %></option>
+            <% }) %>
+          </select>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Date</label>
+            <input type="date" name="date" class="form-input" value="<%= booking.date %>" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Time</label>
+            <input type="time" name="time" class="form-input" value="<%= booking.time %>" required>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Notes (optional)</label>
+          <textarea name="notes" class="form-input" rows="3" placeholder="Any additional notes..."><%= booking.notes || '' %></textarea>
+        </div>
+      </div>
+      
+      <div class="btn-group">
+        <button type="submit" class="btn btn-primary" style="flex: 1;">Save Changes</button>
+        <a href="/dashboard" class="btn btn-secondary" style="flex: 1;">Cancel</a>
+      </div>
+    </form>
+  </div>
+</body>
+</html>

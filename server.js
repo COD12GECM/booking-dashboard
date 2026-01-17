@@ -40,16 +40,27 @@ const ownerSchema = new mongoose.Schema({
     startHour: { type: Number, default: 9 },
     endHour: { type: Number, default: 17 },
     closedDays: { type: [Number], default: [0, 6] },
+    workingDays: { type: [Number], default: [1, 2, 3, 4, 5] },
     slotsPerHour: { type: Number, default: 1 },
     services: { type: [String], default: ['Consultation'] }
   },
   emailSettings: {
+    logoUrl: { type: String, default: '' },
     primaryColor: { type: String, default: '#10b981' },
     secondaryColor: { type: String, default: '#059669' },
+    backgroundColor: { type: String, default: '#ffffff' },
+    textColor: { type: String, default: '#374151' },
     businessName: { type: String, default: '' },
     emailFooter: { type: String, default: '' },
+    // Confirmation email
     confirmationSubject: { type: String, default: 'Booking Confirmed' },
-    confirmationMessage: { type: String, default: 'Your appointment has been confirmed. Here are the details:' }
+    confirmationMessage: { type: String, default: 'Your appointment has been confirmed. Here are the details:' },
+    // Cancellation email
+    cancellationSubject: { type: String, default: 'Booking Cancelled' },
+    cancellationMessage: { type: String, default: 'Your appointment has been cancelled.' },
+    // Reminder email
+    reminderSubject: { type: String, default: 'Appointment Reminder' },
+    reminderMessage: { type: String, default: 'This is a reminder for your upcoming appointment.' }
   },
   createdAt: { type: Date, default: Date.now }
 });
@@ -718,6 +729,48 @@ app.post('/dashboard/complete/:id', authenticateToken, async (req, res) => {
   }
 });
 
+// Edit Booking Page
+app.get('/dashboard/edit-booking/:id', authenticateToken, async (req, res) => {
+  try {
+    const owner = await Owner.findById(req.owner.id);
+    const bookingId = parseInt(req.params.id);
+    
+    const bookingDb = mongoose.connection.useDb('bookingdb');
+    const BookingsCollection = bookingDb.collection('bookings');
+    
+    const booking = await BookingsCollection.findOne({ id: bookingId, clinicEmail: owner.email });
+    
+    if (!booking) {
+      return res.redirect('/dashboard?error=Booking not found');
+    }
+    
+    res.render('edit-booking', { owner, booking, error: req.query.error });
+  } catch (error) {
+    res.redirect('/dashboard?error=' + error.message);
+  }
+});
+
+// Update Booking
+app.post('/dashboard/edit-booking/:id', authenticateToken, async (req, res) => {
+  try {
+    const owner = await Owner.findById(req.owner.id);
+    const bookingId = parseInt(req.params.id);
+    const { name, email, phone, service, date, time, notes } = req.body;
+    
+    const bookingDb = mongoose.connection.useDb('bookingdb');
+    const BookingsCollection = bookingDb.collection('bookings');
+    
+    await BookingsCollection.updateOne(
+      { id: bookingId, clinicEmail: owner.email },
+      { $set: { name, email, phone, service, date, time, notes, updatedAt: new Date() } }
+    );
+    
+    res.redirect('/dashboard?success=Booking updated successfully');
+  } catch (error) {
+    res.redirect('/dashboard/edit-booking/' + req.params.id + '?error=' + error.message);
+  }
+});
+
 // Settings Page
 app.get('/dashboard/settings', authenticateToken, async (req, res) => {
   try {
@@ -733,10 +786,15 @@ app.post('/dashboard/settings', authenticateToken, async (req, res) => {
   try {
     const { 
       clinicName, clinicPhone, clinicAddress, websiteUrl, 
-      startHour, endHour, slotsPerHour, services,
-      emailBusinessName, primaryColor, secondaryColor, 
-      confirmationSubject, confirmationMessage, emailFooter 
+      startHour, endHour, slotsPerHour, services, workingDays,
+      logoUrl, emailBusinessName, primaryColor, secondaryColor, backgroundColor, textColor,
+      confirmationSubject, confirmationMessage, 
+      cancellationSubject, cancellationMessage,
+      reminderSubject, reminderMessage, emailFooter 
     } = req.body;
+    
+    // Parse working days (checkboxes)
+    const parsedWorkingDays = workingDays ? (Array.isArray(workingDays) ? workingDays.map(Number) : [Number(workingDays)]) : [1, 2, 3, 4, 5];
     
     await Owner.findByIdAndUpdate(req.owner.id, {
       clinicName,
@@ -747,11 +805,19 @@ app.post('/dashboard/settings', authenticateToken, async (req, res) => {
       'settings.endHour': parseInt(endHour) || 17,
       'settings.slotsPerHour': parseInt(slotsPerHour) || 1,
       'settings.services': services ? services.split(',').map(s => s.trim()) : ['Consultation'],
+      'settings.workingDays': parsedWorkingDays,
+      'emailSettings.logoUrl': logoUrl || '',
       'emailSettings.businessName': emailBusinessName || clinicName || '',
       'emailSettings.primaryColor': primaryColor || '#10b981',
       'emailSettings.secondaryColor': secondaryColor || '#059669',
+      'emailSettings.backgroundColor': backgroundColor || '#ffffff',
+      'emailSettings.textColor': textColor || '#374151',
       'emailSettings.confirmationSubject': confirmationSubject || 'Booking Confirmed',
       'emailSettings.confirmationMessage': confirmationMessage || 'Your appointment has been confirmed. Here are the details:',
+      'emailSettings.cancellationSubject': cancellationSubject || 'Booking Cancelled',
+      'emailSettings.cancellationMessage': cancellationMessage || 'Your appointment has been cancelled.',
+      'emailSettings.reminderSubject': reminderSubject || 'Appointment Reminder',
+      'emailSettings.reminderMessage': reminderMessage || 'This is a reminder for your upcoming appointment.',
       'emailSettings.emailFooter': emailFooter || ''
     });
     
