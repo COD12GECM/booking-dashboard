@@ -430,17 +430,37 @@ app.get('/logout', (req, res) => {
 // DASHBOARD ROUTES (Protected)
 // ============================================
 
-// Dashboard Home
+// Dashboard Home - Fetches bookings from booking-api's collection
 app.get('/dashboard', authenticateToken, async (req, res) => {
   try {
     const owner = await Owner.findById(req.owner.id);
-    const bookings = await Booking.find({ 
+    
+    // Get bookings from the shared bookingdb collection (same as booking-api)
+    // Filter by clinicEmail matching owner's email
+    const bookingDb = mongoose.connection.useDb('bookingdb');
+    const BookingsCollection = bookingDb.collection('bookings');
+    
+    const shopifyBookings = await BookingsCollection.find({ 
+      clinicEmail: owner.email,
+      status: { $ne: 'cancelled' }
+    }).sort({ date: -1, time: -1 }).toArray();
+    
+    // Also get dashboard-created bookings
+    const dashboardBookings = await Booking.find({ 
       ownerId: owner._id,
       status: { $ne: 'cancelled' }
-    }).sort({ date: -1, time: -1 });
+    }).sort({ date: -1, time: -1 }).lean();
     
-    res.render('dashboard', { owner, bookings, success: req.query.success });
+    // Merge and sort all bookings
+    const allBookings = [...shopifyBookings, ...dashboardBookings].sort((a, b) => {
+      const dateA = new Date(a.date + 'T' + a.time);
+      const dateB = new Date(b.date + 'T' + b.time);
+      return dateB - dateA;
+    });
+    
+    res.render('dashboard', { owner, bookings: allBookings, success: req.query.success });
   } catch (error) {
+    console.error('Dashboard error:', error);
     res.render('dashboard', { owner: null, bookings: [], error: error.message });
   }
 });
@@ -455,13 +475,13 @@ app.get('/dashboard/add-booking', authenticateToken, async (req, res) => {
   }
 });
 
-// Add Manual Booking Submit
+// Add Manual Booking Submit - Saves to bookingdb for Shopify sync
 app.post('/dashboard/add-booking', authenticateToken, async (req, res) => {
   try {
     const owner = await Owner.findById(req.owner.id);
     const { date, time, name, email, phone, service, notes, type } = req.body;
     
-    const booking = new Booking({
+    const bookingData = {
       id: Date.now(),
       date,
       time,
@@ -473,29 +493,45 @@ app.post('/dashboard/add-booking', authenticateToken, async (req, res) => {
       type: type || 'booking',
       status: 'confirmed',
       cancelToken: crypto.randomBytes(16).toString('hex'),
-      ownerId: owner._id,
       clinicName: owner.clinicName,
-      clinicEmail: owner.clinicEmail,
+      clinicEmail: owner.email, // Use owner's email for filtering
       clinicPhone: owner.clinicPhone,
       clinicAddress: owner.clinicAddress,
-      websiteUrl: owner.websiteUrl
-    });
+      websiteUrl: owner.websiteUrl,
+      createdAt: new Date(),
+      source: 'dashboard' // Mark as created from dashboard
+    };
     
-    await booking.save();
+    // Save to bookingdb collection (same as booking-api) for Shopify sync
+    const bookingDb = mongoose.connection.useDb('bookingdb');
+    const BookingsCollection = bookingDb.collection('bookings');
+    await BookingsCollection.insertOne(bookingData);
+    
     res.redirect('/dashboard?success=Booking added successfully');
   } catch (error) {
+    console.error('Add booking error:', error);
     const owner = await Owner.findById(req.owner.id);
     res.render('add-booking', { owner, error: error.message });
   }
 });
 
-// Cancel Booking
+// Cancel Booking - Deletes from both dashboard and Shopify bookings
 app.post('/dashboard/cancel-booking/:id', authenticateToken, async (req, res) => {
   try {
     const owner = await Owner.findById(req.owner.id);
-    await Booking.deleteOne({ id: parseInt(req.params.id), ownerId: owner._id });
+    const bookingId = parseInt(req.params.id);
+    
+    // Try to delete from dashboard bookings
+    await Booking.deleteOne({ id: bookingId, ownerId: owner._id });
+    
+    // Also try to delete from Shopify bookings (bookingdb collection)
+    const bookingDb = mongoose.connection.useDb('bookingdb');
+    const BookingsCollection = bookingDb.collection('bookings');
+    await BookingsCollection.deleteOne({ id: bookingId, clinicEmail: owner.email });
+    
     res.redirect('/dashboard?success=Booking cancelled');
   } catch (error) {
+    console.error('Cancel booking error:', error);
     res.redirect('/dashboard?error=' + error.message);
   }
 });
