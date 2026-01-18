@@ -792,6 +792,7 @@
       <div>
         <h1 class="page-title">Bookings</h1>
         <div class="view-tabs">
+          <button class="view-tab" data-view="calendar">📅 Calendar</button>
           <button class="view-tab active" data-view="day">Today</button>
           <button class="view-tab" data-view="week">This Week</button>
           <button class="view-tab" data-view="month">This Month</button>
@@ -856,6 +857,40 @@
             <button type="submit" style="flex: 1; padding: 14px; border: none; border-radius: 10px; background: linear-gradient(135deg, #f59e0b, #d97706); color: white; font-weight: 600; cursor: pointer;">Block Time</button>
           </div>
         </form>
+      </div>
+    </div>
+    
+    <!-- Calendar View -->
+    <div id="calendar-view" style="display: none;" class="card">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+        <!-- Calendar -->
+        <div>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+            <button type="button" id="cal-prev" style="background: var(--neo-bg); border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; box-shadow: 2px 2px 4px var(--neo-shadow-dark), -2px -2px 4px var(--neo-shadow-light);">←</button>
+            <h3 id="cal-month" style="color: var(--neo-text); font-size: 18px;"></h3>
+            <button type="button" id="cal-next" style="background: var(--neo-bg); border: none; padding: 8px 12px; border-radius: 8px; cursor: pointer; box-shadow: 2px 2px 4px var(--neo-shadow-dark), -2px -2px 4px var(--neo-shadow-light);">→</button>
+          </div>
+          <div style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; margin-bottom: 8px;">
+            <div style="color: var(--neo-text-muted); font-size: 12px; font-weight: 600;">S</div>
+            <div style="color: var(--neo-text-muted); font-size: 12px; font-weight: 600;">M</div>
+            <div style="color: var(--neo-text-muted); font-size: 12px; font-weight: 600;">T</div>
+            <div style="color: var(--neo-text-muted); font-size: 12px; font-weight: 600;">W</div>
+            <div style="color: var(--neo-text-muted); font-size: 12px; font-weight: 600;">T</div>
+            <div style="color: var(--neo-text-muted); font-size: 12px; font-weight: 600;">F</div>
+            <div style="color: var(--neo-text-muted); font-size: 12px; font-weight: 600;">S</div>
+          </div>
+          <div id="cal-days" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px;"></div>
+        </div>
+        <!-- Time Slots -->
+        <div>
+          <h3 style="color: var(--neo-text); font-size: 16px; margin-bottom: 16px;">Select Time</h3>
+          <div id="cal-times" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;"></div>
+        </div>
+      </div>
+      <!-- Booking Details -->
+      <div id="cal-booking-details" style="margin-top: 24px; padding: 20px; background: linear-gradient(135deg, #ecfdf5, #d1fae5); border-radius: 12px; display: none;">
+        <h4 style="color: #065f46; margin-bottom: 12px;">📋 Booking Details</h4>
+        <div id="cal-booking-info"></div>
       </div>
     </div>
     
@@ -1076,12 +1111,134 @@
       tab.addEventListener('click', () => {
         tabs.forEach(t => t.classList.remove('active'));
         tab.classList.add('active');
-        filterBookings(tab.dataset.view);
+        
+        const view = tab.dataset.view;
+        
+        // Toggle calendar view
+        if (view === 'calendar') {
+          document.getElementById('calendar-view').style.display = 'block';
+          document.getElementById('bookings-container').style.display = 'none';
+          initCalendar();
+        } else {
+          document.getElementById('calendar-view').style.display = 'none';
+          document.getElementById('bookings-container').style.display = 'block';
+          filterBookings(view);
+        }
       });
     });
     
     // Initialize with "Today" view
     filterBookings('day');
+    
+    // Calendar View Logic
+    const allBookings = <%- JSON.stringify(bookings) %>;
+    let calendarDate = new Date();
+    let selectedCalDate = null;
+    
+    function initCalendar() {
+      renderCalendar();
+    }
+    
+    function renderCalendar() {
+      const year = calendarDate.getFullYear();
+      const month = calendarDate.getMonth();
+      const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+      
+      document.getElementById('cal-month').textContent = `${monthNames[month]} ${year}`;
+      
+      const firstDay = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const today = new Date().toISOString().split('T')[0];
+      
+      let html = '';
+      for (let i = 0; i < firstDay; i++) {
+        html += '<div></div>';
+      }
+      
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const hasBookings = allBookings.some(b => b.date === dateStr && b.status !== 'cancelled');
+        const isToday = dateStr === today;
+        const isSelected = dateStr === selectedCalDate;
+        
+        let style = 'padding: 10px; border-radius: 8px; cursor: pointer; text-align: center; font-size: 14px; ';
+        if (isSelected) {
+          style += 'background: var(--neo-primary); color: white;';
+        } else if (isToday) {
+          style += 'background: #d1fae5; color: #065f46; font-weight: 600;';
+        } else if (hasBookings) {
+          style += 'background: #fef3c7; color: #92400e;';
+        } else {
+          style += 'background: var(--neo-bg); color: var(--neo-text);';
+        }
+        
+        html += `<div style="${style}" onclick="selectCalDate('${dateStr}')">${day}${hasBookings ? '<div style="width:6px;height:6px;background:var(--neo-primary);border-radius:50%;margin:2px auto 0;"></div>' : ''}</div>`;
+      }
+      
+      document.getElementById('cal-days').innerHTML = html;
+      document.getElementById('cal-times').innerHTML = '<p style="color: var(--neo-text-muted);">Select a date to see time slots</p>';
+      document.getElementById('cal-booking-details').style.display = 'none';
+    }
+    
+    window.selectCalDate = function(dateStr) {
+      selectedCalDate = dateStr;
+      renderCalendar();
+      renderTimeSlots(dateStr);
+    };
+    
+    function renderTimeSlots(dateStr) {
+      const dayBookings = allBookings.filter(b => b.date === dateStr);
+      const times = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
+      
+      let html = '';
+      times.forEach(time => {
+        const booking = dayBookings.find(b => b.time === time && b.status !== 'cancelled');
+        const isBooked = !!booking;
+        
+        let style = 'padding: 12px; border-radius: 8px; cursor: pointer; text-align: center; font-size: 13px; ';
+        if (isBooked) {
+          style += 'background: linear-gradient(135deg, #10b981, #059669); color: white;';
+        } else {
+          style += 'background: var(--neo-bg); color: var(--neo-text-muted); box-shadow: 2px 2px 4px var(--neo-shadow-dark), -2px -2px 4px var(--neo-shadow-light);';
+        }
+        
+        html += `<div style="${style}" onclick="showBookingDetails('${dateStr}', '${time}')">${time}${isBooked ? ' ✓' : ''}</div>`;
+      });
+      
+      document.getElementById('cal-times').innerHTML = html;
+    }
+    
+    window.showBookingDetails = function(dateStr, time) {
+      const booking = allBookings.find(b => b.date === dateStr && b.time === time && b.status !== 'cancelled');
+      const detailsDiv = document.getElementById('cal-booking-details');
+      const infoDiv = document.getElementById('cal-booking-info');
+      
+      if (booking) {
+        infoDiv.innerHTML = `
+          <p style="color: #065f46; margin-bottom: 8px;"><strong>Client:</strong> ${booking.name || 'N/A'}</p>
+          <p style="color: #065f46; margin-bottom: 8px;"><strong>Email:</strong> ${booking.email || 'N/A'}</p>
+          <p style="color: #065f46; margin-bottom: 8px;"><strong>Phone:</strong> ${booking.phone || 'N/A'}</p>
+          <p style="color: #065f46; margin-bottom: 8px;"><strong>Service:</strong> ${booking.service || 'N/A'}</p>
+          <p style="color: #065f46; margin-bottom: 8px;"><strong>Time:</strong> ${dateStr} at ${time}</p>
+          ${booking.teamMemberName ? `<p style="color: #065f46; margin-bottom: 8px;"><strong>Specialist:</strong> ${booking.teamMemberName}</p>` : ''}
+          ${booking.notes ? `<p style="color: #065f46;"><strong>Notes:</strong> ${booking.notes}</p>` : ''}
+        `;
+        detailsDiv.style.display = 'block';
+      } else {
+        infoDiv.innerHTML = '<p style="color: #065f46;">No booking for this time slot. This slot is available.</p>';
+        detailsDiv.style.display = 'block';
+      }
+    };
+    
+    document.getElementById('cal-prev').addEventListener('click', () => {
+      calendarDate.setMonth(calendarDate.getMonth() - 1);
+      renderCalendar();
+    });
+    
+    document.getElementById('cal-next').addEventListener('click', () => {
+      calendarDate.setMonth(calendarDate.getMonth() + 1);
+      renderCalendar();
+    });
     
     // Date picker functionality
     const datePicker = document.getElementById('date-picker');
