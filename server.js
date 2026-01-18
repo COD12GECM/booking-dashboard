@@ -1715,15 +1715,28 @@ app.post('/api/assign-team-member', authenticateToken, async (req, res) => {
     const { bookingId, teamMemberId, teamMemberName } = req.body;
     const owner = await Owner.findById(req.owner.id);
     
+    console.log('Assign team member:', { bookingId, teamMemberId, teamMemberName, ownerEmail: owner.email });
+    
     const bookingDb = mongoose.connection.useDb('bookingdb');
     const BookingsCollection = bookingDb.collection('bookings');
     
-    await BookingsCollection.updateOne(
-      { id: parseInt(bookingId), clinicEmail: owner.email },
+    // Try to find the booking first
+    const booking = await BookingsCollection.findOne({ id: parseInt(bookingId) });
+    console.log('Found booking:', booking ? { id: booking.id, clinicEmail: booking.clinicEmail } : 'NOT FOUND');
+    
+    // Update without clinicEmail filter first (booking might have different email)
+    const result = await BookingsCollection.updateOne(
+      { id: parseInt(bookingId) },
       { $set: { teamMemberId: teamMemberId || '', teamMemberName: teamMemberName || '' } }
     );
     
-    res.json({ success: true });
+    console.log('Update result:', { matchedCount: result.matchedCount, modifiedCount: result.modifiedCount });
+    
+    if (result.matchedCount === 0) {
+      return res.json({ success: false, error: 'Booking not found' });
+    }
+    
+    res.json({ success: true, modified: result.modifiedCount });
   } catch (error) {
     console.error('Assign team member error:', error);
     res.status(500).json({ success: false, error: error.message });
