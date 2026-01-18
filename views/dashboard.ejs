@@ -1071,6 +1071,8 @@
       const selectedOption = selectElement.options[selectElement.selectedIndex];
       const teamMemberName = selectedOption.dataset.name || '';
       
+      console.log('Assigning team member:', { bookingId, teamMemberId, teamMemberName });
+      
       try {
         const response = await fetch('/api/assign-team-member', {
           method: 'POST',
@@ -1078,7 +1080,10 @@
           body: JSON.stringify({ bookingId, teamMemberId, teamMemberName })
         });
         
-        if (response.ok) {
+        const result = await response.json();
+        console.log('Assign result:', result);
+        
+        if (result.success) {
           // Update the display
           const container = selectElement.parentElement;
           let badge = container.querySelector('.team-badge');
@@ -1093,9 +1098,13 @@
           } else if (badge) {
             badge.remove();
           }
+        } else {
+          alert('Failed to assign: ' + (result.error || 'Unknown error'));
+          selectElement.value = ''; // Reset dropdown
         }
       } catch (error) {
         console.error('Failed to assign team member:', error);
+        alert('Error: ' + error.message);
       }
     }
     
