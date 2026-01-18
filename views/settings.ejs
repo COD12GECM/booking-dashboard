@@ -464,34 +464,37 @@
           <h2 class="card-title">Working Days</h2>
           <p class="form-hint" style="margin-bottom: 16px;">Select the days you accept bookings</p>
           
-          <% const workingDays = owner.settings.workingDays || [1, 2, 3, 4, 5]; %>
+          <% 
+            const workingDays = owner.settings?.workingDays || [1, 2, 3, 4, 5]; 
+            const hasDay = (day) => workingDays.includes(day) || workingDays.includes(String(day));
+          %>
           <div class="checkbox-group">
             <label class="checkbox-item">
-              <input type="checkbox" name="workingDays" value="1" <%= workingDays.includes(1) ? 'checked' : '' %>>
+              <input type="checkbox" name="workingDays[]" value="1" <%= hasDay(1) ? 'checked' : '' %>>
               <span>Monday</span>
             </label>
             <label class="checkbox-item">
-              <input type="checkbox" name="workingDays" value="2" <%= workingDays.includes(2) ? 'checked' : '' %>>
+              <input type="checkbox" name="workingDays[]" value="2" <%= hasDay(2) ? 'checked' : '' %>>
               <span>Tuesday</span>
             </label>
             <label class="checkbox-item">
-              <input type="checkbox" name="workingDays" value="3" <%= workingDays.includes(3) ? 'checked' : '' %>>
+              <input type="checkbox" name="workingDays[]" value="3" <%= hasDay(3) ? 'checked' : '' %>>
               <span>Wednesday</span>
             </label>
             <label class="checkbox-item">
-              <input type="checkbox" name="workingDays" value="4" <%= workingDays.includes(4) ? 'checked' : '' %>>
+              <input type="checkbox" name="workingDays[]" value="4" <%= hasDay(4) ? 'checked' : '' %>>
               <span>Thursday</span>
             </label>
             <label class="checkbox-item">
-              <input type="checkbox" name="workingDays" value="5" <%= workingDays.includes(5) ? 'checked' : '' %>>
+              <input type="checkbox" name="workingDays[]" value="5" <%= hasDay(5) ? 'checked' : '' %>>
               <span>Friday</span>
             </label>
             <label class="checkbox-item">
-              <input type="checkbox" name="workingDays" value="6" <%= workingDays.includes(6) ? 'checked' : '' %>>
+              <input type="checkbox" name="workingDays[]" value="6" <%= hasDay(6) ? 'checked' : '' %>>
               <span>Saturday</span>
             </label>
             <label class="checkbox-item">
-              <input type="checkbox" name="workingDays" value="0" <%= workingDays.includes(0) ? 'checked' : '' %>>
+              <input type="checkbox" name="workingDays[]" value="0" <%= hasDay(0) ? 'checked' : '' %>>
               <span>Sunday</span>
             </label>
           </div>

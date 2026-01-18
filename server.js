@@ -1318,23 +1318,26 @@ app.post('/dashboard/settings', authenticateToken, async (req, res) => {
   try {
     const { 
       clinicName, clinicPhone, clinicAddress, websiteUrl, 
-      startHour, endHour, slotsPerHour, services, workingDays,
+      startHour, endHour, slotsPerHour, services,
       logoUrl, emailBusinessName, primaryColor, secondaryColor, backgroundColor, textColor,
       confirmationSubject, confirmationMessage, 
       cancellationSubject, cancellationMessage,
       reminderSubject, reminderMessage, emailFooter 
     } = req.body;
     
+    // Get workingDays from body - can be workingDays or workingDays[]
+    const workingDaysRaw = req.body['workingDays[]'] || req.body.workingDays;
+    
     // Parse working days (checkboxes) - handle both array and single value
     let parsedWorkingDays = [1, 2, 3, 4, 5]; // default Mon-Fri
-    if (workingDays) {
-      if (Array.isArray(workingDays)) {
-        parsedWorkingDays = workingDays.map(d => parseInt(d, 10)).filter(d => !isNaN(d));
+    if (workingDaysRaw) {
+      if (Array.isArray(workingDaysRaw)) {
+        parsedWorkingDays = workingDaysRaw.map(d => parseInt(d, 10)).filter(d => !isNaN(d));
       } else {
-        parsedWorkingDays = [parseInt(workingDays, 10)].filter(d => !isNaN(d));
+        parsedWorkingDays = [parseInt(workingDaysRaw, 10)].filter(d => !isNaN(d));
       }
     }
-    console.log('[SETTINGS] Working days received:', workingDays, '-> parsed:', parsedWorkingDays);
+    console.log('[SETTINGS] Working days received:', workingDaysRaw, '-> parsed:', parsedWorkingDays);
     
     await Owner.findByIdAndUpdate(req.owner.id, {
       clinicName,
