@@ -127,7 +127,7 @@
         </div>
       <% } %>
       
-      <form method="POST" action="/settings">
+      <form method="POST" action="/dashboard/settings">
         <!-- BUSINESS TAB -->
         <div class="tab-content active" id="tab-business">
           <div class="settings-header">
@@ -349,9 +349,9 @@
             
             <p style="color:var(--text-secondary);margin-bottom:20px;">Sync your bookings with Google Calendar to keep everything in one place.</p>
             
-            <button type="button" class="btn-save" style="background:linear-gradient(135deg,#4285f4,#34a853);" disabled>
-              <i data-feather="link" style="width:18px;height:18px;margin-right:8px;"></i> Coming Soon
-            </button>
+            <p style="color:var(--text-muted);font-size:14px;padding:20px;background:var(--bg-primary);border-radius:10px;">
+              Google Calendar integration requires OAuth setup. Contact support@buildhaze.com for enterprise integration options.
+            </p>
           </div>
         </div>
       </form>

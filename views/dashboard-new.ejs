@@ -702,6 +702,52 @@
     }
     
     /* Responsive adjustments */
+    @media (max-width: 1024px) {
+      .sidebar {
+        transform: translateX(-100%);
+        position: fixed;
+        z-index: 1000;
+        height: 100vh;
+      }
+      
+      .sidebar.open {
+        transform: translateX(0);
+      }
+      
+      .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0,0,0,0.5);
+        z-index: 999;
+      }
+      
+      .sidebar.open + .sidebar-overlay,
+      .sidebar-overlay.active {
+        display: block;
+      }
+      
+      .main-content {
+        margin-left: 0 !important;
+        width: 100% !important;
+      }
+      
+      .mobile-menu-btn {
+        display: flex !important;
+      }
+      
+      .dashboard-grid {
+        grid-template-columns: 1fr !important;
+      }
+      
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+      }
+    }
+    
     @media (max-width: 768px) {
       .welcome-banner {
         padding: var(--spacing-lg);
@@ -732,6 +778,44 @@
       
       .stat-value {
         font-size: 28px;
+      }
+      
+      .stats-grid {
+        grid-template-columns: 1fr !important;
+      }
+      
+      .page-content {
+        padding: var(--spacing-md) !important;
+      }
+      
+      .top-header {
+        padding: var(--spacing-md) !important;
+      }
+      
+      .header-right .btn span {
+        display: none;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .welcome-banner {
+        padding: var(--spacing-md);
+      }
+      
+      .welcome-title {
+        font-size: 20px;
+      }
+      
+      .welcome-subtitle {
+        font-size: 14px;
+      }
+      
+      .stat-card {
+        padding: var(--spacing-md);
+      }
+      
+      .stat-value {
+        font-size: 24px;
       }
     }
   </style>
@@ -1366,10 +1450,24 @@
           </div>
         </div>
         <div class="card" style="padding: 32px; margin-top: 24px;">
-          <div class="empty-state">
-            <div class="empty-state-icon"><svg style="width: 40px; height: 40px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
-            <h3 class="empty-state-title">Advanced Analytics Coming Soon</h3>
-            <p class="empty-state-description">Charts and detailed reports will be available here</p>
+          <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 20px;">Booking Statistics</h3>
+          <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px;">
+            <div style="background: var(--bg-tertiary); border-radius: 12px; padding: 20px;">
+              <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">Confirmed Bookings</p>
+              <p style="font-size: 28px; font-weight: 700; color: #10b981;"><%= typeof allBookings !== 'undefined' ? allBookings.filter(b => b.status === 'confirmed').length : 0 %></p>
+            </div>
+            <div style="background: var(--bg-tertiary); border-radius: 12px; padding: 20px;">
+              <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">Pending Bookings</p>
+              <p style="font-size: 28px; font-weight: 700; color: #f59e0b;"><%= typeof allBookings !== 'undefined' ? allBookings.filter(b => b.status === 'pending').length : 0 %></p>
+            </div>
+            <div style="background: var(--bg-tertiary); border-radius: 12px; padding: 20px;">
+              <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">Cancelled Bookings</p>
+              <p style="font-size: 28px; font-weight: 700; color: #ef4444;"><%= typeof allBookings !== 'undefined' ? allBookings.filter(b => b.status === 'cancelled').length : 0 %></p>
+            </div>
+            <div style="background: var(--bg-tertiary); border-radius: 12px; padding: 20px;">
+              <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 8px;">Completion Rate</p>
+              <p style="font-size: 28px; font-weight: 700; color: var(--brand-primary);"><%= typeof allBookings !== 'undefined' && allBookings.length > 0 ? Math.round((allBookings.filter(b => b.status === 'completed').length / allBookings.length) * 100) : 0 %>%</p>
+            </div>
           </div>
         </div>
         <% } %>
