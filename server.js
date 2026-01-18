@@ -1181,6 +1181,7 @@ app.get('/dashboard', authenticateToken, async (req, res) => {
     
     // Use new UI by default, old UI with ?ui=old
     const useOldUI = req.query.ui === 'old';
+    const activeTab = req.query.tab || 'dashboard';
     
     if (useOldUI) {
       res.render('dashboard', { owner, bookings: allBookings, success: req.query.success });
@@ -1192,6 +1193,7 @@ app.get('/dashboard', authenticateToken, async (req, res) => {
         completedBookings,
         pendingBookings,
         totalClients: uniqueClients,
+        activeTab,
         success: req.query.success 
       });
     }

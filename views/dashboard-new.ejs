@@ -748,18 +748,19 @@
         <span class="sidebar-brand">BuildHaze</span>
       </div>
       
+      <% const tab = typeof activeTab !== 'undefined' ? activeTab : 'dashboard'; %>
       <nav class="sidebar-nav">
         <div class="nav-section">
           <div class="nav-section-title">Overview</div>
-          <a href="/dashboard" class="nav-item <%= !req || !req.query || !req.query.tab ? 'active' : '' %>">
+          <a href="/dashboard" class="nav-item <%= tab === 'dashboard' ? 'active' : '' %>">
             <i data-feather="grid" class="nav-icon"></i>
             <span>Dashboard</span>
           </a>
-          <a href="/dashboard?tab=calendar" class="nav-item">
+          <a href="/dashboard?tab=calendar" class="nav-item <%= tab === 'calendar' ? 'active' : '' %>">
             <i data-feather="calendar" class="nav-icon"></i>
             <span>Calendar</span>
           </a>
-          <a href="/dashboard?tab=bookings" class="nav-item">
+          <a href="/dashboard?tab=bookings" class="nav-item <%= tab === 'bookings' ? 'active' : '' %>">
             <i data-feather="check-square" class="nav-icon"></i>
             <span>Bookings</span>
             <% if (typeof todayBookings !== 'undefined' && todayBookings.length > 0) { %>
@@ -770,15 +771,15 @@
         
         <div class="nav-section">
           <div class="nav-section-title">Management</div>
-          <a href="/dashboard?tab=team" class="nav-item">
+          <a href="/dashboard?tab=team" class="nav-item <%= tab === 'team' ? 'active' : '' %>">
             <i data-feather="users" class="nav-icon"></i>
             <span>Team Members</span>
           </a>
-          <a href="/dashboard?tab=services" class="nav-item">
+          <a href="/dashboard?tab=services" class="nav-item <%= tab === 'services' ? 'active' : '' %>">
             <i data-feather="briefcase" class="nav-icon"></i>
             <span>Services</span>
           </a>
-          <a href="/dashboard?tab=clients" class="nav-item">
+          <a href="/dashboard?tab=clients" class="nav-item <%= tab === 'clients' ? 'active' : '' %>">
             <i data-feather="user" class="nav-icon"></i>
             <span>Clients</span>
           </a>
@@ -790,11 +791,11 @@
             <i data-feather="zap" class="nav-icon"></i>
             <span>AI Assistant</span>
           </a>
-          <a href="/dashboard?tab=analytics" class="nav-item">
+          <a href="/dashboard?tab=analytics" class="nav-item <%= tab === 'analytics' ? 'active' : '' %>">
             <i data-feather="bar-chart-2" class="nav-icon"></i>
             <span>Analytics</span>
           </a>
-          <a href="/dashboard?tab=email-templates" class="nav-item">
+          <a href="/dashboard?tab=email-templates" class="nav-item <%= tab === 'email-templates' ? 'active' : '' %>">
             <i data-feather="mail" class="nav-icon"></i>
             <span>Email Templates</span>
           </a>
