@@ -3,6 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#10b981">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/icons/icon-192x192.svg">
   <link rel="icon" type="image/png" href="https://cdn.shopify.com/s/files/1/0940/5274/5549/files/Untitled_design-100_550ad869-e845-4877-9844-37e6bd98b2a0.png?v=1766876822">
   <title>Add Booking - <%= owner.clinicName || 'Dashboard' %></title>
   <style>
@@ -16,6 +20,14 @@
       --neo-danger: #ef4444;
       --neo-text: #1e293b;
       --neo-text-muted: #64748b;
+    }
+    
+    [data-theme="dark"] {
+      --neo-bg: #1a1a2e;
+      --neo-shadow-dark: #0f0f1a;
+      --neo-shadow-light: #252542;
+      --neo-text: #e2e8f0;
+      --neo-text-muted: #94a3b8;
     }
     
     body {
@@ -431,6 +443,10 @@
     
     typeBooking.addEventListener('change', toggleClientFields);
     typeBlocked.addEventListener('change', toggleClientFields);
+    
+    // Dark Mode - apply saved theme
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
   </script>
 </body>
 </html>

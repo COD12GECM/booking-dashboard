@@ -1405,24 +1405,30 @@ app.post('/dashboard/settings', authenticateToken, async (req, res) => {
 app.post('/dashboard/team/add', authenticateToken, async (req, res) => {
   try {
     const { name, role, email, phone, color } = req.body;
+    console.log('[TEAM] Adding team member:', { name, role, email, phone, color, ownerId: req.owner.id });
     
     if (!name || name.trim() === '') {
       return res.redirect('/dashboard/settings?error=Team member name is required');
     }
     
-    await Owner.findByIdAndUpdate(req.owner.id, {
-      $push: {
-        teamMembers: {
-          name: name.trim(),
-          role: role || 'Specialist',
-          email: email || '',
-          phone: phone || '',
-          color: color || '#10b981',
-          isActive: true
+    const result = await Owner.findByIdAndUpdate(
+      req.owner.id, 
+      {
+        $push: {
+          teamMembers: {
+            name: name.trim(),
+            role: role || 'Specialist',
+            email: email || '',
+            phone: phone || '',
+            color: color || '#10b981',
+            isActive: true
+          }
         }
-      }
-    });
+      },
+      { new: true }
+    );
     
+    console.log('[TEAM] Team members after add:', result?.teamMembers);
     res.redirect('/dashboard/settings?success=Team member added');
   } catch (error) {
     console.error('Add team member error:', error);
