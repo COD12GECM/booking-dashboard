@@ -550,93 +550,6 @@
         </div>
       </div>
       
-      <!-- TEAM TAB -->
-      <div class="tab-content" id="tab-team">
-        <div class="card">
-          <h2 class="card-title">Team Members</h2>
-          <p class="form-hint" style="margin-bottom: 20px;">Add your team members (doctors, specialists, etc.) to assign bookings to specific people.</p>
-          
-          <% const teamMembers = owner.teamMembers || []; %>
-          
-          <% if (teamMembers.length > 0) { %>
-            <div class="team-list" style="margin-bottom: 24px;">
-              <% teamMembers.forEach(member => { %>
-                <div class="team-member-card" style="display: flex; align-items: center; gap: 16px; padding: 16px; background: var(--neo-bg); border-radius: 12px; margin-bottom: 12px; box-shadow: 3px 3px 6px var(--neo-shadow-dark), -3px -3px 6px var(--neo-shadow-light);">
-                  <div class="member-avatar" style="width: 48px; height: 48px; border-radius: 50%; background: <%= member.color || '#10b981' %>; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 18px;">
-                    <%= member.name.charAt(0).toUpperCase() %>
-                  </div>
-                  <div class="member-info" style="flex: 1;">
-                    <div style="font-weight: 600; color: var(--neo-text);"><%= member.name %></div>
-                    <div style="font-size: 13px; color: var(--neo-text-muted);"><%= member.role || 'Specialist' %></div>
-                    <% if (member.email) { %><div style="font-size: 12px; color: var(--neo-text-muted);"><%= member.email %></div><% } %>
-                  </div>
-                  <div class="member-actions" style="display: flex; gap: 8px;">
-                    <span class="status-badge" style="padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; background: <%= member.isActive !== false ? '#d1fae5' : '#fee2e2' %>; color: <%= member.isActive !== false ? '#059669' : '#dc2626' %>;">
-                      <%= member.isActive !== false ? 'Active' : 'Inactive' %>
-                    </span>
-                    <button type="button" class="edit-member-btn" data-member='<%= JSON.stringify(member) %>' style="padding: 8px 12px; border: none; border-radius: 8px; background: var(--neo-bg); color: var(--neo-text); cursor: pointer; box-shadow: 2px 2px 4px var(--neo-shadow-dark), -2px -2px 4px var(--neo-shadow-light);">Edit</button>
-                    <form method="POST" action="/dashboard/team/delete/<%= member._id %>" style="display: inline;" onsubmit="return confirm('Remove this team member?')">
-                      <button type="submit" style="padding: 8px 12px; border: none; border-radius: 8px; background: #fee2e2; color: #dc2626; cursor: pointer;">✕</button>
-                    </form>
-                  </div>
-                </div>
-              <% }); %>
-            </div>
-          <% } else { %>
-            <div style="text-align: center; padding: 40px; color: var(--neo-text-muted);">
-              <p style="margin-bottom: 8px;">No team members yet</p>
-              <p style="font-size: 13px;">Add team members to assign bookings to specific people</p>
-            </div>
-          <% } %>
-          
-          <h3 style="font-size: 14px; font-weight: 600; margin: 24px 0 16px; color: var(--neo-text);">Add New Team Member</h3>
-        </div>
-        
-        <form method="POST" action="/dashboard/team/add" class="card" style="margin-top: 16px;">
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">Name *</label>
-              <input type="text" name="name" class="form-input" placeholder="Dr. John Smith" required>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Role</label>
-              <input type="text" name="role" class="form-input" placeholder="Specialist, Doctor, etc.">
-            </div>
-          </div>
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">Email</label>
-              <input type="email" name="email" class="form-input" placeholder="john@clinic.com">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Phone</label>
-              <input type="tel" name="phone" class="form-input" placeholder="+40 123 456 789">
-            </div>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Color (for calendar)</label>
-            <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-              <label style="cursor: pointer;"><input type="radio" name="color" value="#10b981" checked style="display: none;"><span class="color-option" style="display: block; width: 36px; height: 36px; border-radius: 50%; background: #10b981; border: 3px solid transparent;"></span></label>
-              <label style="cursor: pointer;"><input type="radio" name="color" value="#3b82f6" style="display: none;"><span class="color-option" style="display: block; width: 36px; height: 36px; border-radius: 50%; background: #3b82f6; border: 3px solid transparent;"></span></label>
-              <label style="cursor: pointer;"><input type="radio" name="color" value="#8b5cf6" style="display: none;"><span class="color-option" style="display: block; width: 36px; height: 36px; border-radius: 50%; background: #8b5cf6; border: 3px solid transparent;"></span></label>
-              <label style="cursor: pointer;"><input type="radio" name="color" value="#ec4899" style="display: none;"><span class="color-option" style="display: block; width: 36px; height: 36px; border-radius: 50%; background: #ec4899; border: 3px solid transparent;"></span></label>
-              <label style="cursor: pointer;"><input type="radio" name="color" value="#f59e0b" style="display: none;"><span class="color-option" style="display: block; width: 36px; height: 36px; border-radius: 50%; background: #f59e0b; border: 3px solid transparent;"></span></label>
-              <label style="cursor: pointer;"><input type="radio" name="color" value="#ef4444" style="display: none;"><span class="color-option" style="display: block; width: 36px; height: 36px; border-radius: 50%; background: #ef4444; border: 3px solid transparent;"></span></label>
-            </div>
-          </div>
-          <button type="submit" class="btn" style="margin-top: 16px;">+ Add Team Member</button>
-        </form>
-        
-        <div class="card" style="margin-top: 16px;">
-          <h3 class="card-title">Team Settings</h3>
-          <label style="display: flex; align-items: center; gap: 12px; cursor: pointer;">
-            <input type="checkbox" name="requireTeamMember" <%= owner.settings?.requireTeamMember ? 'checked' : '' %> style="width: 20px; height: 20px;">
-            <span style="color: var(--neo-text);">Require team member selection for bookings</span>
-          </label>
-          <p class="form-hint" style="margin-top: 8px;">When enabled, clients must select a specific team member when booking.</p>
-        </div>
-      </div>
-      
       <!-- EMAIL TEMPLATES TAB -->
       <div class="tab-content" id="tab-email">
         <div class="card">
@@ -755,6 +668,81 @@
       
       <button type="submit" class="btn">Save All Settings</button>
     </form>
+    
+    <!-- TEAM TAB (outside main form to allow nested forms) -->
+    <div class="tab-content" id="tab-team">
+      <div class="card">
+        <h2 class="card-title">Team Members</h2>
+        <p class="form-hint" style="margin-bottom: 20px;">Add your team members (doctors, specialists, etc.) to assign bookings to specific people.</p>
+        
+        <% const teamMembers = owner.teamMembers || []; %>
+        
+        <% if (teamMembers.length > 0) { %>
+          <div class="team-list" style="margin-bottom: 24px;">
+            <% teamMembers.forEach(member => { %>
+              <div class="team-member-card" style="display: flex; align-items: center; gap: 16px; padding: 16px; background: var(--neo-bg); border-radius: 12px; margin-bottom: 12px; box-shadow: 3px 3px 6px var(--neo-shadow-dark), -3px -3px 6px var(--neo-shadow-light); flex-wrap: wrap;">
+                <div style="width: 48px; height: 48px; border-radius: 50%; background: <%= member.color || '#10b981' %>; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 18px;">
+                  <%= member.name.charAt(0).toUpperCase() %>
+                </div>
+                <div style="flex: 1; min-width: 150px;">
+                  <div style="font-weight: 600; color: var(--neo-text);"><%= member.name %></div>
+                  <div style="font-size: 13px; color: var(--neo-text-muted);"><%= member.role || 'Specialist' %></div>
+                </div>
+                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                  <span style="padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; background: <%= member.isActive !== false ? '#d1fae5' : '#fee2e2' %>; color: <%= member.isActive !== false ? '#059669' : '#dc2626' %>;">
+                    <%= member.isActive !== false ? 'Active' : 'Inactive' %>
+                  </span>
+                  <form method="POST" action="/dashboard/team/delete/<%= member._id %>" style="display: inline;" onsubmit="return confirm('Remove this team member?')">
+                    <button type="submit" style="padding: 6px 12px; border: none; border-radius: 8px; background: #fee2e2; color: #dc2626; cursor: pointer; font-size: 12px;">Remove</button>
+                  </form>
+                </div>
+              </div>
+            <% }); %>
+          </div>
+        <% } else { %>
+          <div style="text-align: center; padding: 40px; color: var(--neo-text-muted);">
+            <p style="margin-bottom: 8px;">No team members yet</p>
+            <p style="font-size: 13px;">Add team members below to assign bookings to specific people</p>
+          </div>
+        <% } %>
+      </div>
+      
+      <form method="POST" action="/dashboard/team/add" class="card" style="margin-top: 16px;">
+        <h3 class="card-title">Add New Team Member</h3>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Name *</label>
+            <input type="text" name="name" class="form-input" placeholder="Dr. John Smith" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Role</label>
+            <input type="text" name="role" class="form-input" placeholder="Specialist, Doctor, etc.">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input type="email" name="email" class="form-input" placeholder="john@clinic.com">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Phone</label>
+            <input type="tel" name="phone" class="form-input" placeholder="+40 123 456 789">
+          </div>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Color (for calendar)</label>
+          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+            <label style="cursor: pointer;"><input type="radio" name="color" value="#10b981" checked style="display: none;"><span class="color-option" style="display: block; width: 36px; height: 36px; border-radius: 50%; background: #10b981; border: 3px solid transparent;"></span></label>
+            <label style="cursor: pointer;"><input type="radio" name="color" value="#3b82f6" style="display: none;"><span class="color-option" style="display: block; width: 36px; height: 36px; border-radius: 50%; background: #3b82f6; border: 3px solid transparent;"></span></label>
+            <label style="cursor: pointer;"><input type="radio" name="color" value="#8b5cf6" style="display: none;"><span class="color-option" style="display: block; width: 36px; height: 36px; border-radius: 50%; background: #8b5cf6; border: 3px solid transparent;"></span></label>
+            <label style="cursor: pointer;"><input type="radio" name="color" value="#ec4899" style="display: none;"><span class="color-option" style="display: block; width: 36px; height: 36px; border-radius: 50%; background: #ec4899; border: 3px solid transparent;"></span></label>
+            <label style="cursor: pointer;"><input type="radio" name="color" value="#f59e0b" style="display: none;"><span class="color-option" style="display: block; width: 36px; height: 36px; border-radius: 50%; background: #f59e0b; border: 3px solid transparent;"></span></label>
+            <label style="cursor: pointer;"><input type="radio" name="color" value="#ef4444" style="display: none;"><span class="color-option" style="display: block; width: 36px; height: 36px; border-radius: 50%; background: #ef4444; border: 3px solid transparent;"></span></label>
+          </div>
+        </div>
+        <button type="submit" class="btn" style="margin-top: 16px;">+ Add Team Member</button>
+      </form>
+    </div>
   </div>
   
   <script>
