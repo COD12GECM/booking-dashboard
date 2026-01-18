@@ -3,6 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#10b981">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="BuildHaze">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/icons/icon-192x192.svg">
   <link rel="icon" type="image/png" href="https://cdn.shopify.com/s/files/1/0940/5274/5549/files/Untitled_design-100_550ad869-e845-4877-9844-37e6bd98b2a0.png?v=1766876822">
   <title>Dashboard - <%= owner.clinicName || 'Booking' %></title>
   <style>
@@ -914,6 +920,15 @@
         });
       }
     });
+    
+    // Register Service Worker for PWA
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js')
+          .then(reg => console.log('SW registered'))
+          .catch(err => console.log('SW registration failed'));
+      });
+    }
   </script>
 </body>
 </html>
