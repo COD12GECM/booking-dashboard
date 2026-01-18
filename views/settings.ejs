@@ -257,6 +257,29 @@
       font-weight: 600;
     }
     
+    .day-toggle {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 10px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      background: var(--neo-bg);
+      color: var(--neo-text);
+      box-shadow: 3px 3px 6px var(--neo-shadow-dark), -3px -3px 6px var(--neo-shadow-light);
+      transition: all 0.2s ease;
+    }
+    
+    .day-toggle.active {
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white;
+      box-shadow: inset 2px 2px 4px rgba(0,0,0,0.2);
+    }
+    
+    .day-toggle:hover {
+      transform: scale(1.02);
+    }
+    
     .template-section {
       background: #f8fafc;
       border-radius: 12px;
@@ -468,35 +491,15 @@
             const workingDays = owner.settings?.workingDays || [1, 2, 3, 4, 5]; 
             const hasDay = (day) => workingDays.includes(day) || workingDays.includes(String(day));
           %>
-          <div class="checkbox-group">
-            <label class="checkbox-item">
-              <input type="checkbox" name="workingDays[]" value="1" <%= hasDay(1) ? 'checked' : '' %>>
-              <span>Monday</span>
-            </label>
-            <label class="checkbox-item">
-              <input type="checkbox" name="workingDays[]" value="2" <%= hasDay(2) ? 'checked' : '' %>>
-              <span>Tuesday</span>
-            </label>
-            <label class="checkbox-item">
-              <input type="checkbox" name="workingDays[]" value="3" <%= hasDay(3) ? 'checked' : '' %>>
-              <span>Wednesday</span>
-            </label>
-            <label class="checkbox-item">
-              <input type="checkbox" name="workingDays[]" value="4" <%= hasDay(4) ? 'checked' : '' %>>
-              <span>Thursday</span>
-            </label>
-            <label class="checkbox-item">
-              <input type="checkbox" name="workingDays[]" value="5" <%= hasDay(5) ? 'checked' : '' %>>
-              <span>Friday</span>
-            </label>
-            <label class="checkbox-item">
-              <input type="checkbox" name="workingDays[]" value="6" <%= hasDay(6) ? 'checked' : '' %>>
-              <span>Saturday</span>
-            </label>
-            <label class="checkbox-item">
-              <input type="checkbox" name="workingDays[]" value="0" <%= hasDay(0) ? 'checked' : '' %>>
-              <span>Sunday</span>
-            </label>
+          <input type="hidden" name="workingDaysData" id="workingDaysData" value="<%= JSON.stringify(workingDays) %>">
+          <div class="checkbox-group" id="working-days-group">
+            <button type="button" class="day-toggle <%= hasDay(1) ? 'active' : '' %>" data-day="1">Monday</button>
+            <button type="button" class="day-toggle <%= hasDay(2) ? 'active' : '' %>" data-day="2">Tuesday</button>
+            <button type="button" class="day-toggle <%= hasDay(3) ? 'active' : '' %>" data-day="3">Wednesday</button>
+            <button type="button" class="day-toggle <%= hasDay(4) ? 'active' : '' %>" data-day="4">Thursday</button>
+            <button type="button" class="day-toggle <%= hasDay(5) ? 'active' : '' %>" data-day="5">Friday</button>
+            <button type="button" class="day-toggle <%= hasDay(6) ? 'active' : '' %>" data-day="6">Saturday</button>
+            <button type="button" class="day-toggle <%= hasDay(0) ? 'active' : '' %>" data-day="0">Sunday</button>
           </div>
         </div>
       </div>
@@ -648,6 +651,28 @@
       } else {
         preview.innerHTML = '<span class="logo-preview-placeholder">No logo</span>';
       }
+    });
+    
+    // Working days toggle buttons
+    const dayToggles = document.querySelectorAll('.day-toggle');
+    const workingDaysInput = document.getElementById('workingDaysData');
+    
+    function updateWorkingDays() {
+      const selectedDays = [];
+      dayToggles.forEach(btn => {
+        if (btn.classList.contains('active')) {
+          selectedDays.push(parseInt(btn.dataset.day));
+        }
+      });
+      workingDaysInput.value = JSON.stringify(selectedDays);
+    }
+    
+    dayToggles.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        btn.classList.toggle('active');
+        updateWorkingDays();
+      });
     });
   </script>
 </body>

@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <link rel="icon" type="image/png" href="https://cdn.shopify.com/s/files/1/0940/5274/5549/files/Untitled_design-100_550ad869-e845-4877-9844-37e6bd98b2a0.png?v=1766876822">
   <title>Dashboard - <%= owner.clinicName || 'Booking' %></title>
   <style>
@@ -311,8 +311,38 @@
       color: #000000 !important;
       font-weight: 700;
       -webkit-text-fill-color: #000000;
-      border: 2px solid #374151;
       min-width: 140px;
+      background: var(--neo-bg);
+      box-shadow: inset 3px 3px 6px var(--neo-shadow-dark), inset -3px -3px 6px var(--neo-shadow-light);
+      font-size: 16px;
+    }
+    
+    .view-tab[type="date"]::-webkit-datetime-edit-text,
+    .view-tab[type="date"]::-webkit-datetime-edit-month-field,
+    .view-tab[type="date"]::-webkit-datetime-edit-day-field,
+    .view-tab[type="date"]::-webkit-datetime-edit-year-field {
+      color: #000000;
+    }
+    
+    .date-picker-wrapper {
+      position: relative;
+      display: inline-block;
+    }
+    
+    .date-picker-label {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #64748b;
+      font-size: 13px;
+      pointer-events: none;
+      transition: opacity 0.2s;
+    }
+    
+    .date-picker-wrapper input:valid + .date-picker-label,
+    .date-picker-wrapper input:focus + .date-picker-label {
+      opacity: 0;
     }
     
     .view-tab:hover {
@@ -457,8 +487,18 @@
       .view-tab[type="date"] {
         width: auto;
         margin-top: 0;
-        border: 2px solid #374151;
-        background: white;
+        font-size: 16px;
+      }
+      .booking-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .action-btn {
+        padding: 12px 16px;
+        font-size: 13px;
+        min-width: auto;
+        flex: 0 0 auto;
       }
       .stats-grid {
         grid-template-columns: 1fr;
@@ -668,7 +708,10 @@
           <button class="view-tab" data-view="week">This Week</button>
           <button class="view-tab" data-view="month">This Month</button>
           <button class="view-tab" data-view="all">All</button>
-          <input type="date" id="date-picker" class="view-tab" style="padding: 6px 12px; cursor: pointer;" title="Choose specific date">
+          <div class="date-picker-wrapper">
+            <input type="date" id="date-picker" class="view-tab" style="padding: 8px 12px; cursor: pointer;" title="Choose specific date">
+            <span class="date-picker-label">📅 Pick Date</span>
+          </div>
         </div>
       </div>
       <a href="/dashboard/add-booking" class="btn btn-primary">

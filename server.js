@@ -1325,19 +1325,20 @@ app.post('/dashboard/settings', authenticateToken, async (req, res) => {
       reminderSubject, reminderMessage, emailFooter 
     } = req.body;
     
-    // Get workingDays from body - can be workingDays or workingDays[]
-    const workingDaysRaw = req.body['workingDays[]'] || req.body.workingDays;
-    
-    // Parse working days (checkboxes) - handle both array and single value
+    // Parse working days from JSON string
     let parsedWorkingDays = [1, 2, 3, 4, 5]; // default Mon-Fri
-    if (workingDaysRaw) {
-      if (Array.isArray(workingDaysRaw)) {
-        parsedWorkingDays = workingDaysRaw.map(d => parseInt(d, 10)).filter(d => !isNaN(d));
-      } else {
-        parsedWorkingDays = [parseInt(workingDaysRaw, 10)].filter(d => !isNaN(d));
+    const workingDaysData = req.body.workingDaysData;
+    if (workingDaysData) {
+      try {
+        parsedWorkingDays = JSON.parse(workingDaysData);
+        if (!Array.isArray(parsedWorkingDays)) {
+          parsedWorkingDays = [1, 2, 3, 4, 5];
+        }
+      } catch (e) {
+        console.log('[SETTINGS] Failed to parse workingDaysData:', e.message);
       }
     }
-    console.log('[SETTINGS] Working days received:', workingDaysRaw, '-> parsed:', parsedWorkingDays);
+    console.log('[SETTINGS] Working days saved:', parsedWorkingDays);
     
     await Owner.findByIdAndUpdate(req.owner.id, {
       clinicName,
