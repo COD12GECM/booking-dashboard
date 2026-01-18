@@ -706,7 +706,7 @@
       
       // Team members
       if (q.includes('team') || q.includes('member') || q.includes('specialist') || q.includes('doctor')) {
-        const teamMembers = <%= JSON.stringify(owner.teamMembers || []) %>;
+        const teamMembers = <%- JSON.stringify(owner.teamMembers || []) %>;
         if (teamMembers.length === 0) {
           return '<strong>Team Members</strong><br><br>' +
             'You haven\'t added any team members yet.<br><br>' +
