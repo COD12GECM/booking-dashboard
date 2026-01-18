@@ -1179,10 +1179,12 @@ app.get('/dashboard', authenticateToken, async (req, res) => {
     // Get unique clients
     const uniqueClients = new Set(allBookings.map(b => b.email)).size;
     
-    // Check if new UI is requested
-    const useNewUI = req.query.ui === 'new' || req.cookies.useNewUI === 'true';
+    // Use new UI by default, old UI with ?ui=old
+    const useOldUI = req.query.ui === 'old';
     
-    if (useNewUI) {
+    if (useOldUI) {
+      res.render('dashboard', { owner, bookings: allBookings, success: req.query.success });
+    } else {
       res.render('dashboard-new', { 
         owner, 
         allBookings,
@@ -1192,8 +1194,6 @@ app.get('/dashboard', authenticateToken, async (req, res) => {
         totalClients: uniqueClients,
         success: req.query.success 
       });
-    } else {
-      res.render('dashboard', { owner, bookings: allBookings, success: req.query.success });
     }
   } catch (error) {
     console.error('Dashboard error:', error);
