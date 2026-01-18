@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Leave a Review</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #e0e5ec 0%, #d0d5dc 100%);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    
+    .review-card {
+      background: #e0e5ec;
+      border-radius: 24px;
+      padding: 40px;
+      max-width: 500px;
+      width: 100%;
+      box-shadow: 20px 20px 60px #a3b1c6, -20px -20px 60px #ffffff;
+    }
+    
+    .review-header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    
+    .review-logo {
+      width: 64px;
+      height: 64px;
+      background: linear-gradient(135deg, #10b981, #059669);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+    }
+    
+    .review-logo svg {
+      width: 32px;
+      height: 32px;
+      stroke: white;
+      fill: none;
+    }
+    
+    .review-title {
+      font-size: 24px;
+      font-weight: 700;
+      color: #1e293b;
+      margin-bottom: 8px;
+    }
+    
+    .review-subtitle {
+      color: #64748b;
+      font-size: 14px;
+    }
+    
+    .review-business {
+      font-weight: 600;
+      color: #10b981;
+    }
+    
+    .rating-container {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+    
+    .star {
+      width: 48px;
+      height: 48px;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+    
+    .star:hover {
+      transform: scale(1.2);
+    }
+    
+    .star svg {
+      width: 100%;
+      height: 100%;
+      fill: #d1d5db;
+      transition: fill 0.2s;
+    }
+    
+    .star.active svg {
+      fill: #fbbf24;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    .form-label {
+      display: block;
+      font-weight: 600;
+      color: #1e293b;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+    
+    .form-textarea {
+      width: 100%;
+      padding: 16px;
+      border: none;
+      border-radius: 12px;
+      font-size: 15px;
+      resize: vertical;
+      min-height: 120px;
+      background: #e0e5ec;
+      color: #1e293b;
+      box-shadow: inset 4px 4px 8px #a3b1c6, inset -4px -4px 8px #ffffff;
+    }
+    
+    .form-textarea:focus {
+      outline: none;
+    }
+    
+    .submit-btn {
+      width: 100%;
+      padding: 16px;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      background: linear-gradient(135deg, #10b981, #059669);
+      color: white;
+      box-shadow: 6px 6px 12px #a3b1c6, -6px -6px 12px #ffffff;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .submit-btn:hover {
+      transform: translateY(-2px);
+    }
+    
+    .submit-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    
+    .message {
+      padding: 16px;
+      border-radius: 12px;
+      margin-bottom: 20px;
+      text-align: center;
+      font-weight: 500;
+    }
+    
+    .message.success {
+      background: #d1fae5;
+      color: #065f46;
+    }
+    
+    .message.error {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+    
+    .booking-info {
+      background: rgba(16, 185, 129, 0.1);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 24px;
+    }
+    
+    .booking-info p {
+      color: #1e293b;
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+    
+    .booking-info strong {
+      color: #10b981;
+    }
+    
+    input[type="hidden"] { display: none; }
+  </style>
+</head>
+<body>
+  <div class="review-card">
+    <div class="review-header">
+      <div class="review-logo">
+        <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+        </svg>
+      </div>
+      <h1 class="review-title">How was your visit?</h1>
+      <% if (owner) { %>
+        <p class="review-subtitle">Share your experience with <span class="review-business"><%= owner.clinicName || 'us' %></span></p>
+      <% } %>
+    </div>
+    
+    <% if (error) { %>
+      <div class="message error"><%= error %></div>
+    <% } %>
+    
+    <% if (success) { %>
+      <div class="message success"><%= success %></div>
+    <% } else if (booking) { %>
+      <div class="booking-info">
+        <p><strong>Service:</strong> <%= booking.service %></p>
+        <p><strong>Date:</strong> <%= booking.date %> at <%= booking.time %></p>
+        <% if (booking.teamMemberName) { %>
+          <p><strong>With:</strong> <%= booking.teamMemberName %></p>
+        <% } %>
+      </div>
+      
+      <form method="POST">
+        <div class="rating-container">
+          <% for (let i = 1; i <= 5; i++) { %>
+            <div class="star" data-rating="<%= i %>">
+              <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            </div>
+          <% } %>
+        </div>
+        <input type="hidden" name="rating" id="rating-input" value="5">
+        
+        <div class="form-group">
+          <label class="form-label">Your feedback (optional)</label>
+          <textarea name="comment" class="form-textarea" placeholder="Tell us about your experience..."></textarea>
+        </div>
+        
+        <button type="submit" class="submit-btn">Submit Review</button>
+      </form>
+    <% } %>
+  </div>
+  
+  <script>
+    const stars = document.querySelectorAll('.star');
+    const ratingInput = document.getElementById('rating-input');
+    let currentRating = 5;
+    
+    function updateStars(rating) {
+      stars.forEach((star, index) => {
+        if (index < rating) {
+          star.classList.add('active');
+        } else {
+          star.classList.remove('active');
+        }
+      });
+    }
+    
+    stars.forEach(star => {
+      star.addEventListener('click', () => {
+        currentRating = parseInt(star.dataset.rating);
+        ratingInput.value = currentRating;
+        updateStars(currentRating);
+      });
+      
+      star.addEventListener('mouseenter', () => {
+        updateStars(parseInt(star.dataset.rating));
+      });
+      
+      star.addEventListener('mouseleave', () => {
+        updateStars(currentRating);
+      });
+    });
+    
+    updateStars(currentRating);
+  </script>
+</body>
+</html>

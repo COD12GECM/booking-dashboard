@@ -173,6 +173,17 @@ const ownerSchema = new mongoose.Schema({
     services: { type: [String], default: ['Consultation'] },
     requireTeamMember: { type: Boolean, default: false }
   },
+  reviews: [{
+    bookingId: Number,
+    clientName: String,
+    clientEmail: String,
+    rating: { type: Number, min: 1, max: 5 },
+    comment: String,
+    service: String,
+    teamMemberName: String,
+    isPublic: { type: Boolean, default: false },
+    createdAt: { type: Date, default: Date.now }
+  }],
   emailSettings: {
     logoUrl: { type: String, default: '' },
     primaryColor: { type: String, default: '#10b981' },
@@ -746,6 +757,86 @@ async function sendReminderEmail(booking, owner) {
   }
 }
 
+// Send Review Request Email
+async function sendReviewRequestEmail(booking, owner, reviewToken) {
+  const businessName = owner.emailSettings?.businessName || owner.clinicName || 'Our Clinic';
+  const primaryColor = owner.emailSettings?.primaryColor || '#10b981';
+  const reviewUrl = `${process.env.APP_URL || 'https://dashboard.buildhaze.com'}/review/${reviewToken}`;
+
+  const emailHtml = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f5f5f5;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; padding: 40px 20px;">
+    <tr>
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" style="background: #ffffff; border-radius: 16px; overflow: hidden; border: 1px solid #e5e5e5;">
+          <tr>
+            <td style="background: linear-gradient(135deg, ${primaryColor} 0%, #059669 100%); padding: 50px 40px; text-align: center;">
+              <h1 style="color: #ffffff; margin: 0 0 12px; font-size: 32px; font-weight: 700;">How was your visit?</h1>
+              <p style="color: rgba(255,255,255,0.9); margin: 0; font-size: 18px;">${businessName}</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 40px;">
+              <p style="color: #374151; font-size: 20px; margin: 0 0 24px;">Dear <strong>${booking.name}</strong>,</p>
+              <p style="color: #6b7280; font-size: 18px; margin: 0 0 32px; line-height: 1.7;">Thank you for visiting us! We hope you had a great experience. Your feedback helps us improve our services.</p>
+              
+              <table width="100%" cellpadding="0" cellspacing="0" style="margin-bottom: 32px;">
+                <tr>
+                  <td align="center">
+                    <a href="${reviewUrl}" style="display: inline-block; padding: 18px 48px; background: linear-gradient(135deg, ${primaryColor} 0%, #059669 100%); color: #ffffff; text-decoration: none; border-radius: 12px; font-size: 18px; font-weight: 700;">Leave Your Review</a>
+                  </td>
+                </tr>
+              </table>
+              
+              <p style="color: #9ca3af; font-size: 14px; margin: 0; text-align: center;">This link is private and unique to you. Your review will help us serve you better.</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="background: #f9fafb; padding: 24px 40px; text-align: center; border-top: 1px solid #e5e5e5;">
+              <p style="color: #9ca3af; font-size: 14px; margin: 0;">${businessName}</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+  `;
+
+  try {
+    const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+      method: 'POST',
+      headers: {
+        'accept': 'application/json',
+        'api-key': process.env.BREVO_API_KEY,
+        'content-type': 'application/json'
+      },
+      body: JSON.stringify({
+        sender: { name: businessName, email: process.env.BREVO_SENDER_EMAIL },
+        to: [{ email: booking.email, name: booking.name }],
+        subject: `How was your visit to ${businessName}?`,
+        htmlContent: emailHtml
+      })
+    });
+
+    if (response.ok) {
+      console.log(`Review request email sent to ${booking.email}`);
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.error('Review request email error:', error.message);
+    return false;
+  }
+}
+
 // ============================================
 // SUPER ADMIN ROUTES
 // ============================================
@@ -1271,7 +1362,7 @@ app.post('/dashboard/no-show/:id', authenticateToken, async (req, res) => {
   }
 });
 
-// Mark booking as completed
+// Mark booking as completed and send review request
 app.post('/dashboard/complete/:id', authenticateToken, async (req, res) => {
   try {
     const owner = await Owner.findById(req.owner.id);
@@ -1280,14 +1371,89 @@ app.post('/dashboard/complete/:id', authenticateToken, async (req, res) => {
     const bookingDb = mongoose.connection.useDb('bookingdb');
     const BookingsCollection = bookingDb.collection('bookings');
     
+    const booking = await BookingsCollection.findOne({ id: bookingId, clinicEmail: owner.email });
+    
+    // Generate review token
+    const reviewToken = require('crypto').randomBytes(32).toString('hex');
+    
     await BookingsCollection.updateOne(
       { id: bookingId, clinicEmail: owner.email },
-      { $set: { status: 'completed', completedAt: new Date() } }
+      { $set: { status: 'completed', completedAt: new Date(), reviewToken: reviewToken } }
     );
     
-    res.redirect('/dashboard?success=Marked as completed');
+    // Send review request email
+    if (booking && booking.email) {
+      await sendReviewRequestEmail(booking, owner, reviewToken);
+    }
+    
+    res.redirect('/dashboard?success=Marked as completed - Review request sent');
   } catch (error) {
     res.redirect('/dashboard?error=' + error.message);
+  }
+});
+
+// Public Review Page
+app.get('/review/:token', async (req, res) => {
+  try {
+    const bookingDb = mongoose.connection.useDb('bookingdb');
+    const BookingsCollection = bookingDb.collection('bookings');
+    
+    const booking = await BookingsCollection.findOne({ reviewToken: req.params.token });
+    
+    if (!booking) {
+      return res.render('review', { error: 'Invalid or expired review link', booking: null, owner: null });
+    }
+    
+    const owner = await Owner.findOne({ email: booking.clinicEmail });
+    
+    res.render('review', { booking, owner, error: null, success: null });
+  } catch (error) {
+    res.render('review', { error: 'Something went wrong', booking: null, owner: null });
+  }
+});
+
+// Submit Review
+app.post('/review/:token', async (req, res) => {
+  try {
+    const { rating, comment } = req.body;
+    
+    const bookingDb = mongoose.connection.useDb('bookingdb');
+    const BookingsCollection = bookingDb.collection('bookings');
+    
+    const booking = await BookingsCollection.findOne({ reviewToken: req.params.token });
+    
+    if (!booking) {
+      return res.render('review', { error: 'Invalid or expired review link', booking: null, owner: null });
+    }
+    
+    const owner = await Owner.findOne({ email: booking.clinicEmail });
+    
+    // Add review to owner's reviews array
+    await Owner.findByIdAndUpdate(owner._id, {
+      $push: {
+        reviews: {
+          bookingId: booking.id,
+          clientName: booking.name,
+          clientEmail: booking.email,
+          rating: parseInt(rating),
+          comment: comment || '',
+          service: booking.service,
+          teamMemberName: booking.teamMemberName || '',
+          isPublic: false,
+          createdAt: new Date()
+        }
+      }
+    });
+    
+    // Mark review as submitted
+    await BookingsCollection.updateOne(
+      { reviewToken: req.params.token },
+      { $set: { reviewSubmitted: true } }
+    );
+    
+    res.render('review', { booking, owner, error: null, success: 'Thank you for your feedback!' });
+  } catch (error) {
+    res.render('review', { error: 'Failed to submit review', booking: null, owner: null });
   }
 });
 
