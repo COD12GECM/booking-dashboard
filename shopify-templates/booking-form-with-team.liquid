@@ -1,0 +1,478 @@
+{% comment %}
+  BuildHaze Booking Form with Team Member Selection
+  
+  INSTALLATION:
+  1. Go to Shopify Admin > Online Store > Themes > Edit Code
+  2. Create a new section called "booking-form-team"
+  3. Paste this code
+  4. Add the section to your page
+  
+  CONFIGURATION:
+  - Set your API endpoint in the schema settings
+  - Team members are fetched from your dashboard automatically
+  - Customize colors and text in the schema
+{% endcomment %}
+
+<div class="booking-section" id="booking-{{ section.id }}">
+  <div class="booking-container">
+    <h2 class="booking-title">{{ section.settings.title | default: 'Book an Appointment' }}</h2>
+    <p class="booking-subtitle">{{ section.settings.subtitle | default: 'Select your preferred date, time, and specialist' }}</p>
+    
+    <form id="booking-form-{{ section.id }}" class="booking-form" onsubmit="return submitBooking(event, '{{ section.id }}')">
+      
+      {% if section.settings.show_team_member %}
+      <div class="form-group">
+        <label for="teamMember-{{ section.id }}">{{ section.settings.team_label | default: 'Select Specialist' }}</label>
+        <select id="teamMember-{{ section.id }}" name="teamMemberId" {% if section.settings.require_team_member %}required{% endif %}>
+          <option value="">{{ section.settings.team_placeholder | default: 'Any available specialist' }}</option>
+          {% comment %} Team members will be loaded dynamically {% endcomment %}
+        </select>
+        <p class="form-hint">{{ section.settings.team_hint | default: 'Choose your preferred specialist or leave empty for any available' }}</p>
+      </div>
+      {% endif %}
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label for="date-{{ section.id }}">Date *</label>
+          <input type="date" id="date-{{ section.id }}" name="date" required min="">
+        </div>
+        <div class="form-group">
+          <label for="time-{{ section.id }}">Time *</label>
+          <select id="time-{{ section.id }}" name="time" required>
+            <option value="">Select a time</option>
+          </select>
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="service-{{ section.id }}">Service *</label>
+        <select id="service-{{ section.id }}" name="service" required>
+          <option value="">Select a service</option>
+          {% for service in section.settings.services %}
+            <option value="{{ service }}">{{ service }}</option>
+          {% endfor %}
+        </select>
+      </div>
+      
+      <div class="form-row">
+        <div class="form-group">
+          <label for="name-{{ section.id }}">Your Name *</label>
+          <input type="text" id="name-{{ section.id }}" name="name" required placeholder="John Doe">
+        </div>
+        <div class="form-group">
+          <label for="email-{{ section.id }}">Email *</label>
+          <input type="email" id="email-{{ section.id }}" name="email" required placeholder="john@example.com">
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <label for="phone-{{ section.id }}">Phone</label>
+        <input type="tel" id="phone-{{ section.id }}" name="phone" placeholder="+40 123 456 789">
+      </div>
+      
+      <div class="form-group">
+        <label for="notes-{{ section.id }}">Notes (optional)</label>
+        <textarea id="notes-{{ section.id }}" name="notes" rows="3" placeholder="Any special requests..."></textarea>
+      </div>
+      
+      <button type="submit" class="booking-submit-btn" id="submit-btn-{{ section.id }}">
+        {{ section.settings.button_text | default: 'Book Appointment' }}
+      </button>
+      
+      <div id="booking-message-{{ section.id }}" class="booking-message" style="display: none;"></div>
+    </form>
+  </div>
+</div>
+
+<style>
+  .booking-section {
+    padding: 60px 20px;
+    background: {{ section.settings.background_color | default: '#f8fafc' }};
+  }
+  
+  .booking-container {
+    max-width: 600px;
+    margin: 0 auto;
+  }
+  
+  .booking-title {
+    text-align: center;
+    font-size: 32px;
+    font-weight: 700;
+    color: {{ section.settings.text_color | default: '#1e293b' }};
+    margin-bottom: 8px;
+  }
+  
+  .booking-subtitle {
+    text-align: center;
+    color: #64748b;
+    margin-bottom: 32px;
+  }
+  
+  .booking-form {
+    background: white;
+    padding: 32px;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+  }
+  
+  .form-group {
+    margin-bottom: 20px;
+  }
+  
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  
+  @media (max-width: 600px) {
+    .form-row {
+      grid-template-columns: 1fr;
+    }
+  }
+  
+  .form-group label {
+    display: block;
+    font-weight: 600;
+    color: {{ section.settings.text_color | default: '#1e293b' }};
+    margin-bottom: 8px;
+    font-size: 14px;
+  }
+  
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    width: 100%;
+    padding: 14px 16px;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 15px;
+    transition: border-color 0.2s;
+  }
+  
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus {
+    outline: none;
+    border-color: {{ section.settings.primary_color | default: '#10b981' }};
+  }
+  
+  .form-hint {
+    font-size: 12px;
+    color: #64748b;
+    margin-top: 6px;
+  }
+  
+  .booking-submit-btn {
+    width: 100%;
+    padding: 16px;
+    background: {{ section.settings.primary_color | default: '#10b981' }};
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s, opacity 0.2s;
+  }
+  
+  .booking-submit-btn:hover {
+    transform: translateY(-2px);
+    opacity: 0.95;
+  }
+  
+  .booking-submit-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+  
+  .booking-message {
+    margin-top: 16px;
+    padding: 16px;
+    border-radius: 10px;
+    text-align: center;
+    font-weight: 500;
+  }
+  
+  .booking-message.success {
+    background: #d1fae5;
+    color: #065f46;
+  }
+  
+  .booking-message.error {
+    background: #fee2e2;
+    color: #991b1b;
+  }
+  
+  .team-member-option {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  
+  .team-color-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: inline-block;
+  }
+</style>
+
+<script>
+(function() {
+  const sectionId = '{{ section.id }}';
+  const apiEndpoint = '{{ section.settings.api_endpoint }}';
+  const clinicEmail = '{{ section.settings.clinic_email }}';
+  const showTeamMember = {{ section.settings.show_team_member | default: false }};
+  
+  // Set minimum date to today
+  const dateInput = document.getElementById('date-' + sectionId);
+  const today = new Date().toISOString().split('T')[0];
+  dateInput.min = today;
+  dateInput.value = today;
+  
+  // Load team members if enabled
+  if (showTeamMember && apiEndpoint) {
+    loadTeamMembers();
+  }
+  
+  // Load available times when date changes
+  dateInput.addEventListener('change', loadAvailableTimes);
+  
+  // Initial load
+  loadAvailableTimes();
+  
+  async function loadTeamMembers() {
+    try {
+      const response = await fetch(apiEndpoint + '/api/team-members?clinicEmail=' + encodeURIComponent(clinicEmail));
+      const data = await response.json();
+      
+      const select = document.getElementById('teamMember-' + sectionId);
+      if (data.teamMembers && data.teamMembers.length > 0) {
+        data.teamMembers.forEach(member => {
+          const option = document.createElement('option');
+          option.value = member._id;
+          option.textContent = member.name + (member.role ? ' - ' + member.role : '');
+          option.dataset.color = member.color || '#10b981';
+          select.appendChild(option);
+        });
+      }
+    } catch (error) {
+      console.log('Could not load team members');
+    }
+  }
+  
+  async function loadAvailableTimes() {
+    const date = dateInput.value;
+    const timeSelect = document.getElementById('time-' + sectionId);
+    const teamMemberSelect = document.getElementById('teamMember-' + sectionId);
+    const teamMemberId = teamMemberSelect ? teamMemberSelect.value : '';
+    
+    timeSelect.innerHTML = '<option value="">Loading...</option>';
+    
+    try {
+      let url = apiEndpoint + '/api/available-slots?clinicEmail=' + encodeURIComponent(clinicEmail) + '&date=' + date;
+      if (teamMemberId) {
+        url += '&teamMemberId=' + teamMemberId;
+      }
+      
+      const response = await fetch(url);
+      const data = await response.json();
+      
+      timeSelect.innerHTML = '<option value="">Select a time</option>';
+      
+      if (data.slots && data.slots.length > 0) {
+        data.slots.forEach(slot => {
+          const option = document.createElement('option');
+          option.value = slot.time;
+          option.textContent = slot.time + (slot.available ? '' : ' (Booked)');
+          option.disabled = !slot.available;
+          timeSelect.appendChild(option);
+        });
+      } else {
+        timeSelect.innerHTML = '<option value="">No available times</option>';
+      }
+    } catch (error) {
+      timeSelect.innerHTML = '<option value="">Error loading times</option>';
+    }
+  }
+  
+  // Re-load times when team member changes
+  const teamMemberSelect = document.getElementById('teamMember-' + sectionId);
+  if (teamMemberSelect) {
+    teamMemberSelect.addEventListener('change', loadAvailableTimes);
+  }
+  
+  // Form submission
+  window.submitBooking = async function(event, id) {
+    event.preventDefault();
+    
+    const form = document.getElementById('booking-form-' + id);
+    const submitBtn = document.getElementById('submit-btn-' + id);
+    const messageDiv = document.getElementById('booking-message-' + id);
+    
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Booking...';
+    
+    const formData = new FormData(form);
+    const bookingData = {
+      clinicEmail: clinicEmail,
+      date: formData.get('date'),
+      time: formData.get('time'),
+      service: formData.get('service'),
+      name: formData.get('name'),
+      email: formData.get('email'),
+      phone: formData.get('phone') || '',
+      notes: formData.get('notes') || '',
+      teamMemberId: formData.get('teamMemberId') || ''
+    };
+    
+    try {
+      const response = await fetch(apiEndpoint + '/api/book', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(bookingData)
+      });
+      
+      const result = await response.json();
+      
+      if (result.success) {
+        messageDiv.className = 'booking-message success';
+        messageDiv.textContent = '{{ section.settings.success_message | default: "Booking confirmed! Check your email for details." }}';
+        messageDiv.style.display = 'block';
+        form.reset();
+        dateInput.value = today;
+        loadAvailableTimes();
+      } else {
+        throw new Error(result.error || 'Booking failed');
+      }
+    } catch (error) {
+      messageDiv.className = 'booking-message error';
+      messageDiv.textContent = error.message || '{{ section.settings.error_message | default: "Something went wrong. Please try again." }}';
+      messageDiv.style.display = 'block';
+    }
+    
+    submitBtn.disabled = false;
+    submitBtn.textContent = '{{ section.settings.button_text | default: "Book Appointment" }}';
+    
+    return false;
+  };
+})();
+</script>
+
+{% schema %}
+{
+  "name": "Booking Form (Team)",
+  "tag": "section",
+  "class": "booking-form-section",
+  "settings": [
+    {
+      "type": "text",
+      "id": "api_endpoint",
+      "label": "API Endpoint",
+      "info": "Your booking API URL (e.g., https://booking-api.onrender.com)",
+      "default": ""
+    },
+    {
+      "type": "text",
+      "id": "clinic_email",
+      "label": "Clinic Email",
+      "info": "The email associated with your dashboard account",
+      "default": ""
+    },
+    {
+      "type": "text",
+      "id": "title",
+      "label": "Section Title",
+      "default": "Book an Appointment"
+    },
+    {
+      "type": "text",
+      "id": "subtitle",
+      "label": "Section Subtitle",
+      "default": "Select your preferred date, time, and specialist"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_team_member",
+      "label": "Show Team Member Selection",
+      "default": false,
+      "info": "Enable to let clients choose a specific team member"
+    },
+    {
+      "type": "checkbox",
+      "id": "require_team_member",
+      "label": "Require Team Member Selection",
+      "default": false,
+      "info": "Make team member selection mandatory"
+    },
+    {
+      "type": "text",
+      "id": "team_label",
+      "label": "Team Member Label",
+      "default": "Select Specialist"
+    },
+    {
+      "type": "text",
+      "id": "team_placeholder",
+      "label": "Team Member Placeholder",
+      "default": "Any available specialist"
+    },
+    {
+      "type": "text",
+      "id": "team_hint",
+      "label": "Team Member Hint Text",
+      "default": "Choose your preferred specialist or leave empty for any available"
+    },
+    {
+      "type": "textarea",
+      "id": "services",
+      "label": "Services (one per line)",
+      "default": "Consultation\nTreatment\nFollow-up"
+    },
+    {
+      "type": "text",
+      "id": "button_text",
+      "label": "Submit Button Text",
+      "default": "Book Appointment"
+    },
+    {
+      "type": "text",
+      "id": "success_message",
+      "label": "Success Message",
+      "default": "Booking confirmed! Check your email for details."
+    },
+    {
+      "type": "text",
+      "id": "error_message",
+      "label": "Error Message",
+      "default": "Something went wrong. Please try again."
+    },
+    {
+      "type": "color",
+      "id": "primary_color",
+      "label": "Primary Color",
+      "default": "#10b981"
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background Color",
+      "default": "#f8fafc"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Text Color",
+      "default": "#1e293b"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Booking Form (Team)",
+      "category": "Booking"
+    }
+  ]
+}
+{% endschema %}
