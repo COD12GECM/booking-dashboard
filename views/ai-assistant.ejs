@@ -35,7 +35,27 @@
     }
     
     [data-theme="dark"] .message-content {
-      background: #3a3a3c;
+      background: #2c2c2e !important;
+      color: #ffffff !important;
+    }
+    
+    [data-theme="dark"] .message.assistant .message-content {
+      background: #3a3a3c !important;
+      color: #ffffff !important;
+    }
+    
+    [data-theme="dark"] .stat-card {
+      background: #2c2c2e;
+    }
+    
+    [data-theme="dark"] .stat-value,
+    [data-theme="dark"] .stat-label,
+    [data-theme="dark"] .quick-btn {
+      color: #ffffff;
+    }
+    
+    [data-theme="dark"] .chat-container {
+      background: #2c2c2e;
     }
     
     [data-theme="dark"] .nav-link {
@@ -283,7 +303,7 @@
     }
     
     .message.assistant .message-content {
-      background: white;
+      background: var(--neo-card-bg);
       color: var(--neo-text);
       box-shadow: 0 2px 8px rgba(0,0,0,0.08);
     }
