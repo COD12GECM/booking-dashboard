@@ -704,14 +704,82 @@
           'Top service: <strong>' + stats.popularService + '</strong>';
       }
       
+      // Team members
+      if (q.includes('team') || q.includes('member') || q.includes('specialist') || q.includes('doctor')) {
+        const teamMembers = <%= JSON.stringify(owner.teamMembers || []) %>;
+        if (teamMembers.length === 0) {
+          return '<strong>Team Members</strong><br><br>' +
+            'You haven\'t added any team members yet.<br><br>' +
+            '<strong>To add team members:</strong><br>' +
+            '1. Go to <strong>Settings</strong><br>' +
+            '2. Click on the <strong>Team</strong> tab<br>' +
+            '3. Fill in the team member details<br>' +
+            '4. Click <strong>+ Add Team Member</strong><br><br>' +
+            'Team members can be assigned to specific bookings!';
+        }
+        let teamHtml = '<strong>Your Team (' + teamMembers.length + ' members)</strong><br><br>';
+        teamMembers.forEach(m => {
+          teamHtml += '<div style="margin-bottom: 8px;">• <strong>' + m.name + '</strong> - ' + (m.role || 'Specialist') + '</div>';
+        });
+        teamHtml += '<br>To see bookings per team member, check the dashboard - each booking shows the assigned team member.';
+        return teamHtml;
+      }
+      
+      // Export clients
+      if (q.includes('export') || q.includes('download') || q.includes('excel') || q.includes('csv') || q.includes('client list')) {
+        return '<strong>Export Clients</strong><br><br>' +
+          'You can export your client list to CSV (Excel compatible).<br><br>' +
+          '<a href="/api/export-clients?format=csv" style="display: inline-block; padding: 10px 20px; background: linear-gradient(135deg, #10b981, #059669); color: white; border-radius: 10px; text-decoration: none; font-weight: 600;">📥 Download Client List (CSV)</a><br><br>' +
+          'The file includes: Name, Email, Phone, Total Bookings, Last Visit';
+      }
+      
+      // Client search
+      if (q.includes('find client') || q.includes('search client') || q.includes('client named') || q.includes('when was')) {
+        return '<strong>Client Search</strong><br><br>' +
+          'To find a specific client:<br>' +
+          '1. Go to the <strong>Bookings</strong> page<br>' +
+          '2. Click on any <strong>client name</strong> (underlined)<br>' +
+          '3. A popup will show their complete history<br><br>' +
+          'The history includes: Total visits, Completed, Cancelled, and all past bookings.';
+      }
+      
+      // Day off / blocking
+      if (q.includes('day off') || q.includes('block') || q.includes('vacation') || q.includes('holiday')) {
+        return '<strong>Blocking Time / Day Off</strong><br><br>' +
+          'To block time slots:<br>' +
+          '1. Go to <strong>Bookings</strong> page<br>' +
+          '2. Click the orange <strong>Day Off</strong> button<br>' +
+          '3. Select the date and optionally a team member<br>' +
+          '4. Add a reason (optional)<br>' +
+          '5. Click <strong>Block Day</strong><br><br>' +
+          'This will block all slots for that day. Clients won\'t be able to book during blocked times.';
+      }
+      
+      // WhatsApp
+      if (q.includes('whatsapp') || q.includes('message') || q.includes('sms')) {
+        return '<strong>WhatsApp & Messaging</strong><br><br>' +
+          'Each booking with a phone number has a <strong>green WhatsApp button</strong>.<br><br>' +
+          'To customize the message:<br>' +
+          '1. Go to <strong>Settings</strong><br>' +
+          '2. Click <strong>Email Templates</strong> tab<br>' +
+          '3. Scroll to the green <strong>WhatsApp Message Template</strong> section<br>' +
+          '4. Customize your message using variables:<br>' +
+          '   - {clientName} - Client\'s name<br>' +
+          '   - {date} - Appointment date<br>' +
+          '   - {time} - Appointment time<br>' +
+          '   - {clinicName} - Your business name';
+      }
+      
       // Default response
       return 'I can help you with:<br><br>' +
         '<strong>"Tutorial"</strong> - Learn how to use the dashboard<br>' +
         '<strong>"Settings tutorial"</strong> - Learn about settings<br>' +
-        '<strong>"Email tutorial"</strong> - Learn about the email system<br>' +
+        '<strong>"Team members"</strong> - Manage your team<br>' +
+        '<strong>"Export clients"</strong> - Download client list<br>' +
+        '<strong>"Day off"</strong> - Block time slots<br>' +
+        '<strong>"WhatsApp"</strong> - Messaging setup<br>' +
         '<strong>"What are my busiest days?"</strong> - Booking patterns<br>' +
         '<strong>"How can I reduce no-shows?"</strong> - Practical tips<br>' +
-        '<strong>"Tips to get more bookings"</strong> - Growth strategies<br>' +
         '<strong>"Summarize my week"</strong> - Quick overview<br><br>' +
         'Try asking one of these questions!';
     }
