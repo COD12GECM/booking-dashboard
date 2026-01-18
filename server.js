@@ -1325,8 +1325,16 @@ app.post('/dashboard/settings', authenticateToken, async (req, res) => {
       reminderSubject, reminderMessage, emailFooter 
     } = req.body;
     
-    // Parse working days (checkboxes)
-    const parsedWorkingDays = workingDays ? (Array.isArray(workingDays) ? workingDays.map(Number) : [Number(workingDays)]) : [1, 2, 3, 4, 5];
+    // Parse working days (checkboxes) - handle both array and single value
+    let parsedWorkingDays = [1, 2, 3, 4, 5]; // default Mon-Fri
+    if (workingDays) {
+      if (Array.isArray(workingDays)) {
+        parsedWorkingDays = workingDays.map(d => parseInt(d, 10)).filter(d => !isNaN(d));
+      } else {
+        parsedWorkingDays = [parseInt(workingDays, 10)].filter(d => !isNaN(d));
+      }
+    }
+    console.log('[SETTINGS] Working days received:', workingDays, '-> parsed:', parsedWorkingDays);
     
     await Owner.findByIdAndUpdate(req.owner.id, {
       clinicName,
