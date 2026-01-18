@@ -27,11 +27,35 @@
     }
     
     [data-theme="dark"] {
-      --neo-bg: #1a1a2e;
-      --neo-shadow-dark: #0f0f1a;
-      --neo-shadow-light: #252542;
-      --neo-text: #e2e8f0;
-      --neo-text-muted: #94a3b8;
+      --neo-bg: #1c1c1e;
+      --neo-shadow-dark: #0a0a0b;
+      --neo-shadow-light: #2c2c2e;
+      --neo-text: #ffffff;
+      --neo-text-muted: #a1a1a6;
+      --neo-card-bg: #2c2c2e;
+    }
+    
+    [data-theme="dark"] .card,
+    [data-theme="dark"] .stat-card,
+    [data-theme="dark"] .booking-card,
+    [data-theme="dark"] .day-group {
+      background: var(--neo-card-bg);
+    }
+    
+    [data-theme="dark"] input,
+    [data-theme="dark"] select,
+    [data-theme="dark"] textarea {
+      background: #3a3a3c;
+      color: #ffffff;
+      border-color: #48484a;
+    }
+    
+    [data-theme="dark"] .nav-link {
+      color: #ffffff;
+    }
+    
+    [data-theme="dark"] .booking-card {
+      border-left-color: var(--neo-primary);
     }
     
     .theme-toggle {
@@ -850,7 +874,7 @@
                     <div class="booking-client" style="color: var(--neo-warning);">Blocked Slot</div>
                     <div class="booking-service"><%= booking.notes || 'Time blocked' %><% if (booking.teamMemberName) { %> &bull; <span style="color: var(--neo-primary);"><%= booking.teamMemberName %></span><% } %></div>
                   <% } else { %>
-                    <div class="booking-client"><%= booking.name %><% if (booking.teamMemberName) { %> <span style="font-size: 12px; color: var(--neo-primary); font-weight: 500;">with <%= booking.teamMemberName %></span><% } %></div>
+                    <div class="booking-client"><a href="#" class="client-history-link" data-email="<%= booking.email %>" data-name="<%= booking.name %>" style="color: inherit; text-decoration: none; border-bottom: 1px dashed var(--neo-text-muted);"><%= booking.name %></a><% if (booking.teamMemberName) { %> <span style="font-size: 12px; color: var(--neo-primary); font-weight: 500;">with <%= booking.teamMemberName %></span><% } %></div>
                     <div class="booking-service"><%= booking.service %> &bull; <%= booking.email %><% if (booking.phone) { %> &bull; <%= booking.phone %><% } %></div>
                   <% } %>
                 </div>
@@ -892,7 +916,66 @@
     </div>
   </div>
   
+  <!-- Customer History Modal -->
+  <div id="customer-history-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+    <div style="background: var(--neo-bg); border-radius: 20px; padding: 24px; max-width: 500px; width: 90%; max-height: 80vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h3 style="color: var(--neo-text); font-size: 18px;" id="history-client-name">Client History</h3>
+        <button onclick="closeHistoryModal()" style="background: none; border: none; font-size: 24px; cursor: pointer; color: var(--neo-text-muted);">&times;</button>
+      </div>
+      <div id="history-content" style="color: var(--neo-text);">
+        <p style="text-align: center; color: var(--neo-text-muted);">Loading...</p>
+      </div>
+    </div>
+  </div>
+  
   <script>
+    // Customer History Modal
+    function closeHistoryModal() {
+      document.getElementById('customer-history-modal').style.display = 'none';
+    }
+    
+    document.querySelectorAll('.client-history-link').forEach(link => {
+      link.addEventListener('click', async (e) => {
+        e.preventDefault();
+        const email = link.dataset.email;
+        const name = link.dataset.name;
+        
+        document.getElementById('history-client-name').textContent = name + ' - History';
+        document.getElementById('customer-history-modal').style.display = 'flex';
+        document.getElementById('history-content').innerHTML = '<p style="text-align: center; color: var(--neo-text-muted);">Loading...</p>';
+        
+        try {
+          const response = await fetch('/api/client-history?email=' + encodeURIComponent(email));
+          const data = await response.json();
+          
+          if (data.bookings && data.bookings.length > 0) {
+            let html = '<div style="margin-bottom: 16px; padding: 16px; background: var(--neo-card-bg, #f0f0f0); border-radius: 12px;">';
+            html += '<div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; text-align: center;">';
+            html += '<div><div style="font-size: 24px; font-weight: 700; color: var(--neo-primary);">' + data.stats.total + '</div><div style="font-size: 11px; color: var(--neo-text-muted);">Total</div></div>';
+            html += '<div><div style="font-size: 24px; font-weight: 700; color: #10b981;">' + data.stats.completed + '</div><div style="font-size: 11px; color: var(--neo-text-muted);">Completed</div></div>';
+            html += '<div><div style="font-size: 24px; font-weight: 700; color: #ef4444;">' + data.stats.cancelled + '</div><div style="font-size: 11px; color: var(--neo-text-muted);">Cancelled</div></div>';
+            html += '</div></div>';
+            
+            html += '<h4 style="margin-bottom: 12px; color: var(--neo-text);">Recent Bookings</h4>';
+            data.bookings.slice(0, 10).forEach(b => {
+              const statusColor = b.status === 'completed' ? '#10b981' : b.status === 'cancelled' ? '#ef4444' : '#3b82f6';
+              html += '<div style="padding: 12px; border-left: 3px solid ' + statusColor + '; margin-bottom: 8px; background: var(--neo-card-bg, #f5f5f5); border-radius: 8px;">';
+              html += '<div style="font-weight: 600;">' + b.date + ' at ' + b.time + '</div>';
+              html += '<div style="font-size: 13px; color: var(--neo-text-muted);">' + b.service + ' - <span style="color: ' + statusColor + ';">' + (b.status || 'confirmed') + '</span></div>';
+              html += '</div>';
+            });
+            
+            document.getElementById('history-content').innerHTML = html;
+          } else {
+            document.getElementById('history-content').innerHTML = '<p style="text-align: center; color: var(--neo-text-muted);">No booking history found for this client.</p>';
+          }
+        } catch (err) {
+          document.getElementById('history-content').innerHTML = '<p style="text-align: center; color: #ef4444;">Error loading history</p>';
+        }
+      });
+    });
+    
     // View tabs filtering
     const tabs = document.querySelectorAll('.view-tab');
     const dayGroups = document.querySelectorAll('.day-group');

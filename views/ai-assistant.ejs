@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#8b5cf6">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <link rel="manifest" href="/manifest.json">
   <link rel="icon" type="image/png" href="https://cdn.shopify.com/s/files/1/0940/5274/5549/files/Untitled_design-100_550ad869-e845-4877-9844-37e6bd98b2a0.png?v=1766876822">
   <title>AI Assistant - <%= owner.clinicName || 'Dashboard' %></title>
   <style>
@@ -15,7 +18,49 @@
       --neo-primary: #10b981;
       --neo-text: #1e293b;
       --neo-text-muted: #64748b;
+      --neo-card-bg: #e0e5ec;
     }
+    
+    [data-theme="dark"] {
+      --neo-bg: #1c1c1e;
+      --neo-shadow-dark: #0a0a0b;
+      --neo-shadow-light: #2c2c2e;
+      --neo-text: #ffffff;
+      --neo-text-muted: #a1a1a6;
+      --neo-card-bg: #2c2c2e;
+    }
+    
+    [data-theme="dark"] .chat-messages {
+      background: var(--neo-card-bg);
+    }
+    
+    [data-theme="dark"] .message-content {
+      background: #3a3a3c;
+    }
+    
+    [data-theme="dark"] .nav-link {
+      color: #ffffff;
+    }
+    
+    [data-theme="dark"] input,
+    [data-theme="dark"] textarea {
+      background: #3a3a3c !important;
+      color: #ffffff !important;
+    }
+    
+    .theme-toggle {
+      background: var(--neo-bg);
+      border: none;
+      padding: 10px;
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 3px 3px 6px var(--neo-shadow-dark), -3px -3px 6px var(--neo-shadow-light);
+    }
+    .theme-toggle svg { width: 20px; height: 20px; stroke: var(--neo-text); }
+    [data-theme="dark"] .sun-icon { display: block; }
+    [data-theme="dark"] .moon-icon { display: none; }
+    .sun-icon { display: none; }
+    .moon-icon { display: block; }
     
     body {
       min-height: 100vh;
@@ -394,6 +439,10 @@
       <a href="/dashboard" class="nav-link">Bookings</a>
       <a href="/dashboard/settings" class="nav-link">Settings</a>
       <a href="/dashboard/ai-assistant" class="nav-link active">AI Assistant</a>
+      <button type="button" class="theme-toggle" id="theme-toggle" title="Toggle dark mode">
+        <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+        <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+      </button>
       <a href="/logout" class="nav-link">Logout</a>
     </div>
   </nav>
@@ -697,6 +746,18 @@
     
     document.getElementById('sendBtn').addEventListener('click', function() {
       sendMessage();
+    });
+    
+    // Dark Mode Toggle
+    const themeToggle = document.getElementById('theme-toggle');
+    const savedTheme = localStorage.getItem('theme') || 'light';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    
+    themeToggle.addEventListener('click', () => {
+      const currentTheme = document.documentElement.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      document.documentElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
     });
   </script>
 </body>

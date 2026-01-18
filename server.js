@@ -1447,7 +1447,8 @@ app.post('/dashboard/settings', authenticateToken, async (req, res) => {
       'emailSettings.cancellationMessage': cancellationMessage || 'Your appointment has been cancelled.',
       'emailSettings.reminderSubject': reminderSubject || 'Appointment Reminder',
       'emailSettings.reminderMessage': reminderMessage || 'This is a reminder for your upcoming appointment.',
-      'emailSettings.emailFooter': emailFooter || ''
+      'emailSettings.emailFooter': emailFooter || '',
+      'emailSettings.whatsappMessage': req.body.whatsappMessage || ''
     });
     
     res.redirect('/dashboard/settings?success=Settings updated');
@@ -1596,6 +1597,90 @@ app.post('/dashboard/day-off', authenticateToken, async (req, res) => {
 
 app.get('/', (req, res) => {
   res.redirect('/login');
+});
+
+// Client History API
+app.get('/api/client-history', authenticateToken, async (req, res) => {
+  try {
+    const { email } = req.query;
+    if (!email) {
+      return res.json({ bookings: [], stats: { total: 0, completed: 0, cancelled: 0 } });
+    }
+    
+    const owner = await Owner.findById(req.owner.id);
+    const bookingDb = mongoose.connection.useDb('bookingdb');
+    const BookingCollection = bookingDb.collection('bookings');
+    
+    const bookings = await BookingCollection.find({
+      clinicEmail: owner.email,
+      email: email,
+      type: { $ne: 'blocked' }
+    }).sort({ date: -1, time: -1 }).limit(50).toArray();
+    
+    const stats = {
+      total: bookings.length,
+      completed: bookings.filter(b => b.status === 'completed').length,
+      cancelled: bookings.filter(b => b.status === 'cancelled' || b.status === 'no-show').length
+    };
+    
+    res.json({ bookings, stats });
+  } catch (error) {
+    console.error('Client history error:', error);
+    res.json({ bookings: [], stats: { total: 0, completed: 0, cancelled: 0 } });
+  }
+});
+
+// Export Clients API
+app.get('/api/export-clients', authenticateToken, async (req, res) => {
+  try {
+    const owner = await Owner.findById(req.owner.id);
+    const bookingDb = mongoose.connection.useDb('bookingdb');
+    const BookingCollection = bookingDb.collection('bookings');
+    
+    const { startDate, endDate, format } = req.query;
+    
+    let query = { clinicEmail: owner.email, type: { $ne: 'blocked' } };
+    if (startDate && endDate) {
+      query.date = { $gte: startDate, $lte: endDate };
+    }
+    
+    const bookings = await BookingCollection.find(query).sort({ date: -1 }).toArray();
+    
+    // Get unique clients
+    const clientsMap = new Map();
+    bookings.forEach(b => {
+      if (b.email && !clientsMap.has(b.email)) {
+        clientsMap.set(b.email, {
+          name: b.name,
+          email: b.email,
+          phone: b.phone || '',
+          totalBookings: 0,
+          lastVisit: b.date
+        });
+      }
+      if (b.email) {
+        const client = clientsMap.get(b.email);
+        client.totalBookings++;
+      }
+    });
+    
+    const clients = Array.from(clientsMap.values());
+    
+    if (format === 'csv') {
+      let csv = 'Name,Email,Phone,Total Bookings,Last Visit\n';
+      clients.forEach(c => {
+        csv += `"${c.name}","${c.email}","${c.phone}",${c.totalBookings},"${c.lastVisit}"\n`;
+      });
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', 'attachment; filename=clients.csv');
+      return res.send(csv);
+    }
+    
+    res.json({ clients, total: clients.length });
+  } catch (error) {
+    console.error('Export clients error:', error);
+    res.status(500).json({ error: 'Failed to export clients' });
+  }
 });
 
 app.get('/health', (req, res) => {
