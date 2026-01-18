@@ -3,933 +3,396 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="theme-color" content="#10b981">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <link rel="manifest" href="/manifest.json">
-  <link rel="apple-touch-icon" href="/icons/icon-192x192.svg">
+  <meta name="theme-color" content="#667eea">
   <link rel="icon" type="image/png" href="https://cdn.shopify.com/s/files/1/0940/5274/5549/files/Untitled_design-100_550ad869-e845-4877-9844-37e6bd98b2a0.png?v=1766876822">
   <title>Settings - <%= owner.clinicName || 'Dashboard' %></title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+  <link rel="stylesheet" href="/css/styles.css">
+  
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { min-height: 100vh; background: var(--bg-primary); }
+    .settings-layout { display: flex; min-height: 100vh; }
     
-    :root {
-      --neo-bg: #e0e5ec;
-      --neo-shadow-dark: #a3b1c6;
-      --neo-shadow-light: #ffffff;
-      --neo-primary: #10b981;
-      --neo-text: #1e293b;
-      --neo-text-muted: #64748b;
-    }
+    /* Sidebar */
+    .settings-sidebar { width: 280px; background: var(--bg-secondary); border-right: 1px solid var(--border-color); padding: 32px 0; position: fixed; height: 100vh; overflow-y: auto; }
+    .sidebar-header { padding: 0 24px 24px; border-bottom: 1px solid var(--border-color); margin-bottom: 24px; }
+    .sidebar-back { display: flex; align-items: center; gap: 8px; color: var(--text-muted); text-decoration: none; font-size: 14px; margin-bottom: 16px; transition: color 0.2s; }
+    .sidebar-back:hover { color: var(--brand-primary); }
+    .sidebar-title { font-size: 24px; font-weight: 800; color: var(--text-primary); }
+    .sidebar-nav { padding: 0 12px; }
+    .nav-item { display: flex; align-items: center; gap: 12px; padding: 12px 16px; border-radius: 10px; color: var(--text-secondary); text-decoration: none; font-weight: 500; margin-bottom: 4px; transition: all 0.2s; cursor: pointer; border: none; background: none; width: 100%; text-align: left; font-size: 15px; }
+    .nav-item:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+    .nav-item.active { background: linear-gradient(135deg, rgba(102,126,234,0.1), rgba(118,75,162,0.1)); color: var(--brand-primary); font-weight: 600; }
+    .nav-item.active::before { content: ''; position: absolute; left: 0; width: 3px; height: 24px; background: linear-gradient(180deg, #667eea, #764ba2); border-radius: 0 4px 4px 0; }
+    .nav-icon { width: 20px; height: 20px; opacity: 0.7; }
+    .nav-item:hover .nav-icon, .nav-item.active .nav-icon { opacity: 1; }
     
-    [data-theme="dark"] {
-      --neo-bg: #1c1c1e;
-      --neo-shadow-dark: #0a0a0b;
-      --neo-shadow-light: #2c2c2e;
-      --neo-text: #ffffff;
-      --neo-text-muted: #a1a1a6;
-      --neo-card-bg: #2c2c2e;
-    }
+    /* Main Content */
+    .settings-main { flex: 1; margin-left: 280px; padding: 40px; }
+    .settings-header { margin-bottom: 32px; }
+    .settings-page-title { font-size: 28px; font-weight: 700; color: var(--text-primary); margin-bottom: 8px; }
+    .settings-page-desc { color: var(--text-muted); }
     
-    [data-theme="dark"] .card,
-    [data-theme="dark"] .tab-content {
-      background: var(--neo-card-bg);
-    }
+    .settings-card { background: var(--bg-secondary); border-radius: 16px; border: 1px solid var(--border-color); padding: 32px; margin-bottom: 24px; }
+    .card-title { font-size: 18px; font-weight: 700; color: var(--text-primary); margin-bottom: 24px; display: flex; align-items: center; gap: 12px; }
+    .card-title-icon { width: 40px; height: 40px; background: linear-gradient(135deg, rgba(102,126,234,0.1), rgba(118,75,162,0.1)); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--brand-primary); }
     
-    [data-theme="dark"] input,
-    [data-theme="dark"] select,
-    [data-theme="dark"] textarea {
-      background: #3a3a3c !important;
-      color: #ffffff !important;
-      border-color: #48484a;
-    }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+    .form-group { margin-bottom: 20px; }
+    .form-label { display: block; font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 8px; }
+    .form-hint { font-size: 13px; color: var(--text-muted); margin-top: 6px; }
+    .form-input, .form-select, .form-textarea { width: 100%; padding: 12px 16px; background: var(--bg-primary); border: 2px solid var(--border-color); border-radius: 10px; font-size: 15px; font-family: inherit; color: var(--text-primary); transition: all 0.2s; }
+    .form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: var(--brand-primary); box-shadow: 0 0 0 3px rgba(102,126,234,0.1); }
+    .form-textarea { min-height: 100px; resize: vertical; }
     
-    [data-theme="dark"] .nav-link {
-      color: #ffffff;
-    }
+    .btn-save { padding: 14px 32px; background: linear-gradient(135deg, #667eea, #764ba2); border: none; border-radius: 10px; font-size: 15px; font-weight: 600; color: white; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px -3px rgba(102,126,234,0.4); }
+    .btn-save:hover { transform: translateY(-2px); box-shadow: 0 8px 25px -5px rgba(102,126,234,0.5); }
     
-    [data-theme="dark"] .form-label {
-      color: #ffffff;
-    }
+    .success-msg { background: linear-gradient(135deg, #ecfdf5, #d1fae5); border: 1px solid #a7f3d0; color: #065f46; padding: 14px 18px; border-radius: 10px; margin-bottom: 24px; display: flex; align-items: center; gap: 10px; }
     
-    [data-theme="dark"] .tab {
-      color: #ffffff;
-    }
+    /* Days selector */
+    .days-grid { display: flex; flex-wrap: wrap; gap: 10px; }
+    .day-btn { padding: 10px 16px; border: 2px solid var(--border-color); border-radius: 8px; background: var(--bg-primary); color: var(--text-secondary); font-weight: 500; cursor: pointer; transition: all 0.2s; }
+    .day-btn.active { background: linear-gradient(135deg, #667eea, #764ba2); border-color: transparent; color: white; }
+    .day-btn:hover:not(.active) { border-color: var(--brand-primary); }
     
-    [data-theme="dark"] .card-title {
-      color: #ffffff;
-    }
+    /* Team members */
+    .team-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; }
+    .team-card { background: var(--bg-primary); border-radius: 12px; padding: 20px; display: flex; align-items: center; gap: 16px; }
+    .team-avatar { width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 18px; }
+    .team-info h4 { font-weight: 600; color: var(--text-primary); margin-bottom: 4px; }
+    .team-info p { font-size: 13px; color: var(--text-muted); }
+    .team-actions { margin-left: auto; display: flex; gap: 8px; }
+    .team-btn { width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border-color); background: var(--bg-secondary); display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--text-muted); transition: all 0.2s; }
+    .team-btn:hover { border-color: var(--brand-primary); color: var(--brand-primary); }
+    .team-btn.danger:hover { border-color: #ef4444; color: #ef4444; }
     
-    [data-theme="dark"] .email-template,
-    [data-theme="dark"] .template-card,
-    [data-theme="dark"] .email-preview {
-      background: #2c2c2e !important;
-    }
+    /* Color picker */
+    .color-row { display: flex; gap: 12px; align-items: center; }
+    .color-picker { width: 48px; height: 48px; border: none; border-radius: 10px; cursor: pointer; padding: 0; }
     
-    [data-theme="dark"] .email-template *,
-    [data-theme="dark"] .template-card *,
-    [data-theme="dark"] .email-preview * {
-      color: #ffffff !important;
-    }
-    
-    [data-theme="dark"] .template-header {
-      background: #3a3a3c !important;
-    }
-    
-    [data-theme="dark"] .template-body {
-      background: #2c2c2e !important;
-    }
-    
-    [data-theme="dark"] .team-member-card {
-      background: #3a3a3c !important;
-    }
-    
-    [data-theme="dark"] .team-member-card * {
-      color: #ffffff !important;
-    }
-    
-    .theme-toggle {
-      background: var(--neo-bg);
-      border: none;
-      padding: 10px;
-      border-radius: 50%;
-      cursor: pointer;
-      box-shadow: 3px 3px 6px var(--neo-shadow-dark), -3px -3px 6px var(--neo-shadow-light);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    .theme-toggle svg { width: 20px; height: 20px; stroke: var(--neo-text); }
-    [data-theme="dark"] .sun-icon { display: block; }
-    [data-theme="dark"] .moon-icon { display: none; }
-    .sun-icon { display: none; }
-    .moon-icon { display: block; }
-    
-    body {
-      min-height: 100vh;
-      background: var(--neo-bg);
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    }
-    
-    .navbar {
-      background: var(--neo-bg);
-      padding: 16px 24px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 4px 12px var(--neo-shadow-dark);
-      flex-wrap: wrap;
-      gap: 12px;
-    }
-    
-    .navbar-brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    
-    .navbar-logo {
-      width: 40px;
-      height: 40px;
-      background: linear-gradient(135deg, #10b981, #059669);
-      border-radius: 10px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    
-    .navbar-logo svg {
-      width: 22px;
-      height: 22px;
-      stroke: white;
-    }
-    
-    .navbar-title {
-      color: var(--neo-text);
-      font-size: 18px;
-      font-weight: 700;
-    }
-    
-    .navbar-actions {
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-    
-    .nav-link {
-      color: var(--neo-text-muted);
-      text-decoration: none;
-      padding: 8px 16px;
-      border-radius: 10px;
-      font-weight: 600;
-      font-size: 14px;
-      transition: all 0.3s ease;
-      background: var(--neo-bg);
-      box-shadow: 3px 3px 6px var(--neo-shadow-dark), -3px -3px 6px var(--neo-shadow-light);
-    }
-    
-    .nav-link:hover {
-      color: var(--neo-text);
-    }
-    
-    .nav-link.active {
-      background: linear-gradient(135deg, #10b981, #059669);
-      color: white;
-    }
-    
-    .container {
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 24px 16px;
-    }
-    
-    .page-header {
-      margin-bottom: 24px;
-    }
-    
-    .page-title {
-      color: var(--neo-text);
-      font-size: 24px;
-      font-weight: 700;
-    }
-    
-    .tabs {
-      display: flex;
-      gap: 8px;
-      margin-bottom: 24px;
-      flex-wrap: wrap;
-    }
-    
-    .tab {
-      padding: 10px 20px;
-      border: none;
-      border-radius: 10px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      background: var(--neo-bg);
-      color: var(--neo-text-muted);
-      box-shadow: 3px 3px 6px var(--neo-shadow-dark), -3px -3px 6px var(--neo-shadow-light);
-      transition: all 0.2s ease;
-    }
-    
-    .tab:hover { color: var(--neo-text); }
-    
-    .tab.active {
-      background: linear-gradient(135deg, #10b981, #059669);
-      color: white;
-      box-shadow: none;
-    }
-    
+    /* Tab content */
     .tab-content { display: none; }
-    .tab-content.active { display: block; }
+    .tab-content.active { display: block; animation: fadeIn 0.3s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     
-    .card {
-      background: var(--neo-bg);
-      border-radius: 20px;
-      padding: 28px;
-      margin-bottom: 20px;
-      box-shadow: 10px 10px 20px var(--neo-shadow-dark), -10px -10px 20px var(--neo-shadow-light);
-    }
-    
-    .card-title {
-      color: var(--neo-text);
-      font-size: 14px;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      margin-bottom: 20px;
-      padding-bottom: 12px;
-      border-bottom: 2px solid rgba(163, 177, 198, 0.3);
-    }
-    
-    .form-group {
-      margin-bottom: 20px;
-    }
-    
-    .form-label {
-      display: block;
-      color: var(--neo-text);
-      font-size: 12px;
-      font-weight: 600;
-      margin-bottom: 8px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-    
-    .form-input, .form-textarea {
-      width: 100%;
-      padding: 14px 18px;
-      background: var(--neo-bg);
-      border: none;
-      border-radius: 12px;
-      font-size: 15px;
-      color: var(--neo-text);
-      box-shadow: inset 4px 4px 8px var(--neo-shadow-dark), inset -4px -4px 8px var(--neo-shadow-light);
-      transition: all 0.3s ease;
-    }
-    
-    .form-input:focus, .form-textarea:focus {
-      outline: none;
-    }
-    
-    .form-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-    }
-    
-    .form-row-3 {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 16px;
-    }
-    
-    .form-row-4 {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
-    }
-    
-    .form-hint {
-      color: var(--neo-text-muted);
-      font-size: 12px;
-      margin-top: 6px;
-    }
-    
-    .color-picker-group {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-    }
-    
-    .color-picker {
-      width: 50px;
-      height: 40px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      padding: 0;
-    }
-    
-    .checkbox-group {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-    }
-    
-    .checkbox-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 16px;
-      background: var(--neo-bg);
-      border-radius: 10px;
-      box-shadow: 3px 3px 6px var(--neo-shadow-dark), -3px -3px 6px var(--neo-shadow-light);
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-    
-    .checkbox-item:has(input:checked) {
-      background: linear-gradient(135deg, #10b981, #059669);
-      color: white;
-      box-shadow: none;
-    }
-    
-    .checkbox-item input {
-      display: none;
-    }
-    
-    .checkbox-item span {
-      font-size: 13px;
-      font-weight: 600;
-    }
-    
-    .day-toggle {
-      padding: 10px 16px;
-      border: none;
-      border-radius: 10px;
-      font-size: 13px;
-      font-weight: 600;
-      cursor: pointer;
-      background: var(--neo-bg);
-      color: var(--neo-text);
-      box-shadow: 3px 3px 6px var(--neo-shadow-dark), -3px -3px 6px var(--neo-shadow-light);
-      transition: all 0.2s ease;
-    }
-    
-    .day-toggle.active {
-      background: linear-gradient(135deg, #10b981, #059669);
-      color: white;
-      box-shadow: inset 2px 2px 4px rgba(0,0,0,0.2);
-    }
-    
-    .day-toggle:hover {
-      transform: scale(1.02);
-    }
-    
-    .template-section {
-      background: #f8fafc;
-      border-radius: 12px;
-      padding: 20px;
-      margin-bottom: 16px;
-    }
-    
-    .template-title {
-      font-size: 14px;
-      font-weight: 700;
-      color: var(--neo-text);
-      margin-bottom: 16px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    
-    .template-icon {
-      width: 24px;
-      height: 24px;
-      border-radius: 6px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-    
-    .template-icon.confirm { background: #d1fae5; color: #059669; }
-    .template-icon.cancel { background: #fee2e2; color: #dc2626; }
-    .template-icon.reminder { background: #dbeafe; color: #2563eb; }
-    
-    .logo-preview {
-      width: 80px;
-      height: 80px;
-      border-radius: 12px;
-      background: #f1f5f9;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-top: 10px;
-      overflow: hidden;
-    }
-    
-    .logo-preview img {
-      max-width: 100%;
-      max-height: 100%;
-      object-fit: contain;
-    }
-    
-    .logo-preview-placeholder {
-      color: var(--neo-text-muted);
-      font-size: 12px;
-      text-align: center;
-    }
-    
-    .btn {
-      width: 100%;
-      padding: 16px;
-      border: none;
-      border-radius: 14px;
-      font-size: 16px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-      color: #ffffff;
-      box-shadow: 5px 5px 10px var(--neo-shadow-dark), -5px -5px 10px var(--neo-shadow-light);
-    }
-    
-    .btn:hover {
-      transform: translateY(-2px);
-    }
-    
-    .success-msg {
-      background: linear-gradient(135deg, #d1fae5, #a7f3d0);
-      color: #065f46;
-      padding: 14px 20px;
-      border-radius: 12px;
-      margin-bottom: 20px;
-      font-size: 14px;
-      font-weight: 500;
-    }
-    
-    .email-preview {
-      background: white;
-      border-radius: 12px;
-      padding: 20px;
-      margin-top: 16px;
-      border: 1px solid #e5e7eb;
-    }
-    
-    [data-theme="dark"] .email-preview {
-      background: #2c2c2e !important;
-      border-color: #48484a;
-    }
-    
-    [data-theme="dark"] .email-preview-header {
-      background: #3a3a3c !important;
-    }
-    
-    [data-theme="dark"] .email-preview-body {
-      background: #2c2c2e !important;
-      color: #ffffff !important;
-    }
-    
-    [data-theme="dark"] .email-preview-body * {
-      color: #ffffff !important;
-    }
-    
-    [data-theme="dark"] .template-section {
-      background: #2c2c2e !important;
-      border-color: #48484a !important;
-    }
-    
-    [data-theme="dark"] .template-section * {
-      color: #ffffff;
-    }
-    
-    [data-theme="dark"] .template-title {
-      color: #ffffff !important;
-    }
-    
-    [data-theme="dark"] .form-input,
-    [data-theme="dark"] textarea {
-      background: #3a3a3c !important;
-      color: #ffffff !important;
-      border-color: #48484a !important;
-    }
-    
-    [data-theme="dark"] .card {
-      background: #2c2c2e !important;
-    }
-    
-    [data-theme="dark"] .card-title {
-      color: #ffffff !important;
-    }
-    
-    [data-theme="dark"] .form-label {
-      color: #ffffff !important;
-    }
-    
-    [data-theme="dark"] .form-hint {
-      color: #a1a1a6 !important;
-    }
-    
-    .email-preview-header {
-      padding: 20px;
-      border-radius: 8px 8px 0 0;
-      text-align: center;
-      color: white;
-    }
-    
-    .email-preview-body {
-      padding: 20px;
-    }
-    
-    @media (max-width: 768px) {
-      .form-row, .form-row-3, .form-row-4 { grid-template-columns: 1fr; }
-      .card { padding: 20px; }
-      .navbar { padding: 12px 16px; }
-      .tabs { gap: 6px; }
-      .tab { padding: 8px 14px; font-size: 13px; }
-      .checkbox-group { gap: 8px; }
-      .checkbox-item { padding: 8px 12px; }
-      .team-member-card { flex-direction: column; text-align: center; }
-      .member-actions { justify-content: center; margin-top: 12px; }
-    }
-    
-    .color-option {
-      transition: all 0.2s;
-    }
-    
-    input[type="radio"]:checked + .color-option {
-      border-color: var(--neo-text) !important;
-      transform: scale(1.1);
+    /* Responsive */
+    @media (max-width: 900px) {
+      .settings-sidebar { display: none; }
+      .settings-main { margin-left: 0; padding: 24px 16px; }
+      .form-row, .form-row-3 { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
-  <nav class="navbar">
-    <div class="navbar-brand">
-      <div class="navbar-logo">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-          <line x1="16" y1="2" x2="16" y2="6"/>
-          <line x1="8" y1="2" x2="8" y2="6"/>
-          <line x1="3" y1="10" x2="21" y2="10"/>
-        </svg>
+  <div class="settings-layout">
+    <!-- Sidebar -->
+    <aside class="settings-sidebar">
+      <div class="sidebar-header">
+        <a href="/dashboard" class="sidebar-back">
+          <i data-feather="arrow-left" style="width:16px;height:16px;"></i> Back to Dashboard
+        </a>
+        <h1 class="sidebar-title">Settings</h1>
       </div>
-      <span class="navbar-title"><%= owner.clinicName || 'Dashboard' %></span>
-    </div>
-    <div class="navbar-actions">
-      <a href="/dashboard" class="nav-link">Bookings</a>
-      <a href="/dashboard/settings" class="nav-link active">Settings</a>
-      <button type="button" class="theme-toggle" id="theme-toggle" title="Toggle dark mode">
-        <svg class="moon-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-        <svg class="sun-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
-      </button>
-      <a href="/logout" class="nav-link">Logout</a>
-    </div>
-  </nav>
-  
-  <div class="container">
-    <div class="page-header">
-      <h1 class="page-title">Settings</h1>
-    </div>
+      <nav class="sidebar-nav">
+        <button type="button" class="nav-item active" data-tab="business">
+          <i data-feather="briefcase" class="nav-icon"></i> Business Info
+        </button>
+        <button type="button" class="nav-item" data-tab="schedule">
+          <i data-feather="clock" class="nav-icon"></i> Schedule
+        </button>
+        <button type="button" class="nav-item" data-tab="team">
+          <i data-feather="users" class="nav-icon"></i> Team Members
+        </button>
+        <button type="button" class="nav-item" data-tab="email">
+          <i data-feather="mail" class="nav-icon"></i> Email Templates
+        </button>
+        <button type="button" class="nav-item" data-tab="integrations">
+          <i data-feather="link" class="nav-icon"></i> Integrations
+        </button>
+      </nav>
+    </aside>
     
-    <% if (success) { %>
-      <div class="success-msg"><%= success %></div>
-    <% } %>
-    
-    <div class="tabs">
-      <button type="button" class="tab active" data-tab="business">Business</button>
-      <button type="button" class="tab" data-tab="team">Team</button>
-      <button type="button" class="tab" data-tab="schedule">Schedule</button>
-      <button type="button" class="tab" data-tab="email">Email Templates</button>
-    </div>
-    
-    <form method="POST" action="/dashboard/settings">
-      <!-- BUSINESS TAB -->
-      <div class="tab-content active" id="tab-business">
-        <div class="card">
-          <h2 class="card-title">Business Information</h2>
-          
-          <div class="form-group">
-            <label class="form-label">Business / Clinic Name</label>
-            <input type="text" name="clinicName" class="form-input" value="<%= owner.clinicName || '' %>" placeholder="Your business name">
-          </div>
-          
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">Phone</label>
-              <input type="tel" name="clinicPhone" class="form-input" value="<%= owner.clinicPhone || '' %>" placeholder="+1 234 567 890">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Website URL</label>
-              <input type="url" name="websiteUrl" class="form-input" value="<%= owner.websiteUrl || '' %>" placeholder="https://...">
-          </div>
+    <!-- Main Content -->
+    <main class="settings-main">
+      <% if (typeof success !== 'undefined' && success) { %>
+        <div class="success-msg">
+          <i data-feather="check-circle" style="width:20px;height:20px;"></i>
+          <%= success %>
         </div>
-        
-        <div class="form-group">
-          <label class="form-label">Address</label>
-          <input type="text" name="clinicAddress" class="form-input" value="<%= owner.clinicAddress || '' %>" placeholder="Your business address">
-        </div>
-        
-        <div class="form-group">
-          <label class="form-label">Services Offered</label>
-          <input type="text" name="services" class="form-input" value="<%= owner.settings.services.join(', ') %>" placeholder="Consultation, Follow-up, Premium">
-          <p class="form-hint">Separate services with commas</p>
-        </div>
-      </div>
-      </div>
+      <% } %>
       
-      <!-- SCHEDULE TAB -->
-      <div class="tab-content" id="tab-schedule">
-        <div class="card">
-          <h2 class="card-title">Working Hours</h2>
+      <form method="POST" action="/settings">
+        <!-- BUSINESS TAB -->
+        <div class="tab-content active" id="tab-business">
+          <div class="settings-header">
+            <h2 class="settings-page-title">Business Information</h2>
+            <p class="settings-page-desc">Manage your business details and services</p>
+          </div>
           
-          <div class="form-row-3">
-            <div class="form-group">
-              <label class="form-label">Opening Hour</label>
-              <input type="number" name="startHour" class="form-input" value="<%= owner.settings.startHour %>" min="0" max="23">
+          <div class="settings-card">
+            <div class="card-title">
+              <div class="card-title-icon"><i data-feather="home" style="width:20px;height:20px;"></i></div>
+              Basic Information
             </div>
+            
             <div class="form-group">
-              <label class="form-label">Closing Hour</label>
-              <input type="number" name="endHour" class="form-input" value="<%= owner.settings.endHour %>" min="0" max="23">
+              <label class="form-label">Business Name</label>
+              <input type="text" name="clinicName" class="form-input" value="<%= owner.clinicName || '' %>" placeholder="Your business name">
             </div>
+            
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Phone</label>
+                <input type="tel" name="clinicPhone" class="form-input" value="<%= owner.clinicPhone || '' %>" placeholder="+1 234 567 890">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Website</label>
+                <input type="url" name="websiteUrl" class="form-input" value="<%= owner.websiteUrl || '' %>" placeholder="https://...">
+              </div>
+            </div>
+            
             <div class="form-group">
-              <label class="form-label">Slots Per Hour</label>
-              <input type="number" name="slotsPerHour" class="form-input" value="<%= owner.settings.slotsPerHour %>" min="1" max="10">
+              <label class="form-label">Address</label>
+              <input type="text" name="clinicAddress" class="form-input" value="<%= owner.clinicAddress || '' %>" placeholder="Your business address">
             </div>
           </div>
+          
+          <div class="settings-card">
+            <div class="card-title">
+              <div class="card-title-icon"><i data-feather="list" style="width:20px;height:20px;"></i></div>
+              Services
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label">Services Offered</label>
+              <input type="text" name="services" class="form-input" value="<%= owner.settings && owner.settings.services ? owner.settings.services.join(', ') : '' %>" placeholder="Consultation, Follow-up, Premium">
+              <p class="form-hint">Separate services with commas</p>
+            </div>
+          </div>
+          
+          <button type="submit" class="btn-save">
+            <i data-feather="save" style="width:18px;height:18px;margin-right:8px;"></i> Save Changes
+          </button>
         </div>
         
-        <div class="card">
-          <h2 class="card-title">Working Days</h2>
-          <p class="form-hint" style="margin-bottom: 16px;">Select the days you accept bookings</p>
-          
-          <% 
-            const workingDays = owner.settings?.workingDays || [1, 2, 3, 4, 5]; 
-            const hasDay = (day) => workingDays.includes(day) || workingDays.includes(String(day));
-          %>
-          <input type="hidden" name="workingDaysData" id="workingDaysData" value="<%= JSON.stringify(workingDays) %>">
-          <div class="checkbox-group" id="working-days-group">
-            <button type="button" class="day-toggle <%= hasDay(1) ? 'active' : '' %>" data-day="1">Monday</button>
-            <button type="button" class="day-toggle <%= hasDay(2) ? 'active' : '' %>" data-day="2">Tuesday</button>
-            <button type="button" class="day-toggle <%= hasDay(3) ? 'active' : '' %>" data-day="3">Wednesday</button>
-            <button type="button" class="day-toggle <%= hasDay(4) ? 'active' : '' %>" data-day="4">Thursday</button>
-            <button type="button" class="day-toggle <%= hasDay(5) ? 'active' : '' %>" data-day="5">Friday</button>
-            <button type="button" class="day-toggle <%= hasDay(6) ? 'active' : '' %>" data-day="6">Saturday</button>
-            <button type="button" class="day-toggle <%= hasDay(0) ? 'active' : '' %>" data-day="0">Sunday</button>
+        <!-- SCHEDULE TAB -->
+        <div class="tab-content" id="tab-schedule">
+          <div class="settings-header">
+            <h2 class="settings-page-title">Schedule Settings</h2>
+            <p class="settings-page-desc">Configure your working hours and availability</p>
           </div>
-        </div>
-      </div>
-      
-      <!-- EMAIL TEMPLATES TAB -->
-      <div class="tab-content" id="tab-email">
-        <div class="card">
-          <h2 class="card-title">Email Branding</h2>
           
-          <div class="form-group">
-            <label class="form-label">Logo URL</label>
-            <input type="url" name="logoUrl" id="logoUrl" class="form-input" value="<%= owner.emailSettings?.logoUrl || '' %>" placeholder="https://your-domain.com/logo.png">
-            <p class="form-hint">Enter a URL to your logo image (recommended: 200x60px)</p>
-            <div class="logo-preview" id="logoPreview">
-              <% if (owner.emailSettings?.logoUrl) { %>
-                <img src="<%= owner.emailSettings.logoUrl %>" alt="Logo">
-              <% } else { %>
-                <span class="logo-preview-placeholder">No logo</span>
-              <% } %>
+          <div class="settings-card">
+            <div class="card-title">
+              <div class="card-title-icon"><i data-feather="clock" style="width:20px;height:20px;"></i></div>
+              Working Hours
             </div>
-          </div>
-          
-          <div class="form-group">
-            <label class="form-label">Business Name (for emails)</label>
-            <input type="text" name="emailBusinessName" class="form-input" value="<%= owner.emailSettings?.businessName || owner.clinicName || '' %>" placeholder="Your Business Name">
-          </div>
-          
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">Primary Color</label>
-              <div class="color-picker-group">
-                <input type="color" name="primaryColor" class="color-picker" value="<%= owner.emailSettings?.primaryColor || '#10b981' %>">
-                <input type="text" class="form-input" id="primaryColorText" value="<%= owner.emailSettings?.primaryColor || '#10b981' %>" readonly style="flex: 1;">
+            
+            <div class="form-row-3">
+              <div class="form-group">
+                <label class="form-label">Opening Hour</label>
+                <input type="number" name="startHour" class="form-input" value="<%= owner.settings ? owner.settings.startHour : 9 %>" min="0" max="23">
               </div>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Secondary Color</label>
-              <div class="color-picker-group">
-                <input type="color" name="secondaryColor" class="color-picker" value="<%= owner.emailSettings?.secondaryColor || '#059669' %>">
-                <input type="text" class="form-input" id="secondaryColorText" value="<%= owner.emailSettings?.secondaryColor || '#059669' %>" readonly style="flex: 1;">
+              <div class="form-group">
+                <label class="form-label">Closing Hour</label>
+                <input type="number" name="endHour" class="form-input" value="<%= owner.settings ? owner.settings.endHour : 17 %>" min="0" max="23">
               </div>
-            </div>
-          </div>
-          
-          <div class="form-row">
-            <div class="form-group">
-              <label class="form-label">Background Color</label>
-              <div class="color-picker-group">
-                <input type="color" name="backgroundColor" class="color-picker" value="<%= owner.emailSettings?.backgroundColor || '#ffffff' %>">
-                <input type="text" class="form-input" value="<%= owner.emailSettings?.backgroundColor || '#ffffff' %>" readonly style="flex: 1;">
-              </div>
-            </div>
-            <div class="form-group">
-              <label class="form-label">Text Color</label>
-              <div class="color-picker-group">
-                <input type="color" name="textColor" class="color-picker" value="<%= owner.emailSettings?.textColor || '#374151' %>">
-                <input type="text" class="form-input" value="<%= owner.emailSettings?.textColor || '#374151' %>" readonly style="flex: 1;">
+              <div class="form-group">
+                <label class="form-label">Slots Per Hour</label>
+                <input type="number" name="slotsPerHour" class="form-input" value="<%= owner.settings ? owner.settings.slotsPerHour : 2 %>" min="1" max="10">
               </div>
             </div>
           </div>
+          
+          <div class="settings-card">
+            <div class="card-title">
+              <div class="card-title-icon"><i data-feather="calendar" style="width:20px;height:20px;"></i></div>
+              Working Days
+            </div>
+            
+            <% const workingDays = owner.settings && owner.settings.workingDays ? owner.settings.workingDays : [1,2,3,4,5]; %>
+            <input type="hidden" name="workingDaysData" id="workingDaysData" value="<%= JSON.stringify(workingDays) %>">
+            
+            <div class="days-grid">
+              <button type="button" class="day-btn <%= workingDays.includes(1) ? 'active' : '' %>" data-day="1">Mon</button>
+              <button type="button" class="day-btn <%= workingDays.includes(2) ? 'active' : '' %>" data-day="2">Tue</button>
+              <button type="button" class="day-btn <%= workingDays.includes(3) ? 'active' : '' %>" data-day="3">Wed</button>
+              <button type="button" class="day-btn <%= workingDays.includes(4) ? 'active' : '' %>" data-day="4">Thu</button>
+              <button type="button" class="day-btn <%= workingDays.includes(5) ? 'active' : '' %>" data-day="5">Fri</button>
+              <button type="button" class="day-btn <%= workingDays.includes(6) ? 'active' : '' %>" data-day="6">Sat</button>
+              <button type="button" class="day-btn <%= workingDays.includes(0) ? 'active' : '' %>" data-day="0">Sun</button>
+            </div>
+          </div>
+          
+          <button type="submit" class="btn-save">
+            <i data-feather="save" style="width:18px;height:18px;margin-right:8px;"></i> Save Changes
+          </button>
         </div>
         
-        <div class="card">
-          <h2 class="card-title">Email Templates</h2>
-          
-          <!-- Confirmation Template -->
-          <div class="template-section">
-            <div class="template-title">
-              <span class="template-icon confirm" style="background: #10b981; color: white; width: 24px; height: 24px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold;">C</span>
-              Confirmation Email
-            </div>
-            <div class="form-group">
-              <label class="form-label">Subject</label>
-              <input type="text" name="confirmationSubject" class="form-input" value="<%= owner.emailSettings?.confirmationSubject || 'Booking Confirmed' %>">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Message</label>
-              <textarea name="confirmationMessage" class="form-input" rows="3"><%= owner.emailSettings?.confirmationMessage || 'Your appointment has been confirmed. Here are the details:' %></textarea>
-            </div>
+        <!-- TEAM TAB -->
+        <div class="tab-content" id="tab-team">
+          <div class="settings-header">
+            <h2 class="settings-page-title">Team Members</h2>
+            <p class="settings-page-desc">Manage your team and their roles</p>
           </div>
           
-          <!-- Cancellation Template -->
-          <div class="template-section">
-            <div class="template-title">
-              <span class="template-icon cancel" style="background: #ef4444; color: white; width: 24px; height: 24px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold;">X</span>
-              Cancellation Email
+          <div class="settings-card">
+            <div class="card-title">
+              <div class="card-title-icon"><i data-feather="user-plus" style="width:20px;height:20px;"></i></div>
+              Add Team Member
             </div>
-            <div class="form-group">
-              <label class="form-label">Subject</label>
-              <input type="text" name="cancellationSubject" class="form-input" value="<%= owner.emailSettings?.cancellationSubject || 'Booking Cancelled' %>">
+            
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Name</label>
+                <input type="text" name="newMemberName" class="form-input" placeholder="Team member name">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Role</label>
+                <input type="text" name="newMemberRole" class="form-input" placeholder="e.g. Specialist, Therapist">
+              </div>
             </div>
-            <div class="form-group">
-              <label class="form-label">Message</label>
-              <textarea name="cancellationMessage" class="form-input" rows="3"><%= owner.emailSettings?.cancellationMessage || 'Your appointment has been cancelled.' %></textarea>
-            </div>
+            
+            <button type="submit" name="action" value="addMember" class="btn-save" style="margin-top:8px;">
+              <i data-feather="plus" style="width:18px;height:18px;margin-right:8px;"></i> Add Member
+            </button>
           </div>
           
-          <!-- Reminder Template -->
-          <div class="template-section">
-            <div class="template-title">
-              <span class="template-icon reminder" style="background: #8b5cf6; color: white; width: 24px; height: 24px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 14px; font-weight: bold;">R</span>
-              Reminder Email
+          <div class="settings-card">
+            <div class="card-title">
+              <div class="card-title-icon"><i data-feather="users" style="width:20px;height:20px;"></i></div>
+              Current Team (<%= owner.teamMembers ? owner.teamMembers.length : 0 %>)
             </div>
-            <div class="form-group">
-              <label class="form-label">Subject</label>
-              <input type="text" name="reminderSubject" class="form-input" value="<%= owner.emailSettings?.reminderSubject || 'Appointment Reminder' %>">
-            </div>
-            <div class="form-group">
-              <label class="form-label">Message</label>
-              <textarea name="reminderMessage" class="form-input" rows="3"><%= owner.emailSettings?.reminderMessage || 'This is a reminder for your upcoming appointment.' %></textarea>
-            </div>
-          </div>
-          
-          <div class="form-group">
-            <label class="form-label">Email Footer (all emails)</label>
-            <textarea name="emailFooter" class="form-input" rows="2" placeholder="Thank you for choosing us!"><%= owner.emailSettings?.emailFooter || '' %></textarea>
-          </div>
-          
-          <div class="card" style="margin-top: 24px; background: linear-gradient(135deg, #25D366, #128C7E); padding: 20px;">
-            <h3 style="color: white; margin-bottom: 16px; display: flex; align-items: center; gap: 8px;">
-              <svg viewBox="0 0 24 24" fill="white" style="width: 24px; height: 24px;"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-              WhatsApp Message Template
-            </h3>
-            <div class="form-group">
-              <label class="form-label" style="color: white;">Reminder Message</label>
-              <textarea name="whatsappMessage" class="form-input" rows="3" style="background: rgba(255,255,255,0.9); color: #1e293b;" placeholder="Hi {clientName}, this is a reminder for your appointment on {date} at {time}. See you soon!"><%= owner.emailSettings?.whatsappMessage || 'Hi {clientName}, this is a reminder for your appointment at {clinicName} on {date} at {time}. Reply to confirm or reschedule.' %></textarea>
-              <p style="color: rgba(255,255,255,0.8); font-size: 12px; margin-top: 8px;">Variables: {clientName}, {clinicName}, {date}, {time}, {service}</p>
-            </div>
+            
+            <% if (owner.teamMembers && owner.teamMembers.length > 0) { %>
+              <div class="team-grid">
+                <% owner.teamMembers.forEach(member => { %>
+                  <div class="team-card">
+                    <div class="team-avatar"><%= member.name ? member.name.charAt(0).toUpperCase() : 'T' %></div>
+                    <div class="team-info">
+                      <h4><%= member.name %></h4>
+                      <p><%= member.role || 'Specialist' %></p>
+                    </div>
+                    <div class="team-actions">
+                      <button type="submit" name="deleteMember" value="<%= member._id %>" class="team-btn danger" title="Remove">
+                        <i data-feather="trash-2" style="width:16px;height:16px;"></i>
+                      </button>
+                    </div>
+                  </div>
+                <% }) %>
+              </div>
+            <% } else { %>
+              <p style="color:var(--text-muted);text-align:center;padding:40px;">No team members yet. Add your first team member above.</p>
+            <% } %>
           </div>
         </div>
-      </div>
-      
-      <button type="submit" class="btn">Save All Settings</button>
-    </form>
-    
-    <!-- TEAM TAB (outside main form to allow nested forms) -->
-    <div class="tab-content" id="tab-team">
-      <div class="card">
-        <h2 class="card-title">Team Members</h2>
-        <p class="form-hint" style="margin-bottom: 20px;">Add your team members (doctors, specialists, etc.) to assign bookings to specific people.</p>
         
-        <% const teamMembers = owner.teamMembers || []; %>
-        
-        <% if (teamMembers.length > 0) { %>
-          <div class="team-list" style="margin-bottom: 24px;">
-            <% teamMembers.forEach(member => { %>
-              <div class="team-member-card" style="display: flex; align-items: center; gap: 16px; padding: 16px; background: var(--neo-bg); border-radius: 12px; margin-bottom: 12px; box-shadow: 3px 3px 6px var(--neo-shadow-dark), -3px -3px 6px var(--neo-shadow-light); flex-wrap: wrap;">
-                <div style="width: 48px; height: 48px; border-radius: 50%; background: <%= member.color || '#10b981' %>; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 18px;">
-                  <%= member.name.charAt(0).toUpperCase() %>
-                </div>
-                <div style="flex: 1; min-width: 150px;">
-                  <div style="font-weight: 600; color: var(--neo-text);"><%= member.name %></div>
-                  <div style="font-size: 13px; color: var(--neo-text-muted);"><%= member.role || 'Specialist' %></div>
-                </div>
-                <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-                  <span style="padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; background: <%= member.isActive !== false ? '#d1fae5' : '#fee2e2' %>; color: <%= member.isActive !== false ? '#059669' : '#dc2626' %>;">
-                    <%= member.isActive !== false ? 'Active' : 'Inactive' %>
-                  </span>
-                  <form method="POST" action="/dashboard/team/delete/<%= member._id %>" style="display: inline;" onsubmit="return confirm('Remove this team member?')">
-                    <button type="submit" style="padding: 6px 12px; border: none; border-radius: 8px; background: #fee2e2; color: #dc2626; cursor: pointer; font-size: 12px;">Remove</button>
-                  </form>
+        <!-- EMAIL TAB -->
+        <div class="tab-content" id="tab-email">
+          <div class="settings-header">
+            <h2 class="settings-page-title">Email Templates</h2>
+            <p class="settings-page-desc">Customize your email branding and templates</p>
+          </div>
+          
+          <div class="settings-card">
+            <div class="card-title">
+              <div class="card-title-icon"><i data-feather="image" style="width:20px;height:20px;"></i></div>
+              Branding
+            </div>
+            
+            <div class="form-group">
+              <label class="form-label">Business Name (for emails)</label>
+              <input type="text" name="emailBusinessName" class="form-input" value="<%= owner.emailSettings && owner.emailSettings.businessName ? owner.emailSettings.businessName : (owner.clinicName || '') %>" placeholder="Your Business Name">
+            </div>
+            
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Primary Color</label>
+                <div class="color-row">
+                  <input type="color" name="primaryColor" class="color-picker" value="<%= owner.emailSettings && owner.emailSettings.primaryColor ? owner.emailSettings.primaryColor : '#667eea' %>">
+                  <input type="text" class="form-input" value="<%= owner.emailSettings && owner.emailSettings.primaryColor ? owner.emailSettings.primaryColor : '#667eea' %>" readonly>
                 </div>
               </div>
-            <% }); %>
+              <div class="form-group">
+                <label class="form-label">Secondary Color</label>
+                <div class="color-row">
+                  <input type="color" name="secondaryColor" class="color-picker" value="<%= owner.emailSettings && owner.emailSettings.secondaryColor ? owner.emailSettings.secondaryColor : '#764ba2' %>">
+                  <input type="text" class="form-input" value="<%= owner.emailSettings && owner.emailSettings.secondaryColor ? owner.emailSettings.secondaryColor : '#764ba2' %>" readonly>
+                </div>
+              </div>
+            </div>
           </div>
-        <% } else { %>
-          <div style="text-align: center; padding: 40px; color: var(--neo-text-muted);">
-            <p style="margin-bottom: 8px;">No team members yet</p>
-            <p style="font-size: 13px;">Add team members below to assign bookings to specific people</p>
+          
+          <button type="submit" class="btn-save">
+            <i data-feather="save" style="width:18px;height:18px;margin-right:8px;"></i> Save Changes
+          </button>
+        </div>
+        
+        <!-- INTEGRATIONS TAB -->
+        <div class="tab-content" id="tab-integrations">
+          <div class="settings-header">
+            <h2 class="settings-page-title">Integrations</h2>
+            <p class="settings-page-desc">Connect external services to your dashboard</p>
           </div>
-        <% } %>
-      </div>
-      
-      <form method="POST" action="/dashboard/team/add" class="card" style="margin-top: 16px;">
-        <h3 class="card-title">Add New Team Member</h3>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Name *</label>
-            <input type="text" name="name" class="form-input" placeholder="Dr. John Smith" required>
-          </div>
-          <div class="form-group">
-            <label class="form-label">Role</label>
-            <input type="text" name="role" class="form-input" placeholder="Specialist, Doctor, etc.">
+          
+          <div class="settings-card">
+            <div class="card-title">
+              <div class="card-title-icon"><i data-feather="calendar" style="width:20px;height:20px;"></i></div>
+              Google Calendar
+            </div>
+            
+            <p style="color:var(--text-secondary);margin-bottom:20px;">Sync your bookings with Google Calendar to keep everything in one place.</p>
+            
+            <button type="button" class="btn-save" style="background:linear-gradient(135deg,#4285f4,#34a853);" disabled>
+              <i data-feather="link" style="width:18px;height:18px;margin-right:8px;"></i> Coming Soon
+            </button>
           </div>
         </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label class="form-label">Email</label>
-            <input type="email" name="email" class="form-input" placeholder="john@clinic.com">
-          </div>
-          <div class="form-group">
-            <label class="form-label">Phone</label>
-            <input type="tel" name="phone" class="form-input" placeholder="+40 123 456 789">
-          </div>
-        </div>
-        <div class="form-group">
-          <label class="form-label">Color (for calendar)</label>
-          <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-            <label style="cursor: pointer;"><input type="radio" name="color" value="#10b981" checked style="display: none;"><span class="color-option" style="display: block; width: 36px; height: 36px; border-radius: 50%; background: #10b981; border: 3px solid transparent;"></span></label>
-            <label style="cursor: pointer;"><input type="radio" name="color" value="#3b82f6" style="display: none;"><span class="color-option" style="display: block; width: 36px; height: 36px; border-radius: 50%; background: #3b82f6; border: 3px solid transparent;"></span></label>
-            <label style="cursor: pointer;"><input type="radio" name="color" value="#8b5cf6" style="display: none;"><span class="color-option" style="display: block; width: 36px; height: 36px; border-radius: 50%; background: #8b5cf6; border: 3px solid transparent;"></span></label>
-            <label style="cursor: pointer;"><input type="radio" name="color" value="#ec4899" style="display: none;"><span class="color-option" style="display: block; width: 36px; height: 36px; border-radius: 50%; background: #ec4899; border: 3px solid transparent;"></span></label>
-            <label style="cursor: pointer;"><input type="radio" name="color" value="#f59e0b" style="display: none;"><span class="color-option" style="display: block; width: 36px; height: 36px; border-radius: 50%; background: #f59e0b; border: 3px solid transparent;"></span></label>
-            <label style="cursor: pointer;"><input type="radio" name="color" value="#ef4444" style="display: none;"><span class="color-option" style="display: block; width: 36px; height: 36px; border-radius: 50%; background: #ef4444; border: 3px solid transparent;"></span></label>
-          </div>
-        </div>
-        <button type="submit" class="btn" style="margin-top: 16px;">+ Add Team Member</button>
       </form>
-    </div>
+    </main>
   </div>
   
   <script>
+    feather.replace();
+    
     // Tab switching
-    document.querySelectorAll('.tab').forEach(tab => {
-      tab.addEventListener('click', () => {
-        document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.nav-item[data-tab]').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const tab = this.dataset.tab;
+        document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
         document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-        tab.classList.add('active');
-        document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+        this.classList.add('active');
+        document.getElementById('tab-' + tab).classList.add('active');
       });
     });
     
-    // Sync color pickers with text inputs
-    document.querySelectorAll('.color-picker').forEach(picker => {
-      picker.addEventListener('input', (e) => {
-        const textInput = e.target.parentElement.querySelector('input[type="text"]');
-        if (textInput) textInput.value = e.target.value;
-      });
-    });
-    
-    // Logo preview
-    document.getElementById('logoUrl').addEventListener('input', (e) => {
-      const preview = document.getElementById('logoPreview');
-      if (e.target.value) {
-        preview.innerHTML = '<img src="' + e.target.value + '" alt="Logo" onerror="this.parentElement.innerHTML=\'<span class=logo-preview-placeholder>Invalid URL</span>\'">';
-      } else {
-        preview.innerHTML = '<span class="logo-preview-placeholder">No logo</span>';
-      }
-    });
-    
-    // Working days toggle buttons
-    const dayToggles = document.querySelectorAll('.day-toggle');
-    const workingDaysInput = document.getElementById('workingDaysData');
-    
-    function updateWorkingDays() {
-      const selectedDays = [];
-      dayToggles.forEach(btn => {
-        if (btn.classList.contains('active')) {
-          selectedDays.push(parseInt(btn.dataset.day));
-        }
-      });
-      workingDaysInput.value = JSON.stringify(selectedDays);
-    }
-    
-    dayToggles.forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        e.preventDefault();
-        btn.classList.toggle('active');
+    // Working days toggle
+    document.querySelectorAll('.day-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        this.classList.toggle('active');
         updateWorkingDays();
       });
     });
     
-    // Dark Mode Toggle
-    const themeToggle = document.getElementById('theme-toggle');
-    const savedTheme = localStorage.getItem('theme') || 'light';
-    document.documentElement.setAttribute('data-theme', savedTheme);
+    function updateWorkingDays() {
+      const days = [];
+      document.querySelectorAll('.day-btn.active').forEach(btn => {
+        days.push(parseInt(btn.dataset.day));
+      });
+      document.getElementById('workingDaysData').value = JSON.stringify(days);
+    }
     
-    themeToggle.addEventListener('click', () => {
-      const currentTheme = document.documentElement.getAttribute('data-theme');
-      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-      document.documentElement.setAttribute('data-theme', newTheme);
-      localStorage.setItem('theme', newTheme);
+    // Color picker sync
+    document.querySelectorAll('.color-picker').forEach(picker => {
+      picker.addEventListener('input', function() {
+        this.nextElementSibling.value = this.value;
+      });
     });
   </script>
 </body>
