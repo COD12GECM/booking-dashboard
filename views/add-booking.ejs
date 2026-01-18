@@ -392,6 +392,18 @@
               <% }) %>
             </select>
           </div>
+          
+          <% if (owner.teamMembers && owner.teamMembers.length > 0) { %>
+          <div class="form-group">
+            <label class="form-label">Team Member <%= owner.settings?.requireTeamMember ? '*' : '(Optional)' %></label>
+            <select name="teamMemberId" class="form-select" <%= owner.settings?.requireTeamMember ? 'required' : '' %>>
+              <option value="">-- Any Available --</option>
+              <% owner.teamMembers.filter(m => m.isActive !== false).forEach(member => { %>
+                <option value="<%= member._id %>" data-name="<%= member.name %>"><%= member.name %> - <%= member.role || 'Specialist' %></option>
+              <% }) %>
+            </select>
+          </div>
+          <% } %>
         </div>
         
         <div class="form-group">

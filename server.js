@@ -142,6 +142,17 @@ mongoose.connect(process.env.MONGODB_URI)
   .catch(err => console.error('MongoDB connection error:', err));
 
 // Owner Schema
+// Team Member Schema (embedded in Owner)
+const teamMemberSchema = new mongoose.Schema({
+  name: { type: String, required: true },
+  role: { type: String, default: 'Specialist' },
+  email: { type: String, default: '' },
+  phone: { type: String, default: '' },
+  color: { type: String, default: '#10b981' },
+  isActive: { type: Boolean, default: true },
+  createdAt: { type: Date, default: Date.now }
+});
+
 const ownerSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true, lowercase: true },
   password: { type: String, default: null },
@@ -152,13 +163,15 @@ const ownerSchema = new mongoose.Schema({
   clinicPhone: { type: String, default: '' },
   clinicAddress: { type: String, default: '' },
   websiteUrl: { type: String, default: '' },
+  teamMembers: [teamMemberSchema],
   settings: {
     startHour: { type: Number, default: 9 },
     endHour: { type: Number, default: 17 },
     closedDays: { type: [Number], default: [0, 6] },
     workingDays: { type: [Number], default: [1, 2, 3, 4, 5] },
     slotsPerHour: { type: Number, default: 1 },
-    services: { type: [String], default: ['Consultation'] }
+    services: { type: [String], default: ['Consultation'] },
+    requireTeamMember: { type: Boolean, default: false }
   },
   emailSettings: {
     logoUrl: { type: String, default: '' },
@@ -197,6 +210,8 @@ const bookingSchema = new mongoose.Schema({
   status: { type: String, default: 'confirmed' },
   type: { type: String, enum: ['booking', 'blocked'], default: 'booking' },
   ownerId: { type: mongoose.Schema.Types.ObjectId, ref: 'Owner' },
+  teamMemberId: { type: mongoose.Schema.Types.ObjectId, default: null },
+  teamMemberName: { type: String, default: '' },
   clinicName: String,
   clinicEmail: String,
   clinicPhone: String,
@@ -1048,6 +1063,14 @@ app.post('/dashboard/add-booking', authenticateToken, async (req, res) => {
       });
     }
     
+    // Get team member info if selected
+    const teamMemberId = req.body.teamMemberId || null;
+    let teamMemberName = '';
+    if (teamMemberId && owner.teamMembers) {
+      const member = owner.teamMembers.find(m => m._id.toString() === teamMemberId);
+      if (member) teamMemberName = member.name;
+    }
+    
     const bookingData = {
       id: Date.now(),
       date,
@@ -1065,6 +1088,8 @@ app.post('/dashboard/add-booking', authenticateToken, async (req, res) => {
       clinicPhone: owner.clinicPhone,
       clinicAddress: owner.clinicAddress,
       websiteUrl: owner.websiteUrl,
+      teamMemberId: teamMemberId,
+      teamMemberName: teamMemberName,
       createdAt: new Date(),
       source: 'dashboard'
     };
@@ -1369,6 +1394,133 @@ app.post('/dashboard/settings', authenticateToken, async (req, res) => {
   } catch (error) {
     const owner = await Owner.findById(req.owner.id);
     res.render('settings', { owner, error: error.message });
+  }
+});
+
+// ============================================
+// TEAM MEMBERS MANAGEMENT
+// ============================================
+
+// Add Team Member
+app.post('/dashboard/team/add', authenticateToken, async (req, res) => {
+  try {
+    const { name, role, email, phone, color } = req.body;
+    
+    if (!name || name.trim() === '') {
+      return res.redirect('/dashboard/settings?error=Team member name is required');
+    }
+    
+    await Owner.findByIdAndUpdate(req.owner.id, {
+      $push: {
+        teamMembers: {
+          name: name.trim(),
+          role: role || 'Specialist',
+          email: email || '',
+          phone: phone || '',
+          color: color || '#10b981',
+          isActive: true
+        }
+      }
+    });
+    
+    res.redirect('/dashboard/settings?success=Team member added');
+  } catch (error) {
+    console.error('Add team member error:', error);
+    res.redirect('/dashboard/settings?error=Failed to add team member');
+  }
+});
+
+// Update Team Member
+app.post('/dashboard/team/update/:memberId', authenticateToken, async (req, res) => {
+  try {
+    const { memberId } = req.params;
+    const { name, role, email, phone, color, isActive } = req.body;
+    
+    await Owner.findOneAndUpdate(
+      { _id: req.owner.id, 'teamMembers._id': memberId },
+      {
+        $set: {
+          'teamMembers.$.name': name,
+          'teamMembers.$.role': role || 'Specialist',
+          'teamMembers.$.email': email || '',
+          'teamMembers.$.phone': phone || '',
+          'teamMembers.$.color': color || '#10b981',
+          'teamMembers.$.isActive': isActive === 'true' || isActive === true
+        }
+      }
+    );
+    
+    res.redirect('/dashboard/settings?success=Team member updated');
+  } catch (error) {
+    console.error('Update team member error:', error);
+    res.redirect('/dashboard/settings?error=Failed to update team member');
+  }
+});
+
+// Delete Team Member
+app.post('/dashboard/team/delete/:memberId', authenticateToken, async (req, res) => {
+  try {
+    const { memberId } = req.params;
+    
+    await Owner.findByIdAndUpdate(req.owner.id, {
+      $pull: { teamMembers: { _id: memberId } }
+    });
+    
+    res.redirect('/dashboard/settings?success=Team member removed');
+  } catch (error) {
+    console.error('Delete team member error:', error);
+    res.redirect('/dashboard/settings?error=Failed to remove team member');
+  }
+});
+
+// ============================================
+// QUICK DAY-OFF (Block entire day or time range)
+// ============================================
+
+app.post('/dashboard/day-off', authenticateToken, async (req, res) => {
+  try {
+    const { date, startTime, endTime, reason, teamMemberId } = req.body;
+    const owner = await Owner.findById(req.owner.id);
+    
+    const bookingDb = mongoose.connection.useDb('bookingdb');
+    const BookingCollection = bookingDb.collection('bookings');
+    
+    // Generate time slots to block
+    const start = parseInt(startTime?.split(':')[0]) || owner.settings.startHour;
+    const end = parseInt(endTime?.split(':')[0]) || owner.settings.endHour;
+    const slotsPerHour = owner.settings.slotsPerHour || 1;
+    
+    const blockedSlots = [];
+    for (let hour = start; hour < end; hour++) {
+      for (let slot = 0; slot < slotsPerHour; slot++) {
+        const minutes = Math.floor((60 / slotsPerHour) * slot);
+        const time = `${hour.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}`;
+        
+        blockedSlots.push({
+          id: Date.now() + Math.random(),
+          date: date,
+          time: time,
+          type: 'blocked',
+          status: 'blocked',
+          name: reason || 'Day Off',
+          notes: reason || 'Blocked by owner',
+          clinicEmail: owner.email,
+          clinicName: owner.clinicName,
+          teamMemberId: teamMemberId || null,
+          teamMemberName: teamMemberId ? owner.teamMembers.find(m => m._id.toString() === teamMemberId)?.name : '',
+          createdAt: new Date()
+        });
+      }
+    }
+    
+    if (blockedSlots.length > 0) {
+      await BookingCollection.insertMany(blockedSlots);
+    }
+    
+    res.redirect('/dashboard?success=Day off scheduled');
+  } catch (error) {
+    console.error('Day off error:', error);
+    res.redirect('/dashboard?error=Failed to schedule day off');
   }
 });
 

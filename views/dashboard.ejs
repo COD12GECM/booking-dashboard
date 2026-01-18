@@ -690,13 +690,64 @@
           <input type="date" id="date-picker" class="view-tab" style="padding: 8px 12px; cursor: pointer;" title="Choose specific date" value="<%= new Date().toISOString().split('T')[0] %>">
         </div>
       </div>
-      <a href="/dashboard/add-booking" class="btn btn-primary">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <line x1="12" y1="5" x2="12" y2="19"/>
-          <line x1="5" y1="12" x2="19" y2="12"/>
-        </svg>
-        Add Booking
-      </a>
+      <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+        <button type="button" onclick="document.getElementById('dayoff-modal').style.display='flex'" class="btn" style="background: linear-gradient(135deg, #f59e0b, #d97706);">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 18px; height: 18px;">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/>
+          </svg>
+          Day Off
+        </button>
+        <a href="/dashboard/add-booking" class="btn btn-primary">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="5" x2="12" y2="19"/>
+            <line x1="5" y1="12" x2="19" y2="12"/>
+          </svg>
+          Add Booking
+        </a>
+      </div>
+    </div>
+    
+    <!-- Day Off Modal -->
+    <div id="dayoff-modal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; padding: 20px;">
+      <div style="background: var(--neo-bg); border-radius: 20px; padding: 32px; max-width: 400px; width: 100%; box-shadow: 12px 12px 24px var(--neo-shadow-dark), -12px -12px 24px var(--neo-shadow-light);">
+        <h3 style="margin-bottom: 20px; color: var(--neo-text); font-size: 20px;">Schedule Day Off</h3>
+        <form method="POST" action="/dashboard/day-off">
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 8px; color: var(--neo-text);">Date</label>
+            <input type="date" name="date" required value="<%= new Date().toISOString().split('T')[0] %>" style="width: 100%; padding: 12px; border: none; border-radius: 10px; background: var(--neo-bg); box-shadow: inset 3px 3px 6px var(--neo-shadow-dark), inset -3px -3px 6px var(--neo-shadow-light); font-size: 16px;">
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+            <div>
+              <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 8px; color: var(--neo-text);">From</label>
+              <input type="time" name="startTime" value="09:00" style="width: 100%; padding: 12px; border: none; border-radius: 10px; background: var(--neo-bg); box-shadow: inset 3px 3px 6px var(--neo-shadow-dark), inset -3px -3px 6px var(--neo-shadow-light); font-size: 16px;">
+            </div>
+            <div>
+              <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 8px; color: var(--neo-text);">To</label>
+              <input type="time" name="endTime" value="17:00" style="width: 100%; padding: 12px; border: none; border-radius: 10px; background: var(--neo-bg); box-shadow: inset 3px 3px 6px var(--neo-shadow-dark), inset -3px -3px 6px var(--neo-shadow-light); font-size: 16px;">
+            </div>
+          </div>
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 8px; color: var(--neo-text);">Reason (Optional)</label>
+            <input type="text" name="reason" placeholder="e.g., Conference, Vacation..." style="width: 100%; padding: 12px; border: none; border-radius: 10px; background: var(--neo-bg); box-shadow: inset 3px 3px 6px var(--neo-shadow-dark), inset -3px -3px 6px var(--neo-shadow-light); font-size: 16px;">
+          </div>
+          <% if (owner.teamMembers && owner.teamMembers.length > 0) { %>
+          <div style="margin-bottom: 16px;">
+            <label style="display: block; font-size: 13px; font-weight: 600; margin-bottom: 8px; color: var(--neo-text);">Team Member (Optional)</label>
+            <select name="teamMemberId" style="width: 100%; padding: 12px; border: none; border-radius: 10px; background: var(--neo-bg); box-shadow: inset 3px 3px 6px var(--neo-shadow-dark), inset -3px -3px 6px var(--neo-shadow-light); font-size: 16px;">
+              <option value="">All Team Members</option>
+              <% owner.teamMembers.filter(m => m.isActive !== false).forEach(member => { %>
+                <option value="<%= member._id %>"><%= member.name %></option>
+              <% }) %>
+            </select>
+          </div>
+          <% } %>
+          <div style="display: flex; gap: 12px;">
+            <button type="button" onclick="document.getElementById('dayoff-modal').style.display='none'" style="flex: 1; padding: 14px; border: none; border-radius: 10px; background: var(--neo-bg); color: var(--neo-text); font-weight: 600; cursor: pointer; box-shadow: 3px 3px 6px var(--neo-shadow-dark), -3px -3px 6px var(--neo-shadow-light);">Cancel</button>
+            <button type="submit" style="flex: 1; padding: 14px; border: none; border-radius: 10px; background: linear-gradient(135deg, #f59e0b, #d97706); color: white; font-weight: 600; cursor: pointer;">Block Time</button>
+          </div>
+        </form>
+      </div>
     </div>
     
     <div class="card" id="bookings-container">
@@ -751,9 +802,9 @@
                 <div class="booking-info">
                   <% if (booking.type === 'blocked') { %>
                     <div class="booking-client" style="color: var(--neo-warning);">Blocked Slot</div>
-                    <div class="booking-service"><%= booking.notes || 'Time blocked' %></div>
+                    <div class="booking-service"><%= booking.notes || 'Time blocked' %><% if (booking.teamMemberName) { %> &bull; <span style="color: var(--neo-primary);"><%= booking.teamMemberName %></span><% } %></div>
                   <% } else { %>
-                    <div class="booking-client"><%= booking.name %></div>
+                    <div class="booking-client"><%= booking.name %><% if (booking.teamMemberName) { %> <span style="font-size: 12px; color: var(--neo-primary); font-weight: 500;">with <%= booking.teamMemberName %></span><% } %></div>
                     <div class="booking-service"><%= booking.service %> &bull; <%= booking.email %><% if (booking.phone) { %> &bull; <%= booking.phone %><% } %></div>
                   <% } %>
                 </div>
