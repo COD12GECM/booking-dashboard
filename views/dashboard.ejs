@@ -1380,10 +1380,21 @@
             <p style="margin-bottom: 8px;"><strong>Service:</strong> ${booking.service || 'N/A'}</p>
             <p style="margin-bottom: 8px;"><strong>Time:</strong> ${timeBtn.dataset.date} at ${timeBtn.dataset.time}</p>
             ${booking.teamMemberName ? `<p style="margin-bottom: 8px;"><strong>Specialist:</strong> ${booking.teamMemberName}</p>` : ''}
-            ${booking.notes ? `<p><strong>Notes:</strong> ${booking.notes}</p>` : ''}
+            ${booking.notes ? `<p style="margin-bottom: 12px;"><strong>Notes:</strong> ${booking.notes}</p>` : ''}
+            <div style="margin-top: 16px; display: flex; gap: 10px;">
+              <form method="POST" action="/dashboard/cancel-booking/${booking.id}" style="display: inline;" onsubmit="return confirm('Cancel this booking?');">
+                <button type="submit" style="padding: 10px 20px; border: none; border-radius: 8px; background: linear-gradient(135deg, #ef4444, #dc2626); color: white; font-weight: 600; cursor: pointer;">Cancel Booking</button>
+              </form>
+              <a href="/dashboard/edit-booking/${booking.id}" style="padding: 10px 20px; border: none; border-radius: 8px; background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; font-weight: 600; cursor: pointer; text-decoration: none;">Edit Booking</a>
+            </div>
           `;
         } else {
-          infoDiv.innerHTML = '<p>No booking for this time slot. This slot is available.</p>';
+          infoDiv.innerHTML = `
+            <p style="margin-bottom: 12px;">No booking for this time slot. This slot is available.</p>
+            <div style="margin-top: 16px;">
+              <a href="/dashboard/add-booking?date=${timeBtn.dataset.date}&time=${timeBtn.dataset.time}" style="padding: 10px 20px; border: none; border-radius: 8px; background: linear-gradient(135deg, #10b981, #059669); color: white; font-weight: 600; cursor: pointer; text-decoration: none;">+ Add Booking</a>
+            </div>
+          `;
         }
         detailsDiv.style.display = 'block';
       }
