@@ -388,6 +388,7 @@ async function sendBookingConfirmationEmail(booking, owner) {
   const primaryColor = emailSettings.primaryColor || '#059669';
   const secondaryColor = emailSettings.secondaryColor || '#10b981';
   const businessName = emailSettings.businessName || owner.clinicName || 'Your Business';
+  const confirmationSubject = emailSettings.confirmationSubject || 'Booking Confirmed';
   const CLINIC_ADDRESS = owner.clinicAddress || '';
   const CLINIC_EMAIL = owner.email || '';
   const CLINIC_PHONE = owner.clinicPhone || '';

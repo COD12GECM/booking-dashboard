@@ -302,9 +302,14 @@
       font-weight: 600;
       cursor: pointer;
       background: var(--neo-bg);
-      color: var(--neo-text-muted);
+      color: var(--neo-text);
       box-shadow: 2px 2px 4px var(--neo-shadow-dark), -2px -2px 4px var(--neo-shadow-light);
       transition: all 0.2s ease;
+    }
+    
+    .view-tab[type="date"] {
+      color: var(--neo-text);
+      font-weight: 600;
     }
     
     .view-tab:hover {
@@ -524,7 +529,7 @@
     </div>
     <div class="navbar-actions">
       <a href="/dashboard" class="nav-link active">Bookings</a>
-      <a href="/dashboard/ai-assistant" class="nav-link" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: white;">🤖 AI</a>
+      <a href="/dashboard/ai-assistant" class="nav-link" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: white;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 16px; height: 16px; display: inline; vertical-align: middle; margin-right: 4px;"><circle cx="12" cy="12" r="3"/><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>AI</a>
       <a href="/dashboard/settings" class="nav-link">Settings</a>
       <a href="/logout" class="nav-link">Logout</a>
     </div>
