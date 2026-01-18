@@ -1707,6 +1707,30 @@ app.post('/dashboard/team/delete/:memberId', authenticateToken, async (req, res)
 });
 
 // ============================================
+// ASSIGN TEAM MEMBER TO BOOKING
+// ============================================
+
+app.post('/api/assign-team-member', authenticateToken, async (req, res) => {
+  try {
+    const { bookingId, teamMemberId, teamMemberName } = req.body;
+    const owner = await Owner.findById(req.owner.id);
+    
+    const bookingDb = mongoose.connection.useDb('bookingdb');
+    const BookingsCollection = bookingDb.collection('bookings');
+    
+    await BookingsCollection.updateOne(
+      { id: parseInt(bookingId), clinicEmail: owner.email },
+      { $set: { teamMemberId: teamMemberId || '', teamMemberName: teamMemberName || '' } }
+    );
+    
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Assign team member error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ============================================
 // QUICK DAY-OFF (Block entire day or time range)
 // ============================================
 

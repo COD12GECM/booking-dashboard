@@ -874,8 +874,19 @@
                     <div class="booking-client" style="color: var(--neo-warning);">Blocked Slot</div>
                     <div class="booking-service"><%= booking.notes || 'Time blocked' %><% if (booking.teamMemberName) { %> &bull; <span style="color: var(--neo-primary);"><%= booking.teamMemberName %></span><% } %></div>
                   <% } else { %>
-                    <div class="booking-client"><a href="#" class="client-history-link" data-email="<%= booking.email %>" data-name="<%= booking.name %>" style="color: inherit; text-decoration: none; border-bottom: 1px dashed var(--neo-text-muted);"><%= booking.name %></a><% if (booking.teamMemberName) { %> <span style="font-size: 12px; color: var(--neo-primary); font-weight: 500;">with <%= booking.teamMemberName %></span><% } %></div>
+                    <div class="booking-client"><a href="#" class="client-history-link" data-email="<%= booking.email %>" data-name="<%= booking.name %>" style="color: inherit; text-decoration: none; border-bottom: 1px dashed var(--neo-text-muted);"><%= booking.name %></a></div>
                     <div class="booking-service"><%= booking.service %> &bull; <%= booking.email %><% if (booking.phone) { %> &bull; <%= booking.phone %><% } %></div>
+                    <% if (owner.teamMembers && owner.teamMembers.length > 0) { %>
+                    <div style="margin-top: 6px;">
+                      <select class="team-member-select" data-booking-id="<%= booking.id %>" onchange="assignTeamMember(this)" style="padding: 4px 8px; border-radius: 6px; border: 1px solid #ddd; font-size: 12px; background: var(--neo-bg); color: var(--neo-text); cursor: pointer;">
+                        <option value="">Assign specialist...</option>
+                        <% owner.teamMembers.filter(m => m.isActive !== false).forEach(member => { %>
+                          <option value="<%= member._id %>" data-name="<%= member.name %>" <%= booking.teamMemberId == member._id.toString() ? 'selected' : '' %> style="color: <%= member.color || '#10b981' %>;"><%= member.name %></option>
+                        <% }) %>
+                      </select>
+                      <% if (booking.teamMemberName) { %><span style="font-size: 11px; color: var(--neo-primary); margin-left: 6px;">✓ <%= booking.teamMemberName %></span><% } %>
+                    </div>
+                    <% } %>
                   <% } %>
                 </div>
                 <span class="type-badge status-<%= booking.status || 'confirmed' %>" style="margin-right: 8px;"><%= booking.status || 'confirmed' %></span>
@@ -1051,6 +1062,41 @@
           .then(reg => console.log('SW registered'))
           .catch(err => console.log('SW registration failed'));
       });
+    }
+    
+    // Assign Team Member to Booking
+    async function assignTeamMember(selectElement) {
+      const bookingId = selectElement.dataset.bookingId;
+      const teamMemberId = selectElement.value;
+      const selectedOption = selectElement.options[selectElement.selectedIndex];
+      const teamMemberName = selectedOption.dataset.name || '';
+      
+      try {
+        const response = await fetch('/api/assign-team-member', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ bookingId, teamMemberId, teamMemberName })
+        });
+        
+        if (response.ok) {
+          // Update the display
+          const container = selectElement.parentElement;
+          let badge = container.querySelector('.team-badge');
+          if (teamMemberName) {
+            if (!badge) {
+              badge = document.createElement('span');
+              badge.className = 'team-badge';
+              badge.style.cssText = 'font-size: 11px; color: var(--neo-primary); margin-left: 6px;';
+              container.appendChild(badge);
+            }
+            badge.textContent = '✓ ' + teamMemberName;
+          } else if (badge) {
+            badge.remove();
+          }
+        }
+      } catch (error) {
+        console.error('Failed to assign team member:', error);
+      }
     }
     
     // Dark Mode Toggle
