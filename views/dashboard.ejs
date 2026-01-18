@@ -311,38 +311,17 @@
       color: #000000 !important;
       font-weight: 700;
       -webkit-text-fill-color: #000000;
-      min-width: 140px;
+      min-width: 130px;
       background: var(--neo-bg);
       box-shadow: inset 3px 3px 6px var(--neo-shadow-dark), inset -3px -3px 6px var(--neo-shadow-light);
       font-size: 16px;
+      -webkit-appearance: none;
+      appearance: none;
     }
     
-    .view-tab[type="date"]::-webkit-datetime-edit-text,
-    .view-tab[type="date"]::-webkit-datetime-edit-month-field,
-    .view-tab[type="date"]::-webkit-datetime-edit-day-field,
-    .view-tab[type="date"]::-webkit-datetime-edit-year-field {
+    .view-tab[type="date"]::-webkit-date-and-time-value {
+      text-align: center;
       color: #000000;
-    }
-    
-    .date-picker-wrapper {
-      position: relative;
-      display: inline-block;
-    }
-    
-    .date-picker-label {
-      position: absolute;
-      left: 12px;
-      top: 50%;
-      transform: translateY(-50%);
-      color: #64748b;
-      font-size: 13px;
-      pointer-events: none;
-      transition: opacity 0.2s;
-    }
-    
-    .date-picker-wrapper input:valid + .date-picker-label,
-    .date-picker-wrapper input:focus + .date-picker-label {
-      opacity: 0;
     }
     
     .view-tab:hover {
@@ -708,10 +687,7 @@
           <button class="view-tab" data-view="week">This Week</button>
           <button class="view-tab" data-view="month">This Month</button>
           <button class="view-tab" data-view="all">All</button>
-          <div class="date-picker-wrapper">
-            <input type="date" id="date-picker" class="view-tab" style="padding: 8px 12px; cursor: pointer;" title="Choose specific date">
-            <span class="date-picker-label">📅 Pick Date</span>
-          </div>
+          <input type="date" id="date-picker" class="view-tab" style="padding: 8px 12px; cursor: pointer;" title="Choose specific date" value="<%= new Date().toISOString().split('T')[0] %>">
         </div>
       </div>
       <a href="/dashboard/add-booking" class="btn btn-primary">
