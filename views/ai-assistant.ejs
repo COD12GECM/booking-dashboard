@@ -56,6 +56,7 @@
       width: 22px;
       height: 22px;
       stroke: white;
+      fill: none;
     }
     
     .navbar-title {
@@ -104,13 +105,33 @@
     .chat-header {
       text-align: center;
       margin-bottom: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .chat-header-icon {
+      width: 56px;
+      height: 56px;
+      background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .chat-header-icon svg {
+      width: 28px;
+      height: 28px;
+      stroke: white;
+      fill: none;
     }
     
     .chat-header h1 {
       color: var(--neo-text);
       font-size: 24px;
       font-weight: 700;
-      margin-bottom: 8px;
     }
     
     .chat-header p {
@@ -137,11 +158,21 @@
       color: var(--neo-text-muted);
       box-shadow: 3px 3px 6px var(--neo-shadow-dark), -3px -3px 6px var(--neo-shadow-light);
       transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 6px;
     }
     
     .quick-btn:hover {
       color: var(--neo-text);
       transform: translateY(-2px);
+    }
+    
+    .quick-btn svg {
+      width: 14px;
+      height: 14px;
+      stroke: currentColor;
+      fill: none;
     }
     
     .chat-messages {
@@ -178,12 +209,24 @@
     
     .message.assistant .message-avatar {
       background: linear-gradient(135deg, #8b5cf6, #7c3aed);
-      color: white;
+    }
+    
+    .message.assistant .message-avatar svg {
+      width: 18px;
+      height: 18px;
+      stroke: white;
+      fill: none;
     }
     
     .message.user .message-avatar {
       background: linear-gradient(135deg, #10b981, #059669);
-      color: white;
+    }
+    
+    .message.user .message-avatar svg {
+      width: 18px;
+      height: 18px;
+      stroke: white;
+      fill: none;
     }
     
     .message-content {
@@ -240,6 +283,9 @@
       color: white;
       box-shadow: 4px 4px 8px var(--neo-shadow-dark), -4px -4px 8px var(--neo-shadow-light);
       transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
     
     .send-btn:hover {
@@ -249,6 +295,14 @@
     .send-btn:disabled {
       opacity: 0.6;
       cursor: not-allowed;
+      transform: none;
+    }
+    
+    .send-btn svg {
+      width: 18px;
+      height: 18px;
+      stroke: currentColor;
+      fill: none;
     }
     
     .stats-summary {
@@ -328,10 +382,10 @@
   <nav class="navbar">
     <div class="navbar-brand">
       <div class="navbar-logo">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M12 2a10 10 0 0 1 10 10c0 5.52-4.48 10-10 10S2 17.52 2 12 6.48 2 12 2z"/>
-          <path d="M12 16v-4"/>
-          <path d="M12 8h.01"/>
+        <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+          <line x1="12" y1="17" x2="12.01" y2="17"/>
         </svg>
       </div>
       <span class="navbar-title">AI Assistant</span>
@@ -346,7 +400,12 @@
   
   <div class="chat-container">
     <div class="chat-header">
-      <h1>🤖 AI Business Assistant</h1>
+      <div class="chat-header-icon">
+        <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+        </svg>
+      </div>
+      <h1>AI Business Assistant</h1>
       <p>Ask me anything about your bookings, get insights, or tips to grow your business</p>
     </div>
     
@@ -373,30 +432,57 @@
     </div>
     
     <div class="quick-actions">
-      <button class="quick-btn" onclick="askQuestion('What are my busiest days?')">📊 Busiest Days</button>
-      <button class="quick-btn" onclick="askQuestion('How can I reduce no-shows?')">💡 Reduce No-Shows</button>
-      <button class="quick-btn" onclick="askQuestion('Tips to get more bookings')">📈 Get More Bookings</button>
-      <button class="quick-btn" onclick="askQuestion('Summarize my week')">📋 Weekly Summary</button>
+      <button class="quick-btn" onclick="askQuestion('How do I use this dashboard?')">
+        <svg viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        Tutorial
+      </button>
+      <button class="quick-btn" onclick="askQuestion('What are my busiest days?')">
+        <svg viewBox="0 0 24 24" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+        Busiest Days
+      </button>
+      <button class="quick-btn" onclick="askQuestion('How can I reduce no-shows?')">
+        <svg viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Reduce No-Shows
+      </button>
+      <button class="quick-btn" onclick="askQuestion('Tips to get more bookings')">
+        <svg viewBox="0 0 24 24" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+        Get More Bookings
+      </button>
+      <button class="quick-btn" onclick="askQuestion('Summarize my week')">
+        <svg viewBox="0 0 24 24" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        Weekly Summary
+      </button>
     </div>
     
     <div class="chat-messages" id="chatMessages">
       <div class="message assistant">
-        <div class="message-avatar">🤖</div>
+        <div class="message-avatar">
+          <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/>
+          </svg>
+        </div>
         <div class="message-content">
           Hello! I'm your AI business assistant. I can help you with:
           <br><br>
-          • <strong>Booking insights</strong> - understand your busiest times
-          <br>• <strong>Business tips</strong> - reduce no-shows, increase bookings
-          <br>• <strong>Quick actions</strong> - summaries and reports
+          <strong>Dashboard Tutorial</strong> - Learn how to use all features
+          <br><strong>Booking insights</strong> - Understand your busiest times
+          <br><strong>Business tips</strong> - Reduce no-shows, increase bookings
+          <br><strong>Quick reports</strong> - Summaries and statistics
           <br><br>
-          What would you like to know?
+          Click <strong>Tutorial</strong> above to learn how to use the dashboard!
         </div>
       </div>
     </div>
     
     <div class="chat-input-container">
-      <input type="text" class="chat-input" id="chatInput" placeholder="Ask me anything about your business..." onkeypress="if(event.key==='Enter')sendMessage()">
-      <button class="send-btn" onclick="sendMessage()" id="sendBtn">Send</button>
+      <input type="text" class="chat-input" id="chatInput" placeholder="Ask me anything about your business...">
+      <button class="send-btn" id="sendBtn">
+        <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="22" y1="2" x2="11" y2="13"/>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"/>
+        </svg>
+        Send
+      </button>
     </div>
   </div>
   
@@ -413,6 +499,10 @@
     
     const businessName = '<%= owner.clinicName || "your business" %>';
     
+    // SVG icons for messages
+    const aiIcon = '<svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>';
+    const userIcon = '<svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>';
+    
     function askQuestion(question) {
       document.getElementById('chatInput').value = question;
       sendMessage();
@@ -422,10 +512,7 @@
       const messagesDiv = document.getElementById('chatMessages');
       const messageDiv = document.createElement('div');
       messageDiv.className = 'message ' + (isUser ? 'user' : 'assistant');
-      messageDiv.innerHTML = `
-        <div class="message-avatar">${isUser ? '👤' : '🤖'}</div>
-        <div class="message-content">${content}</div>
-      `;
+      messageDiv.innerHTML = '<div class="message-avatar">' + (isUser ? userIcon : aiIcon) + '</div><div class="message-content">' + content + '</div>';
       messagesDiv.appendChild(messageDiv);
       messagesDiv.scrollTop = messagesDiv.scrollHeight;
     }
@@ -435,14 +522,7 @@
       const typingDiv = document.createElement('div');
       typingDiv.className = 'message assistant';
       typingDiv.id = 'typingIndicator';
-      typingDiv.innerHTML = `
-        <div class="message-avatar">🤖</div>
-        <div class="message-content">
-          <div class="typing-indicator">
-            <span></span><span></span><span></span>
-          </div>
-        </div>
-      `;
+      typingDiv.innerHTML = '<div class="message-avatar">' + aiIcon + '</div><div class="message-content"><div class="typing-indicator"><span></span><span></span><span></span></div></div>';
       messagesDiv.appendChild(typingDiv);
       messagesDiv.scrollTop = messagesDiv.scrollHeight;
     }
@@ -455,75 +535,136 @@
     function generateResponse(question) {
       const q = question.toLowerCase();
       
+      // TUTORIAL - Complete dashboard guide
+      if (q.includes('tutorial') || q.includes('how do i use') || q.includes('help') || q.includes('guide')) {
+        return '<strong>COMPLETE DASHBOARD TUTORIAL</strong><br><br>' +
+          '<strong>1. BOOKINGS PAGE</strong><br>' +
+          'This is your main page where you see all appointments.<br><br>' +
+          '<strong>View Options:</strong><br>' +
+          '- <strong>Today</strong> - See only today\'s appointments<br>' +
+          '- <strong>This Week</strong> - See this week\'s appointments<br>' +
+          '- <strong>This Month</strong> - See this month\'s appointments<br>' +
+          '- <strong>All</strong> - See all appointments<br>' +
+          '- <strong>Date Picker</strong> - Choose a specific date<br><br>' +
+          '<strong>Booking Actions:</strong><br>' +
+          '- <strong>Edit</strong> - Change booking details<br>' +
+          '- <strong>Done</strong> - Mark appointment as completed<br>' +
+          '- <strong>No-Show</strong> - Client didn\'t show up<br>' +
+          '- <strong>Cancel</strong> - Cancel the booking (sends email to client)<br>' +
+          '- <strong>Mail Icon</strong> - Send reminder email to client<br><br>' +
+          '<strong>Add Booking:</strong><br>' +
+          'Click the green "+ Add Booking" button to manually add a new appointment.<br><br>' +
+          'Type <strong>"settings tutorial"</strong> to learn about Settings, or <strong>"email tutorial"</strong> to learn about emails!';
+      }
+      
+      // Settings tutorial
+      if (q.includes('settings')) {
+        return '<strong>SETTINGS TUTORIAL</strong><br><br>' +
+          '<strong>BUSINESS TAB:</strong><br>' +
+          '- <strong>Business Name</strong> - Your company name (shown in emails)<br>' +
+          '- <strong>Phone</strong> - Contact number for clients<br>' +
+          '- <strong>Website URL</strong> - Your website link<br>' +
+          '- <strong>Address</strong> - Your location (shown in emails)<br>' +
+          '- <strong>Services</strong> - List of services you offer (comma separated)<br><br>' +
+          '<strong>SCHEDULE TAB:</strong><br>' +
+          '- <strong>Opening/Closing Hour</strong> - Your working hours<br>' +
+          '- <strong>Slots Per Hour</strong> - How many bookings per hour<br>' +
+          '- <strong>Working Days</strong> - Which days you accept bookings<br><br>' +
+          '<strong>EMAIL TEMPLATES TAB:</strong><br>' +
+          '- <strong>Logo URL</strong> - Your logo for emails<br>' +
+          '- <strong>Colors</strong> - Customize email colors<br>' +
+          '- <strong>Confirmation/Cancellation/Reminder</strong> - Customize each email type<br><br>' +
+          'Remember to click <strong>Save All Settings</strong> after making changes!';
+      }
+      
+      // Email tutorial
+      if (q.includes('email')) {
+        return '<strong>EMAIL SYSTEM TUTORIAL</strong><br><br>' +
+          '<strong>AUTOMATIC EMAILS:</strong><br>' +
+          '- <strong>Confirmation Email</strong> - Sent when client books<br>' +
+          '- <strong>Cancellation Email</strong> - Sent when you cancel a booking<br>' +
+          '- <strong>Reminder Email</strong> - Sent automatically 1 day before appointment<br><br>' +
+          '<strong>MANUAL REMINDER:</strong><br>' +
+          'Click the mail icon on any booking to send a reminder email immediately.<br><br>' +
+          '<strong>CUSTOMIZE EMAILS:</strong><br>' +
+          'Go to Settings > Email Templates to:<br>' +
+          '- Add your logo<br>' +
+          '- Change colors to match your brand<br>' +
+          '- Edit subject lines and messages<br>' +
+          '- Add a custom footer<br><br>' +
+          '<strong>IMPORTANT:</strong> Make sure your Address is set in Settings so it appears correctly in emails!';
+      }
+      
       // Busiest days analysis
       if (q.includes('busiest') || q.includes('busy')) {
-        return `Based on your booking data, <strong>${stats.busiestDay}</strong> tends to be your busiest day. 
-        <br><br>💡 <strong>Tip:</strong> Consider offering special promotions on slower days to balance your schedule and maximize revenue.`;
+        return 'Based on your booking data, <strong>' + stats.busiestDay + '</strong> tends to be your busiest day.<br><br>' +
+          '<strong>Tip:</strong> Consider offering special promotions on slower days to balance your schedule and maximize revenue.';
       }
       
       // No-shows
       if (q.includes('no-show') || q.includes('noshow') || q.includes('cancel')) {
         const tips = stats.noShowRate > 15 
-          ? `Your no-show rate is ${stats.noShowRate}%, which is above average.`
-          : `Your no-show rate is ${stats.noShowRate}%, which is good!`;
-        return `${tips}
-        <br><br>Here are proven strategies to reduce no-shows:
-        <br><br>• <strong>Send reminders</strong> - 24h and 2h before appointments
-        <br>• <strong>Require deposits</strong> - even small ones reduce no-shows by 50%
-        <br>• <strong>Easy rescheduling</strong> - make it simple to change appointments
-        <br>• <strong>Waitlist</strong> - fill cancelled slots quickly`;
+          ? 'Your no-show rate is ' + stats.noShowRate + '%, which is above average.'
+          : 'Your no-show rate is ' + stats.noShowRate + '%, which is good!';
+        return tips + '<br><br>Here are proven strategies to reduce no-shows:<br><br>' +
+          '<strong>Send reminders</strong> - Use the mail icon to send reminders<br>' +
+          '<strong>Automatic reminders</strong> - System sends emails 1 day before<br>' +
+          '<strong>Require deposits</strong> - Even small ones reduce no-shows by 50%<br>' +
+          '<strong>Easy rescheduling</strong> - Make it simple to change appointments';
       }
       
       // More bookings
       if (q.includes('more booking') || q.includes('increase') || q.includes('grow')) {
-        return `Here are strategies to grow ${businessName}:
-        <br><br>• <strong>Google Business Profile</strong> - claim and optimize it
-        <br>• <strong>Social media</strong> - share before/after, testimonials
-        <br>• <strong>Referral program</strong> - reward clients who refer friends
-        <br>• <strong>Email marketing</strong> - stay in touch with past clients
-        <br>• <strong>Online reviews</strong> - ask happy clients to leave reviews
-        <br><br>Your most popular service is <strong>${stats.popularService}</strong> - consider promoting it more!`;
+        return 'Here are strategies to grow ' + businessName + ':<br><br>' +
+          '<strong>Google Business Profile</strong> - Claim and optimize it<br>' +
+          '<strong>Social media</strong> - Share testimonials and results<br>' +
+          '<strong>Referral program</strong> - Reward clients who refer friends<br>' +
+          '<strong>Email marketing</strong> - Stay in touch with past clients<br>' +
+          '<strong>Online reviews</strong> - Ask happy clients to leave reviews<br><br>' +
+          'Your most popular service is <strong>' + stats.popularService + '</strong> - consider promoting it more!';
       }
       
       // Weekly summary
       if (q.includes('summary') || q.includes('week') || q.includes('report')) {
-        return `📊 <strong>Weekly Summary for ${businessName}</strong>
-        <br><br>• Total bookings this week: <strong>${stats.weekBookings}</strong>
-        <br>• Today's appointments: <strong>${stats.todayBookings}</strong>
-        <br>• Completion rate: <strong>${stats.completionRate}%</strong>
-        <br>• Most popular service: <strong>${stats.popularService}</strong>
-        <br><br>${stats.completionRate >= 85 ? '✅ Great job! Your completion rate is excellent.' : '⚠️ Consider implementing reminder emails to improve completion rate.'}`;
+        return '<strong>Weekly Summary for ' + businessName + '</strong><br><br>' +
+          'Total bookings this week: <strong>' + stats.weekBookings + '</strong><br>' +
+          'Today\'s appointments: <strong>' + stats.todayBookings + '</strong><br>' +
+          'Completion rate: <strong>' + stats.completionRate + '%</strong><br>' +
+          'Most popular service: <strong>' + stats.popularService + '</strong><br><br>' +
+          (stats.completionRate >= 85 ? 'Great job! Your completion rate is excellent.' : 'Consider implementing reminder emails to improve completion rate.');
       }
       
       // Services
       if (q.includes('service') || q.includes('popular')) {
-        return `Your most popular service is <strong>${stats.popularService}</strong>.
-        <br><br>💡 <strong>Tips:</strong>
-        <br>• Create packages combining popular services
-        <br>• Offer loyalty discounts for repeat bookings
-        <br>• Consider adding complementary services`;
+        return 'Your most popular service is <strong>' + stats.popularService + '</strong>.<br><br>' +
+          '<strong>Tips:</strong><br>' +
+          'Create packages combining popular services<br>' +
+          'Offer loyalty discounts for repeat bookings<br>' +
+          'Consider adding complementary services';
       }
       
       // Stats/numbers
       if (q.includes('stat') || q.includes('number') || q.includes('data')) {
-        return `📈 <strong>Your Business Stats:</strong>
-        <br><br>• Total bookings: <strong>${stats.totalBookings}</strong>
-        <br>• Today: <strong>${stats.todayBookings}</strong>
-        <br>• This week: <strong>${stats.weekBookings}</strong>
-        <br>• Completion rate: <strong>${stats.completionRate}%</strong>
-        <br>• No-show rate: <strong>${stats.noShowRate}%</strong>
-        <br>• Busiest day: <strong>${stats.busiestDay}</strong>
-        <br>• Top service: <strong>${stats.popularService}</strong>`;
+        return '<strong>Your Business Stats:</strong><br><br>' +
+          'Total bookings: <strong>' + stats.totalBookings + '</strong><br>' +
+          'Today: <strong>' + stats.todayBookings + '</strong><br>' +
+          'This week: <strong>' + stats.weekBookings + '</strong><br>' +
+          'Completion rate: <strong>' + stats.completionRate + '%</strong><br>' +
+          'No-show rate: <strong>' + stats.noShowRate + '%</strong><br>' +
+          'Busiest day: <strong>' + stats.busiestDay + '</strong><br>' +
+          'Top service: <strong>' + stats.popularService + '</strong>';
       }
       
       // Default response
-      return `I can help you with:
-      <br><br>• <strong>"What are my busiest days?"</strong> - booking patterns
-      <br>• <strong>"How can I reduce no-shows?"</strong> - practical tips
-      <br>• <strong>"Tips to get more bookings"</strong> - growth strategies
-      <br>• <strong>"Summarize my week"</strong> - quick overview
-      <br>• <strong>"Show my stats"</strong> - detailed numbers
-      <br><br>Try asking one of these questions!`;
+      return 'I can help you with:<br><br>' +
+        '<strong>"Tutorial"</strong> - Learn how to use the dashboard<br>' +
+        '<strong>"Settings tutorial"</strong> - Learn about settings<br>' +
+        '<strong>"Email tutorial"</strong> - Learn about the email system<br>' +
+        '<strong>"What are my busiest days?"</strong> - Booking patterns<br>' +
+        '<strong>"How can I reduce no-shows?"</strong> - Practical tips<br>' +
+        '<strong>"Tips to get more bookings"</strong> - Growth strategies<br>' +
+        '<strong>"Summarize my week"</strong> - Quick overview<br><br>' +
+        'Try asking one of these questions!';
     }
     
     function sendMessage() {
@@ -539,13 +680,24 @@
       document.getElementById('sendBtn').disabled = true;
       
       // Simulate AI thinking
-      setTimeout(() => {
+      setTimeout(function() {
         removeTyping();
         const response = generateResponse(question);
         addMessage(response, false);
         document.getElementById('sendBtn').disabled = false;
-      }, 1000 + Math.random() * 1000);
+      }, 800 + Math.random() * 700);
     }
+    
+    // Event listeners
+    document.getElementById('chatInput').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        sendMessage();
+      }
+    });
+    
+    document.getElementById('sendBtn').addEventListener('click', function() {
+      sendMessage();
+    });
   </script>
 </body>
 </html>
