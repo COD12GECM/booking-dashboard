@@ -470,6 +470,14 @@ async function sendBookingConfirmationEmail(booking, owner) {
             </td>
           </tr>
           
+          <!-- Cancel Section -->
+          ${owner.websiteUrl ? `<tr>
+            <td style="padding: 0 40px 32px; text-align: center;">
+              <p style="color: #666666; font-size: 16px; margin: 0 0 20px; line-height: 1.6;">Need to reschedule? Cancel up to 6 hours before your appointment.</p>
+              <a href="${owner.websiteUrl}/pages/cancel-booking?token=${booking.cancelToken}&id=${booking.id}" style="display: inline-block; background: #ffffff; color: #dc2626; text-decoration: none; padding: 16px 36px; border-radius: 8px; font-size: 16px; font-weight: 600; border: 2px solid #dc2626;">Cancel Booking</a>
+            </td>
+          </tr>` : ''}
+          
           <!-- Contact -->
           <tr>
             <td style="padding: 28px 40px; background: #f8f9fa; border-top: 1px solid #e9ecef;">

@@ -373,6 +373,17 @@
       background: #f9fafb;
     }
     
+    .booking-card.needs-action {
+      border: 3px solid #ef4444;
+      background: #fef2f2;
+      animation: pulse-border 2s infinite;
+    }
+    
+    @keyframes pulse-border {
+      0%, 100% { border-color: #ef4444; }
+      50% { border-color: #fca5a5; }
+    }
+    
     .booking-time-badge {
       background: linear-gradient(135deg, #10b981, #059669);
       color: white;
@@ -424,9 +435,35 @@
       }
       .view-tabs {
         flex-wrap: wrap;
+        gap: 6px;
+      }
+      .view-tab {
+        padding: 6px 12px;
+        font-size: 12px;
+      }
+      .view-tab[type="date"] {
+        width: 100%;
+        margin-top: 8px;
       }
       .stats-grid {
         grid-template-columns: repeat(2, 1fr);
+        gap: 12px;
+      }
+      .stat-card {
+        padding: 16px;
+      }
+      .page-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 16px;
+      }
+      .page-header .btn {
+        width: 100%;
+        justify-content: center;
+      }
+      .navbar-actions {
+        width: 100%;
+        justify-content: center;
       }
     }
     
@@ -629,8 +666,13 @@
               <span class="day-count"><%= dayBookings.filter(b => b.status !== 'cancelled').length %> bookings</span>
             </div>
             
-            <% dayBookings.forEach(booking => { %>
-              <div class="booking-card <%= booking.status === 'cancelled' || booking.status === 'no-show' ? 'cancelled' : '' %>">
+            <% dayBookings.forEach(booking => { 
+                const bookingDateTime = new Date(booking.date + 'T' + booking.time);
+                const now = new Date();
+                const isPast = bookingDateTime < now;
+                const needsAction = isPast && (booking.status === 'confirmed' || !booking.status) && booking.type !== 'blocked';
+              %>
+              <div class="booking-card <%= booking.status === 'cancelled' || booking.status === 'no-show' ? 'cancelled' : '' %><%= needsAction ? ' needs-action' : '' %>">
                 <div class="booking-time-badge <%= booking.type === 'blocked' ? 'blocked' : '' %>">
                   <%= booking.time %>
                 </div>
