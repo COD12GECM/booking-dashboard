@@ -26,8 +26,8 @@ app.use(helmet({
       styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
       fontSrc: ["'self'", "https://fonts.gstatic.com"],
       imgSrc: ["'self'", "data:", "https:"],
-      scriptSrc: ["'self'", "'unsafe-inline'"],
-      connectSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "https://unpkg.com"],
+      connectSrc: ["'self'", "https://unpkg.com"],
       frameSrc: ["'none'"],
       objectSrc: ["'none'"],
       upgradeInsecureRequests: []
@@ -1156,7 +1156,6 @@ app.get('/dashboard', authenticateToken, async (req, res) => {
     const owner = await Owner.findById(req.owner.id);
     
     // Get bookings from the shared bookingdb collection (same as booking-api)
-    // Filter by clinicEmail matching owner's email - include all statuses to show cancelled ones
     const bookingDb = mongoose.connection.useDb('bookingdb');
     const BookingsCollection = bookingDb.collection('bookings');
     
@@ -1171,7 +1170,31 @@ app.get('/dashboard', authenticateToken, async (req, res) => {
       return dateB - dateA;
     });
     
-    res.render('dashboard', { owner, bookings: allBookings, success: req.query.success });
+    // Calculate stats for new dashboard
+    const today = new Date().toISOString().split('T')[0];
+    const todayBookings = allBookings.filter(b => b.date === today && b.status !== 'cancelled');
+    const completedBookings = allBookings.filter(b => b.status === 'completed').length;
+    const pendingBookings = allBookings.filter(b => !b.status || b.status === 'pending' || b.status === 'confirmed').length;
+    
+    // Get unique clients
+    const uniqueClients = new Set(allBookings.map(b => b.email)).size;
+    
+    // Check if new UI is requested
+    const useNewUI = req.query.ui === 'new' || req.cookies.useNewUI === 'true';
+    
+    if (useNewUI) {
+      res.render('dashboard-new', { 
+        owner, 
+        allBookings,
+        todayBookings,
+        completedBookings,
+        pendingBookings,
+        totalClients: uniqueClients,
+        success: req.query.success 
+      });
+    } else {
+      res.render('dashboard', { owner, bookings: allBookings, success: req.query.success });
+    }
   } catch (error) {
     console.error('Dashboard error:', error);
     res.render('dashboard', { owner: null, bookings: [], error: error.message });

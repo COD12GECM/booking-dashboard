@@ -1,0 +1,926 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#635bff">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>Dashboard - <%= owner.clinicName || 'Booking' %></title>
+  
+  <!-- Google Fonts - Inter -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <link rel="stylesheet" href="/css/styles.css">
+  
+  <style>
+    /* Page-specific styles */
+    .welcome-banner {
+      background: var(--brand-gradient);
+      border-radius: var(--border-radius-xl);
+      padding: var(--spacing-xl);
+      color: white;
+      margin-bottom: var(--spacing-xl);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .welcome-banner::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -20%;
+      width: 400px;
+      height: 400px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 50%;
+    }
+    
+    .welcome-banner::after {
+      content: '';
+      position: absolute;
+      bottom: -30%;
+      right: 10%;
+      width: 200px;
+      height: 200px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 50%;
+    }
+    
+    .welcome-content {
+      position: relative;
+      z-index: 1;
+    }
+    
+    .welcome-title {
+      font-size: var(--font-size-2xl);
+      font-weight: 700;
+      margin-bottom: var(--spacing-sm);
+    }
+    
+    .welcome-subtitle {
+      opacity: 0.9;
+      font-size: var(--font-size-md);
+    }
+    
+    .quick-actions {
+      display: flex;
+      gap: var(--spacing-md);
+      margin-top: var(--spacing-lg);
+    }
+    
+    .quick-action-btn {
+      background: rgba(255,255,255,0.2);
+      border: 1px solid rgba(255,255,255,0.3);
+      color: white;
+      padding: var(--spacing-sm) var(--spacing-lg);
+      border-radius: var(--border-radius-md);
+      font-weight: 500;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+    }
+    
+    .quick-action-btn:hover {
+      background: rgba(255,255,255,0.3);
+      transform: translateY(-2px);
+    }
+    
+    /* Section headers */
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: var(--spacing-lg);
+    }
+    
+    .section-title {
+      font-size: var(--font-size-lg);
+      font-weight: 600;
+    }
+    
+    /* Filter tabs */
+    .filter-tabs {
+      display: flex;
+      gap: var(--spacing-xs);
+      background: var(--bg-tertiary);
+      padding: 4px;
+      border-radius: var(--border-radius-md);
+    }
+    
+    .filter-tab {
+      padding: var(--spacing-sm) var(--spacing-md);
+      border-radius: var(--border-radius-sm);
+      font-size: var(--font-size-sm);
+      font-weight: 500;
+      color: var(--text-secondary);
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      transition: all var(--transition-fast);
+    }
+    
+    .filter-tab:hover {
+      color: var(--text-primary);
+    }
+    
+    .filter-tab.active {
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+      box-shadow: var(--shadow-sm);
+    }
+    
+    /* Two column layout */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 1fr 380px;
+      gap: var(--spacing-xl);
+    }
+    
+    @media (max-width: 1200px) {
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+    
+    /* Today's schedule */
+    .schedule-timeline {
+      position: relative;
+    }
+    
+    .time-slot {
+      display: flex;
+      gap: var(--spacing-lg);
+      padding: var(--spacing-md) 0;
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .time-slot:last-child {
+      border-bottom: none;
+    }
+    
+    .time-label {
+      width: 60px;
+      font-size: var(--font-size-sm);
+      font-weight: 500;
+      color: var(--text-muted);
+      flex-shrink: 0;
+    }
+    
+    .slot-content {
+      flex: 1;
+    }
+    
+    .slot-booking {
+      background: rgba(99, 91, 255, 0.08);
+      border-left: 3px solid var(--brand-primary);
+      border-radius: 0 var(--border-radius-md) var(--border-radius-md) 0;
+      padding: var(--spacing-md);
+      margin-bottom: var(--spacing-sm);
+      transition: all var(--transition-fast);
+    }
+    
+    .slot-booking:hover {
+      background: rgba(99, 91, 255, 0.12);
+      transform: translateX(4px);
+    }
+    
+    .slot-booking.confirmed {
+      border-left-color: var(--success);
+      background: rgba(0, 200, 83, 0.08);
+    }
+    
+    .slot-booking.pending {
+      border-left-color: var(--warning);
+      background: rgba(255, 152, 0, 0.08);
+    }
+    
+    .slot-booking.cancelled {
+      border-left-color: var(--danger);
+      background: rgba(255, 82, 82, 0.08);
+      opacity: 0.6;
+    }
+    
+    .slot-client {
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 2px;
+    }
+    
+    .slot-service {
+      font-size: var(--font-size-sm);
+      color: var(--text-secondary);
+    }
+    
+    .slot-empty {
+      color: var(--text-muted);
+      font-size: var(--font-size-sm);
+      font-style: italic;
+    }
+    
+    /* Mini calendar */
+    .mini-calendar {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--border-radius-lg);
+      overflow: hidden;
+    }
+    
+    .mini-calendar-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--spacing-md);
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .mini-calendar-title {
+      font-weight: 600;
+      font-size: var(--font-size-md);
+    }
+    
+    .mini-calendar-nav {
+      display: flex;
+      gap: var(--spacing-xs);
+    }
+    
+    .mini-calendar-nav button {
+      width: 28px;
+      height: 28px;
+      border-radius: var(--border-radius-sm);
+      border: 1px solid var(--border-color);
+      background: var(--bg-secondary);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-secondary);
+      transition: all var(--transition-fast);
+    }
+    
+    .mini-calendar-nav button:hover {
+      background: var(--bg-tertiary);
+      color: var(--text-primary);
+    }
+    
+    .mini-calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      padding: var(--spacing-sm);
+    }
+    
+    .mini-day-header {
+      text-align: center;
+      font-size: var(--font-size-xs);
+      font-weight: 600;
+      color: var(--text-muted);
+      padding: var(--spacing-sm);
+    }
+    
+    .mini-day {
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: var(--font-size-sm);
+      cursor: pointer;
+      border-radius: var(--border-radius-sm);
+      transition: all var(--transition-fast);
+      position: relative;
+    }
+    
+    .mini-day:hover {
+      background: var(--bg-tertiary);
+    }
+    
+    .mini-day.today {
+      background: var(--brand-primary);
+      color: white;
+      font-weight: 600;
+    }
+    
+    .mini-day.has-bookings::after {
+      content: '';
+      position: absolute;
+      bottom: 4px;
+      width: 4px;
+      height: 4px;
+      background: var(--brand-primary);
+      border-radius: 50%;
+    }
+    
+    .mini-day.today.has-bookings::after {
+      background: white;
+    }
+    
+    .mini-day.other-month {
+      color: var(--text-muted);
+      opacity: 0.5;
+    }
+    
+    .mini-day.selected {
+      background: rgba(99, 91, 255, 0.1);
+      color: var(--brand-primary);
+      font-weight: 600;
+    }
+    
+    /* Recent activity */
+    .activity-list {
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .activity-item {
+      display: flex;
+      gap: var(--spacing-md);
+      padding: var(--spacing-md);
+      border-bottom: 1px solid var(--border-color);
+      transition: background var(--transition-fast);
+    }
+    
+    .activity-item:last-child {
+      border-bottom: none;
+    }
+    
+    .activity-item:hover {
+      background: var(--bg-tertiary);
+    }
+    
+    .activity-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    
+    .activity-icon.new { background: var(--success-bg); color: var(--success); }
+    .activity-icon.cancelled { background: var(--danger-bg); color: var(--danger); }
+    .activity-icon.modified { background: var(--warning-bg); color: var(--warning); }
+    
+    .activity-content {
+      flex: 1;
+      min-width: 0;
+    }
+    
+    .activity-text {
+      font-size: var(--font-size-sm);
+      color: var(--text-primary);
+    }
+    
+    .activity-text strong {
+      font-weight: 600;
+    }
+    
+    .activity-time {
+      font-size: var(--font-size-xs);
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+    
+    /* Team members preview */
+    .team-preview {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--spacing-md);
+    }
+    
+    .team-member-card {
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-md);
+      padding: var(--spacing-md);
+      background: var(--bg-tertiary);
+      border-radius: var(--border-radius-md);
+      flex: 1;
+      min-width: 200px;
+    }
+    
+    .team-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--brand-gradient);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 600;
+      font-size: var(--font-size-sm);
+    }
+    
+    .team-info h4 {
+      font-size: var(--font-size-sm);
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+    
+    .team-info p {
+      font-size: var(--font-size-xs);
+      color: var(--text-muted);
+    }
+    
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+      .welcome-banner {
+        padding: var(--spacing-lg);
+      }
+      
+      .welcome-title {
+        font-size: var(--font-size-xl);
+      }
+      
+      .quick-actions {
+        flex-direction: column;
+      }
+      
+      .quick-action-btn {
+        justify-content: center;
+      }
+      
+      .section-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-md);
+      }
+      
+      .filter-tabs {
+        width: 100%;
+        overflow-x: auto;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-layout">
+    <!-- Sidebar Overlay (mobile) -->
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+    
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">B</div>
+        <span class="sidebar-brand">BuildHaze</span>
+      </div>
+      
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <div class="nav-section-title">Overview</div>
+          <a href="/dashboard" class="nav-item active">
+            <i data-lucide="layout-dashboard" class="nav-icon"></i>
+            <span>Dashboard</span>
+          </a>
+          <a href="/dashboard?tab=calendar" class="nav-item">
+            <i data-lucide="calendar" class="nav-icon"></i>
+            <span>Calendar</span>
+          </a>
+          <a href="/dashboard?tab=bookings" class="nav-item">
+            <i data-lucide="calendar-check" class="nav-icon"></i>
+            <span>Bookings</span>
+            <% if (typeof todayBookings !== 'undefined' && todayBookings.length > 0) { %>
+              <span class="nav-badge"><%= todayBookings.length %></span>
+            <% } %>
+          </a>
+        </div>
+        
+        <div class="nav-section">
+          <div class="nav-section-title">Management</div>
+          <a href="/dashboard?tab=team" class="nav-item">
+            <i data-lucide="users" class="nav-icon"></i>
+            <span>Team Members</span>
+          </a>
+          <a href="/dashboard?tab=services" class="nav-item">
+            <i data-lucide="briefcase" class="nav-icon"></i>
+            <span>Services</span>
+          </a>
+          <a href="/dashboard?tab=clients" class="nav-item">
+            <i data-lucide="user-circle" class="nav-icon"></i>
+            <span>Clients</span>
+          </a>
+        </div>
+        
+        <div class="nav-section">
+          <div class="nav-section-title">Tools</div>
+          <a href="/ai-assistant" class="nav-item">
+            <i data-lucide="sparkles" class="nav-icon"></i>
+            <span>AI Assistant</span>
+          </a>
+          <a href="/dashboard?tab=analytics" class="nav-item">
+            <i data-lucide="bar-chart-3" class="nav-icon"></i>
+            <span>Analytics</span>
+          </a>
+          <a href="/dashboard?tab=email-templates" class="nav-item">
+            <i data-lucide="mail" class="nav-icon"></i>
+            <span>Email Templates</span>
+          </a>
+        </div>
+        
+        <div class="nav-section">
+          <div class="nav-section-title">Settings</div>
+          <a href="/settings" class="nav-item">
+            <i data-lucide="settings" class="nav-icon"></i>
+            <span>Settings</span>
+          </a>
+          <a href="/settings?tab=integrations" class="nav-item">
+            <i data-lucide="plug" class="nav-icon"></i>
+            <span>Integrations</span>
+          </a>
+        </div>
+      </nav>
+      
+      <div class="sidebar-footer">
+        <div class="user-menu">
+          <div class="user-avatar">
+            <%= owner.clinicName ? owner.clinicName.charAt(0).toUpperCase() : 'U' %>
+          </div>
+          <div class="user-info">
+            <div class="user-name"><%= owner.clinicName || 'My Clinic' %></div>
+            <div class="user-role">Owner</div>
+          </div>
+          <i data-lucide="chevron-down" style="width: 16px; height: 16px; color: var(--text-muted);"></i>
+        </div>
+      </div>
+    </aside>
+    
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Top Header -->
+      <header class="top-header">
+        <div class="header-left">
+          <button class="mobile-menu-btn" onclick="toggleSidebar()">
+            <i data-lucide="menu" style="width: 24px; height: 24px;"></i>
+          </button>
+          <h1 class="page-title">Dashboard</h1>
+        </div>
+        
+        <div class="header-right">
+          <button class="header-btn" title="Search">
+            <i data-lucide="search" style="width: 18px; height: 18px;"></i>
+          </button>
+          <button class="header-btn" title="Notifications">
+            <i data-lucide="bell" style="width: 18px; height: 18px;"></i>
+            <span class="badge">3</span>
+          </button>
+          <a href="/add-booking" class="btn btn-primary">
+            <i data-lucide="plus" style="width: 18px; height: 18px;"></i>
+            <span>New Booking</span>
+          </a>
+        </div>
+      </header>
+      
+      <!-- Page Content -->
+      <div class="page-content">
+        <!-- Welcome Banner -->
+        <div class="welcome-banner">
+          <div class="welcome-content">
+            <h2 class="welcome-title">Welcome back, <%= owner.clinicName || 'there' %>! 👋</h2>
+            <p class="welcome-subtitle">Here's what's happening with your bookings today.</p>
+            <div class="quick-actions">
+              <a href="/add-booking" class="quick-action-btn">
+                <i data-lucide="plus" style="width: 18px; height: 18px;"></i>
+                Add Booking
+              </a>
+              <a href="/dashboard?tab=calendar" class="quick-action-btn">
+                <i data-lucide="calendar" style="width: 18px; height: 18px;"></i>
+                View Calendar
+              </a>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon primary">
+              <i data-lucide="calendar-check" style="width: 24px; height: 24px;"></i>
+            </div>
+            <div class="stat-content">
+              <div class="stat-label">Today's Bookings</div>
+              <div class="stat-value"><%= typeof todayBookings !== 'undefined' ? todayBookings.length : 0 %></div>
+              <div class="stat-change positive">
+                <i data-lucide="trending-up" style="width: 12px; height: 12px;"></i>
+                +12% from yesterday
+              </div>
+            </div>
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-icon success">
+              <i data-lucide="check-circle" style="width: 24px; height: 24px;"></i>
+            </div>
+            <div class="stat-content">
+              <div class="stat-label">Completed</div>
+              <div class="stat-value"><%= typeof completedBookings !== 'undefined' ? completedBookings : 0 %></div>
+              <div class="stat-change positive">
+                <i data-lucide="trending-up" style="width: 12px; height: 12px;"></i>
+                +8% this week
+              </div>
+            </div>
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-icon warning">
+              <i data-lucide="clock" style="width: 24px; height: 24px;"></i>
+            </div>
+            <div class="stat-content">
+              <div class="stat-label">Pending</div>
+              <div class="stat-value"><%= typeof pendingBookings !== 'undefined' ? pendingBookings : 0 %></div>
+            </div>
+          </div>
+          
+          <div class="stat-card">
+            <div class="stat-icon info">
+              <i data-lucide="users" style="width: 24px; height: 24px;"></i>
+            </div>
+            <div class="stat-content">
+              <div class="stat-label">Total Clients</div>
+              <div class="stat-value"><%= typeof totalClients !== 'undefined' ? totalClients : 0 %></div>
+              <div class="stat-change positive">
+                <i data-lucide="trending-up" style="width: 12px; height: 12px;"></i>
+                +5 new this week
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Dashboard Grid -->
+        <div class="dashboard-grid">
+          <!-- Left Column - Today's Schedule -->
+          <div>
+            <div class="section-header">
+              <h3 class="section-title">Today's Schedule</h3>
+              <div class="filter-tabs">
+                <button class="filter-tab active">All</button>
+                <button class="filter-tab">Confirmed</button>
+                <button class="filter-tab">Pending</button>
+              </div>
+            </div>
+            
+            <div class="card">
+              <div class="card-body">
+                <div class="schedule-timeline">
+                  <% 
+                  const timeSlots = ['09:00', '10:00', '11:00', '12:00', '13:00', '14:00', '15:00', '16:00', '17:00'];
+                  const todayBookingsArray = typeof todayBookings !== 'undefined' ? todayBookings : [];
+                  
+                  timeSlots.forEach(function(time) {
+                    const slotBookings = todayBookingsArray.filter(function(b) {
+                      return b.time && b.time.startsWith(time.split(':')[0]);
+                    });
+                  %>
+                    <div class="time-slot">
+                      <div class="time-label"><%= time %></div>
+                      <div class="slot-content">
+                        <% if (slotBookings.length > 0) { %>
+                          <% slotBookings.forEach(function(booking) { %>
+                            <div class="slot-booking <%= booking.status || 'confirmed' %>">
+                              <div class="slot-client"><%= booking.name %></div>
+                              <div class="slot-service"><%= booking.service || 'Consultation' %> • <%= booking.time %></div>
+                            </div>
+                          <% }); %>
+                        <% } else { %>
+                          <div class="slot-empty">Available</div>
+                        <% } %>
+                      </div>
+                    </div>
+                  <% }); %>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Right Column - Calendar & Activity -->
+          <div>
+            <!-- Mini Calendar -->
+            <div class="mini-calendar mb-lg">
+              <div class="mini-calendar-header">
+                <span class="mini-calendar-title" id="calendarTitle">January 2026</span>
+                <div class="mini-calendar-nav">
+                  <button onclick="changeMonth(-1)">
+                    <i data-lucide="chevron-left" style="width: 16px; height: 16px;"></i>
+                  </button>
+                  <button onclick="changeMonth(1)">
+                    <i data-lucide="chevron-right" style="width: 16px; height: 16px;"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="mini-calendar-grid" id="calendarGrid">
+                <!-- Calendar will be rendered by JS -->
+              </div>
+            </div>
+            
+            <!-- Recent Activity -->
+            <div class="card">
+              <div class="card-header">
+                <h4 class="card-title">Recent Activity</h4>
+                <a href="/dashboard?tab=bookings" class="btn btn-ghost btn-sm">View All</a>
+              </div>
+              <div class="activity-list">
+                <% 
+                const recentBookings = typeof allBookings !== 'undefined' ? allBookings.slice(0, 5) : [];
+                if (recentBookings.length > 0) {
+                  recentBookings.forEach(function(booking) {
+                %>
+                  <div class="activity-item">
+                    <div class="activity-icon <%= booking.status === 'cancelled' ? 'cancelled' : 'new' %>">
+                      <i data-lucide="<%= booking.status === 'cancelled' ? 'x' : 'calendar-plus' %>" style="width: 18px; height: 18px;"></i>
+                    </div>
+                    <div class="activity-content">
+                      <div class="activity-text">
+                        <strong><%= booking.name %></strong> 
+                        <%= booking.status === 'cancelled' ? 'cancelled' : 'booked' %> 
+                        <%= booking.service || 'an appointment' %>
+                      </div>
+                      <div class="activity-time"><%= booking.date %> at <%= booking.time %></div>
+                    </div>
+                  </div>
+                <% 
+                  });
+                } else {
+                %>
+                  <div class="empty-state" style="padding: var(--spacing-lg);">
+                    <p class="text-muted">No recent activity</p>
+                  </div>
+                <% } %>
+              </div>
+            </div>
+            
+            <!-- Team Preview -->
+            <div class="card mt-lg">
+              <div class="card-header">
+                <h4 class="card-title">Team Members</h4>
+                <a href="/dashboard?tab=team" class="btn btn-ghost btn-sm">Manage</a>
+              </div>
+              <div class="card-body">
+                <div class="team-preview">
+                  <% 
+                  const teamMembers = typeof owner.teamMembers !== 'undefined' ? owner.teamMembers : [];
+                  if (teamMembers.length > 0) {
+                    teamMembers.slice(0, 4).forEach(function(member) {
+                  %>
+                    <div class="team-member-card">
+                      <div class="team-avatar"><%= member.name ? member.name.charAt(0).toUpperCase() : 'T' %></div>
+                      <div class="team-info">
+                        <h4><%= member.name %></h4>
+                        <p><%= member.role || 'Specialist' %></p>
+                      </div>
+                    </div>
+                  <% 
+                    });
+                  } else {
+                  %>
+                    <div class="empty-state" style="width: 100%; padding: var(--spacing-md);">
+                      <p class="text-muted" style="margin-bottom: var(--spacing-md);">No team members yet</p>
+                      <a href="/dashboard?tab=team" class="btn btn-primary btn-sm">
+                        <i data-lucide="plus" style="width: 16px; height: 16px;"></i>
+                        Add Team Member
+                      </a>
+                    </div>
+                  <% } %>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+  
+  <script>
+    // Initialize Lucide icons
+    lucide.createIcons();
+    
+    // Sidebar toggle
+    function toggleSidebar() {
+      document.querySelector('.sidebar').classList.toggle('open');
+      document.querySelector('.sidebar-overlay').classList.toggle('active');
+    }
+    
+    // Mini Calendar
+    let currentDate = new Date();
+    let selectedDate = new Date();
+    
+    function renderCalendar() {
+      const grid = document.getElementById('calendarGrid');
+      const title = document.getElementById('calendarTitle');
+      
+      const year = currentDate.getFullYear();
+      const month = currentDate.getMonth();
+      
+      const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
+                          'July', 'August', 'September', 'October', 'November', 'December'];
+      title.textContent = `${monthNames[month]} ${year}`;
+      
+      const firstDay = new Date(year, month, 1);
+      const lastDay = new Date(year, month + 1, 0);
+      const startDay = firstDay.getDay();
+      const daysInMonth = lastDay.getDate();
+      
+      const today = new Date();
+      
+      let html = '';
+      
+      // Day headers
+      const dayNames = ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'];
+      dayNames.forEach(day => {
+        html += `<div class="mini-day-header">${day}</div>`;
+      });
+      
+      // Previous month days
+      const prevMonth = new Date(year, month, 0);
+      const prevDays = prevMonth.getDate();
+      for (let i = startDay - 1; i >= 0; i--) {
+        html += `<div class="mini-day other-month">${prevDays - i}</div>`;
+      }
+      
+      // Current month days
+      for (let day = 1; day <= daysInMonth; day++) {
+        const isToday = day === today.getDate() && month === today.getMonth() && year === today.getFullYear();
+        const isSelected = day === selectedDate.getDate() && month === selectedDate.getMonth() && year === selectedDate.getFullYear();
+        const hasBookings = Math.random() > 0.7; // Placeholder - replace with actual data
+        
+        let classes = 'mini-day';
+        if (isToday) classes += ' today';
+        if (isSelected && !isToday) classes += ' selected';
+        if (hasBookings) classes += ' has-bookings';
+        
+        html += `<div class="${classes}" onclick="selectDate(${day})">${day}</div>`;
+      }
+      
+      // Next month days
+      const totalCells = Math.ceil((startDay + daysInMonth) / 7) * 7;
+      const nextDays = totalCells - startDay - daysInMonth;
+      for (let i = 1; i <= nextDays; i++) {
+        html += `<div class="mini-day other-month">${i}</div>`;
+      }
+      
+      grid.innerHTML = html;
+    }
+    
+    function changeMonth(delta) {
+      currentDate.setMonth(currentDate.getMonth() + delta);
+      renderCalendar();
+    }
+    
+    function selectDate(day) {
+      selectedDate = new Date(currentDate.getFullYear(), currentDate.getMonth(), day);
+      renderCalendar();
+      // TODO: Load bookings for selected date
+    }
+    
+    // Initialize calendar
+    renderCalendar();
+    
+    // Toast notifications
+    function showToast(type, title, message) {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `toast toast-${type}`;
+      
+      const icons = {
+        success: 'check-circle',
+        error: 'x-circle',
+        warning: 'alert-triangle',
+        info: 'info'
+      };
+      
+      toast.innerHTML = `
+        <i data-lucide="${icons[type]}" class="toast-icon"></i>
+        <div class="toast-content">
+          <div class="toast-title">${title}</div>
+          <div class="toast-message">${message}</div>
+        </div>
+      `;
+      
+      container.appendChild(toast);
+      lucide.createIcons();
+      
+      setTimeout(() => {
+        toast.style.animation = 'slideIn 0.3s ease reverse';
+        setTimeout(() => toast.remove(), 300);
+      }, 4000);
+    }
+    
+    // Filter tabs
+    document.querySelectorAll('.filter-tab').forEach(tab => {
+      tab.addEventListener('click', function() {
+        document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+        this.classList.add('active');
+        // TODO: Filter bookings
+      });
+    });
+  </script>
+</body>
+</html>
