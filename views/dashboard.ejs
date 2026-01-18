@@ -1207,7 +1207,7 @@
           style += 'background: var(--neo-bg); color: var(--neo-text);';
         }
         
-        html += `<div style="${style}" onclick="selectCalDate('${dateStr}')">${day}${hasBookings ? '<div style="width:6px;height:6px;background:var(--neo-primary);border-radius:50%;margin:2px auto 0;"></div>' : ''}</div>`;
+        html += `<div style="${style}" data-date="${dateStr}" class="cal-day-btn">${day}${hasBookings ? '<div style="width:6px;height:6px;background:var(--neo-primary);border-radius:50%;margin:2px auto 0;"></div>' : ''}</div>`;
       }
       
       document.getElementById('cal-days').innerHTML = html;
@@ -1237,7 +1237,7 @@
           style += 'background: var(--neo-bg); color: var(--neo-text-muted); box-shadow: 2px 2px 4px var(--neo-shadow-dark), -2px -2px 4px var(--neo-shadow-light);';
         }
         
-        html += `<div style="${style}" onclick="showBookingDetails('${dateStr}', '${time}')">${time}${isBooked ? ' ✓' : ''}</div>`;
+        html += `<div style="${style}" data-date="${dateStr}" data-time="${time}" class="cal-time-btn">${time}${isBooked ? ' ✓' : ''}</div>`;
       });
       
       document.getElementById('cal-times').innerHTML = html;
@@ -1354,6 +1354,40 @@
     
     // Initialize Calendar on page load (default view)
     initCalendar();
+    
+    // Event delegation for calendar clicks
+    document.getElementById('cal-days').addEventListener('click', function(e) {
+      const dayBtn = e.target.closest('.cal-day-btn');
+      if (dayBtn && dayBtn.dataset.date) {
+        selectedCalDate = dayBtn.dataset.date;
+        renderCalendar();
+        renderTimeSlots(dayBtn.dataset.date);
+      }
+    });
+    
+    document.getElementById('cal-times').addEventListener('click', function(e) {
+      const timeBtn = e.target.closest('.cal-time-btn');
+      if (timeBtn && timeBtn.dataset.date && timeBtn.dataset.time) {
+        const booking = allBookings.find(b => b.date === timeBtn.dataset.date && b.time === timeBtn.dataset.time && b.status !== 'cancelled');
+        const detailsDiv = document.getElementById('cal-booking-details');
+        const infoDiv = document.getElementById('cal-booking-info');
+        
+        if (booking) {
+          infoDiv.innerHTML = `
+            <p style="margin-bottom: 8px;"><strong>Client:</strong> ${booking.name || 'N/A'}</p>
+            <p style="margin-bottom: 8px;"><strong>Email:</strong> ${booking.email || 'N/A'}</p>
+            <p style="margin-bottom: 8px;"><strong>Phone:</strong> ${booking.phone || 'N/A'}</p>
+            <p style="margin-bottom: 8px;"><strong>Service:</strong> ${booking.service || 'N/A'}</p>
+            <p style="margin-bottom: 8px;"><strong>Time:</strong> ${timeBtn.dataset.date} at ${timeBtn.dataset.time}</p>
+            ${booking.teamMemberName ? `<p style="margin-bottom: 8px;"><strong>Specialist:</strong> ${booking.teamMemberName}</p>` : ''}
+            ${booking.notes ? `<p><strong>Notes:</strong> ${booking.notes}</p>` : ''}
+          `;
+        } else {
+          infoDiv.innerHTML = '<p>No booking for this time slot. This slot is available.</p>';
+        }
+        detailsDiv.style.display = 'block';
+      }
+    });
   </script>
 </body>
 </html>
