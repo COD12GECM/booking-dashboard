@@ -396,33 +396,33 @@ async function sendBookingConfirmationEmail(booking, owner) {
           
           <tr>
             <td style="background: linear-gradient(135deg, ${primaryColor} 0%, ${secondaryColor} 100%); padding: 48px 40px; text-align: center; border-radius: 16px 16px 0 0;">
-              <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 700;">${confirmationSubject}</h1>
-              <p style="color: rgba(255,255,255,0.9); margin: 12px 0 0; font-size: 16px;">${businessName}</p>
+              <h1 style="color: #ffffff; margin: 0; font-size: 32px; font-weight: 700;">${confirmationSubject}</h1>
+              <p style="color: rgba(255,255,255,0.9); margin: 12px 0 0; font-size: 18px;">${businessName}</p>
             </td>
           </tr>
           
           <tr>
             <td style="padding: 40px;">
-              <p style="color: #374151; font-size: 17px; margin: 0 0 24px; line-height: 1.7;">
+              <p style="color: #374151; font-size: 20px; margin: 0 0 24px; line-height: 1.7;">
                 Dear <strong>${booking.name}</strong>,
               </p>
-              <p style="color: #6b7280; font-size: 16px; margin: 0 0 32px; line-height: 1.7;">
+              <p style="color: #6b7280; font-size: 18px; margin: 0 0 32px; line-height: 1.7;">
                 ${confirmationMessage}
               </p>
               
               <table width="100%" cellpadding="0" cellspacing="0" style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px; margin-bottom: 32px;">
                 <tr>
-                  <td style="padding: 24px;">
-                    <p style="margin: 0 0 12px;"><strong style="color: #374151;">Date:</strong> <span style="color: #6b7280;">${formattedDate}</span></p>
-                    <p style="margin: 0 0 12px;"><strong style="color: #374151;">Time:</strong> <span style="color: #6b7280;">${booking.time}</span></p>
-                    <p style="margin: 0 0 12px;"><strong style="color: #374151;">Service:</strong> <span style="color: #6b7280;">${booking.service}</span></p>
-                    ${owner.clinicAddress ? `<p style="margin: 0;"><strong style="color: #374151;">Location:</strong> <span style="color: #6b7280;">${owner.clinicAddress}</span></p>` : ''}
+                  <td style="padding: 28px;">
+                    <p style="margin: 0 0 14px;"><strong style="color: #374151; font-size: 16px;">Date:</strong> <span style="color: #6b7280; font-size: 20px; font-weight: 600;">${formattedDate}</span></p>
+                    <p style="margin: 0 0 14px;"><strong style="color: #374151; font-size: 16px;">Time:</strong> <span style="color: #6b7280; font-size: 20px; font-weight: 600;">${booking.time}</span></p>
+                    <p style="margin: 0 0 14px;"><strong style="color: #374151; font-size: 16px;">Service:</strong> <span style="color: #6b7280; font-size: 20px; font-weight: 600;">${booking.service}</span></p>
+                    ${owner.clinicAddress ? `<p style="margin: 0;"><strong style="color: #374151; font-size: 16px;">Location:</strong> <span style="color: #6b7280; font-size: 18px;">${owner.clinicAddress}</span></p>` : ''}
                   </td>
                 </tr>
               </table>
               
-              ${owner.clinicPhone ? `<p style="color: #6b7280; font-size: 14px; margin: 0;">Questions? Contact us at ${owner.clinicPhone}</p>` : ''}
-              ${emailFooter ? `<p style="color: #9ca3af; font-size: 13px; margin: 24px 0 0; padding-top: 16px; border-top: 1px solid #e5e7eb;">${emailFooter}</p>` : ''}
+              ${owner.clinicPhone ? `<p style="color: #6b7280; font-size: 16px; margin: 0;">Questions? Contact us at ${owner.clinicPhone}</p>` : ''}
+              ${emailFooter ? `<p style="color: #9ca3af; font-size: 14px; margin: 24px 0 0; padding-top: 16px; border-top: 1px solid #e5e7eb;">${emailFooter}</p>` : ''}
             </td>
           </tr>
           
@@ -505,25 +505,25 @@ async function sendCancellationEmailToClient(booking, owner) {
         <table width="600" cellpadding="0" cellspacing="0" style="background: #ffffff; border-radius: 16px; overflow: hidden; border: 1px solid #e5e5e5;">
           <tr>
             <td style="background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%); padding: 50px 40px; text-align: center;">
-              <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 700;">${cancellationSubject}</h1>
-              <p style="color: rgba(255,255,255,0.9); margin: 12px 0 0; font-size: 16px;">${businessName}</p>
+              <h1 style="color: #ffffff; margin: 0; font-size: 32px; font-weight: 700;">${cancellationSubject}</h1>
+              <p style="color: rgba(255,255,255,0.9); margin: 12px 0 0; font-size: 18px;">${businessName}</p>
             </td>
           </tr>
           <tr>
             <td style="padding: 40px;">
-              <p style="color: #374151; font-size: 17px; margin: 0 0 24px;">Dear <strong>${booking.name}</strong>,</p>
-              <p style="color: #6b7280; font-size: 16px; margin: 0 0 32px; line-height: 1.7;">${cancellationMessage}</p>
+              <p style="color: #374151; font-size: 20px; margin: 0 0 24px;">Dear <strong>${booking.name}</strong>,</p>
+              <p style="color: #6b7280; font-size: 18px; margin: 0 0 32px; line-height: 1.7;">${cancellationMessage}</p>
               <table width="100%" cellpadding="0" cellspacing="0" style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 12px; margin-bottom: 32px;">
                 <tr>
-                  <td style="padding: 24px;">
-                    <p style="margin: 0 0 12px;"><strong style="color: #991b1b;">Date:</strong> <span style="color: #7f1d1d;">${formattedDate}</span></p>
-                    <p style="margin: 0 0 12px;"><strong style="color: #991b1b;">Time:</strong> <span style="color: #7f1d1d;">${booking.time}</span></p>
-                    <p style="margin: 0;"><strong style="color: #991b1b;">Service:</strong> <span style="color: #7f1d1d;">${booking.service}</span></p>
+                  <td style="padding: 28px;">
+                    <p style="margin: 0 0 14px;"><strong style="color: #991b1b; font-size: 16px;">Date:</strong> <span style="color: #7f1d1d; font-size: 20px; font-weight: 600;">${formattedDate}</span></p>
+                    <p style="margin: 0 0 14px;"><strong style="color: #991b1b; font-size: 16px;">Time:</strong> <span style="color: #7f1d1d; font-size: 20px; font-weight: 600;">${booking.time}</span></p>
+                    <p style="margin: 0;"><strong style="color: #991b1b; font-size: 16px;">Service:</strong> <span style="color: #7f1d1d; font-size: 20px; font-weight: 600;">${booking.service}</span></p>
                   </td>
                 </tr>
               </table>
-              <p style="color: #6b7280; font-size: 16px; margin: 0 0 24px; line-height: 1.7;">We apologize for any inconvenience. Please contact us to reschedule your appointment.</p>
-              ${owner.websiteUrl ? `<p style="text-align: center;"><a href="${owner.websiteUrl}" style="display: inline-block; background: linear-gradient(135deg, ${primaryColor} 0%, #059669 100%); color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 10px; font-size: 16px; font-weight: 600;">Book New Appointment</a></p>` : ''}
+              <p style="color: #6b7280; font-size: 18px; margin: 0 0 24px; line-height: 1.7;">We apologize for any inconvenience. Please contact us to reschedule your appointment.</p>
+              ${owner.websiteUrl ? `<p style="text-align: center;"><a href="${owner.websiteUrl}" style="display: inline-block; background: linear-gradient(135deg, ${primaryColor} 0%, #059669 100%); color: #ffffff; text-decoration: none; padding: 18px 44px; border-radius: 10px; font-size: 18px; font-weight: 600;">Book New Appointment</a></p>` : ''}
             </td>
           </tr>
           <tr>
@@ -602,28 +602,27 @@ async function sendReminderEmail(booking, owner) {
         <table width="600" cellpadding="0" cellspacing="0" style="background: #ffffff; border-radius: 16px; overflow: hidden; border: 1px solid #e5e5e5;">
           <tr>
             <td style="background: linear-gradient(135deg, ${primaryColor} 0%, ${secondaryColor} 100%); padding: 50px 40px; text-align: center;">
-              <table width="70" height="70" align="center" style="background: rgba(255,255,255,0.2); border-radius: 50%;"><tr><td align="center" valign="middle" style="font-size: 32px;">🔔</td></tr></table>
-              <h1 style="color: #ffffff; margin: 24px 0 8px; font-size: 28px; font-weight: 700;">${reminderSubject}</h1>
-              <p style="color: rgba(255,255,255,0.9); margin: 0; font-size: 16px;">${businessName}</p>
+              <h1 style="color: #ffffff; margin: 0 0 12px; font-size: 32px; font-weight: 700;">${reminderSubject}</h1>
+              <p style="color: rgba(255,255,255,0.9); margin: 0; font-size: 18px;">${businessName}</p>
             </td>
           </tr>
           <tr>
             <td style="padding: 40px;">
-              <p style="color: #374151; font-size: 17px; margin: 0 0 24px;">Dear <strong>${booking.name}</strong>,</p>
-              <p style="color: #6b7280; font-size: 16px; margin: 0 0 32px; line-height: 1.7;">${reminderMessage}</p>
+              <p style="color: #374151; font-size: 20px; margin: 0 0 24px;">Dear <strong>${booking.name}</strong>,</p>
+              <p style="color: #6b7280; font-size: 18px; margin: 0 0 32px; line-height: 1.7;">${reminderMessage}</p>
               <table width="100%" cellpadding="0" cellspacing="0" style="background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); border: 1px solid #a7f3d0; border-radius: 12px; margin-bottom: 32px;">
                 <tr>
                   <td style="padding: 28px;">
-                    <p style="color: #047857; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; margin: 0 0 20px; border-bottom: 2px solid #a7f3d0; padding-bottom: 12px;">Appointment Details</p>
-                    <p style="margin: 0 0 12px;"><strong style="color: #047857;">Date:</strong> <span style="color: #065f46; font-size: 18px; font-weight: 600;">${formattedDate}</span></p>
-                    <p style="margin: 0 0 12px;"><strong style="color: #047857;">Time:</strong> <span style="color: #065f46; font-size: 18px; font-weight: 600;">${booking.time}</span></p>
-                    <p style="margin: 0;"><strong style="color: #047857;">Service:</strong> <span style="color: #065f46; font-size: 18px; font-weight: 600;">${booking.service}</span></p>
-                    ${owner.clinicAddress ? `<p style="margin: 12px 0 0;"><strong style="color: #047857;">Location:</strong> <span style="color: #065f46;">${owner.clinicAddress}</span></p>` : ''}
+                    <p style="color: #047857; font-size: 14px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; margin: 0 0 20px; border-bottom: 2px solid #a7f3d0; padding-bottom: 12px;">Appointment Details</p>
+                    <p style="margin: 0 0 14px;"><strong style="color: #047857; font-size: 16px;">Date:</strong> <span style="color: #065f46; font-size: 20px; font-weight: 600;">${formattedDate}</span></p>
+                    <p style="margin: 0 0 14px;"><strong style="color: #047857; font-size: 16px;">Time:</strong> <span style="color: #065f46; font-size: 20px; font-weight: 600;">${booking.time}</span></p>
+                    <p style="margin: 0 0 14px;"><strong style="color: #047857; font-size: 16px;">Service:</strong> <span style="color: #065f46; font-size: 20px; font-weight: 600;">${booking.service}</span></p>
+                    ${owner.clinicAddress ? `<p style="margin: 0;"><strong style="color: #047857; font-size: 16px;">Location:</strong> <span style="color: #065f46; font-size: 18px;">${owner.clinicAddress}</span></p>` : ''}
                   </td>
                 </tr>
               </table>
-              <p style="color: #6b7280; font-size: 15px; margin: 0; text-align: center;">We look forward to seeing you!</p>
-              ${owner.clinicPhone ? `<p style="color: #9ca3af; font-size: 14px; margin: 16px 0 0; text-align: center;">Questions? Contact us at ${owner.clinicPhone}</p>` : ''}
+              <p style="color: #6b7280; font-size: 18px; margin: 0; text-align: center;">We look forward to seeing you!</p>
+              ${owner.clinicPhone ? `<p style="color: #9ca3af; font-size: 16px; margin: 16px 0 0; text-align: center;">Questions? Contact us at ${owner.clinicPhone}</p>` : ''}
             </td>
           </tr>
           <tr>
