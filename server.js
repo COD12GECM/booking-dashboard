@@ -136,29 +136,10 @@ app.use(express.static(path.join(__dirname, 'public'), {
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
-// MongoDB Connection with optimized settings for Render
-mongoose.connect(process.env.MONGODB_URI, {
-  maxPoolSize: 10,
-  minPoolSize: 2,
-  serverSelectionTimeoutMS: 30000,
-  socketTimeoutMS: 45000,
-  heartbeatFrequencyMS: 10000,
-  retryWrites: true,
-  w: 'majority'
-})
+// MongoDB Connection
+mongoose.connect(process.env.MONGODB_URI)
   .then(() => console.log('Connected to MongoDB'))
   .catch(err => console.error('MongoDB connection error:', err));
-
-// Keep MongoDB connection alive
-setInterval(async () => {
-  try {
-    if (mongoose.connection.readyState === 1) {
-      await mongoose.connection.db.admin().ping();
-    }
-  } catch (err) {
-    console.log('MongoDB ping failed, reconnecting...');
-  }
-}, 30000);
 
 // Owner Schema
 const ownerSchema = new mongoose.Schema({
@@ -1471,19 +1452,6 @@ app.get('/health', (req, res) => {
     mongodb: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
   });
 });
-
-// Self-ping to prevent Render cold starts (every 14 minutes)
-const SELF_URL = process.env.RENDER_EXTERNAL_URL || 'https://dashboard.buildhaze.com';
-setInterval(async () => {
-  try {
-    const response = await fetch(`${SELF_URL}/health`);
-    if (response.ok) {
-      console.log('[KEEP-ALIVE] Self-ping successful');
-    }
-  } catch (err) {
-    console.log('[KEEP-ALIVE] Self-ping failed:', err.message);
-  }
-}, 14 * 60 * 1000); // Every 14 minutes (Render sleeps after 15 min)
 
 // Start Server
 app.listen(PORT, '0.0.0.0', () => {
