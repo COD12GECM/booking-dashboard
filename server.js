@@ -470,6 +470,202 @@ async function sendBookingConfirmationEmail(booking, owner) {
   }
 }
 
+// Send Cancellation Email to Client (when owner cancels from dashboard)
+async function sendCancellationEmailToClient(booking, owner) {
+  if (!process.env.BREVO_API_KEY || !booking.email) {
+    console.log('Skipping cancellation email - no API key or client email');
+    return false;
+  }
+
+  const emailSettings = owner.emailSettings || {};
+  const primaryColor = emailSettings.primaryColor || '#10b981';
+  const businessName = emailSettings.businessName || owner.clinicName || 'Your Business';
+  const cancellationSubject = emailSettings.cancellationSubject || 'Appointment Cancelled';
+  const cancellationMessage = emailSettings.cancellationMessage || 'We regret to inform you that your appointment has been cancelled.';
+
+  const dateObj = new Date(booking.date + 'T' + booking.time);
+  const formattedDate = dateObj.toLocaleDateString('en-US', { 
+    weekday: 'long', 
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric' 
+  });
+
+  const emailHtml = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f5f5f5;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; padding: 40px 20px;">
+    <tr>
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" style="background: #ffffff; border-radius: 16px; overflow: hidden; border: 1px solid #e5e5e5;">
+          <tr>
+            <td style="background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%); padding: 50px 40px; text-align: center;">
+              <h1 style="color: #ffffff; margin: 0; font-size: 28px; font-weight: 700;">${cancellationSubject}</h1>
+              <p style="color: rgba(255,255,255,0.9); margin: 12px 0 0; font-size: 16px;">${businessName}</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 40px;">
+              <p style="color: #374151; font-size: 17px; margin: 0 0 24px;">Dear <strong>${booking.name}</strong>,</p>
+              <p style="color: #6b7280; font-size: 16px; margin: 0 0 32px; line-height: 1.7;">${cancellationMessage}</p>
+              <table width="100%" cellpadding="0" cellspacing="0" style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 12px; margin-bottom: 32px;">
+                <tr>
+                  <td style="padding: 24px;">
+                    <p style="margin: 0 0 12px;"><strong style="color: #991b1b;">Date:</strong> <span style="color: #7f1d1d;">${formattedDate}</span></p>
+                    <p style="margin: 0 0 12px;"><strong style="color: #991b1b;">Time:</strong> <span style="color: #7f1d1d;">${booking.time}</span></p>
+                    <p style="margin: 0;"><strong style="color: #991b1b;">Service:</strong> <span style="color: #7f1d1d;">${booking.service}</span></p>
+                  </td>
+                </tr>
+              </table>
+              <p style="color: #6b7280; font-size: 16px; margin: 0 0 24px; line-height: 1.7;">We apologize for any inconvenience. Please contact us to reschedule your appointment.</p>
+              ${owner.websiteUrl ? `<p style="text-align: center;"><a href="${owner.websiteUrl}" style="display: inline-block; background: linear-gradient(135deg, ${primaryColor} 0%, #059669 100%); color: #ffffff; text-decoration: none; padding: 16px 40px; border-radius: 10px; font-size: 16px; font-weight: 600;">Book New Appointment</a></p>` : ''}
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 24px 40px; border-top: 1px solid #e5e7eb; text-align: center;">
+              <p style="color: #9ca3af; font-size: 13px; margin: 0;">${businessName}</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+  `;
+
+  try {
+    const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+      method: 'POST',
+      headers: {
+        'accept': 'application/json',
+        'api-key': process.env.BREVO_API_KEY,
+        'content-type': 'application/json'
+      },
+      body: JSON.stringify({
+        sender: { name: businessName, email: process.env.BREVO_SENDER_EMAIL },
+        to: [{ email: booking.email, name: booking.name }],
+        subject: `${cancellationSubject} - ${formattedDate}`,
+        htmlContent: emailHtml
+      })
+    });
+
+    if (response.ok) {
+      console.log(`Cancellation email sent to ${booking.email}`);
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.error('Cancellation email error:', error.message);
+    return false;
+  }
+}
+
+// Send Reminder Email to Client
+async function sendReminderEmail(booking, owner) {
+  if (!process.env.BREVO_API_KEY || !booking.email) {
+    console.log('Skipping reminder email - no API key or client email');
+    return false;
+  }
+
+  const emailSettings = owner.emailSettings || {};
+  const primaryColor = emailSettings.primaryColor || '#10b981';
+  const secondaryColor = emailSettings.secondaryColor || '#059669';
+  const businessName = emailSettings.businessName || owner.clinicName || 'Your Business';
+  const reminderSubject = emailSettings.reminderSubject || 'Appointment Reminder';
+  const reminderMessage = emailSettings.reminderMessage || 'This is a friendly reminder about your upcoming appointment.';
+
+  const dateObj = new Date(booking.date + 'T' + booking.time);
+  const formattedDate = dateObj.toLocaleDateString('en-US', { 
+    weekday: 'long', 
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric' 
+  });
+
+  const emailHtml = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background-color: #f5f5f5;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; padding: 40px 20px;">
+    <tr>
+      <td align="center">
+        <table width="600" cellpadding="0" cellspacing="0" style="background: #ffffff; border-radius: 16px; overflow: hidden; border: 1px solid #e5e5e5;">
+          <tr>
+            <td style="background: linear-gradient(135deg, ${primaryColor} 0%, ${secondaryColor} 100%); padding: 50px 40px; text-align: center;">
+              <table width="70" height="70" align="center" style="background: rgba(255,255,255,0.2); border-radius: 50%;"><tr><td align="center" valign="middle" style="font-size: 32px;">🔔</td></tr></table>
+              <h1 style="color: #ffffff; margin: 24px 0 8px; font-size: 28px; font-weight: 700;">${reminderSubject}</h1>
+              <p style="color: rgba(255,255,255,0.9); margin: 0; font-size: 16px;">${businessName}</p>
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 40px;">
+              <p style="color: #374151; font-size: 17px; margin: 0 0 24px;">Dear <strong>${booking.name}</strong>,</p>
+              <p style="color: #6b7280; font-size: 16px; margin: 0 0 32px; line-height: 1.7;">${reminderMessage}</p>
+              <table width="100%" cellpadding="0" cellspacing="0" style="background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); border: 1px solid #a7f3d0; border-radius: 12px; margin-bottom: 32px;">
+                <tr>
+                  <td style="padding: 28px;">
+                    <p style="color: #047857; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; margin: 0 0 20px; border-bottom: 2px solid #a7f3d0; padding-bottom: 12px;">Appointment Details</p>
+                    <p style="margin: 0 0 12px;"><strong style="color: #047857;">Date:</strong> <span style="color: #065f46; font-size: 18px; font-weight: 600;">${formattedDate}</span></p>
+                    <p style="margin: 0 0 12px;"><strong style="color: #047857;">Time:</strong> <span style="color: #065f46; font-size: 18px; font-weight: 600;">${booking.time}</span></p>
+                    <p style="margin: 0;"><strong style="color: #047857;">Service:</strong> <span style="color: #065f46; font-size: 18px; font-weight: 600;">${booking.service}</span></p>
+                    ${owner.clinicAddress ? `<p style="margin: 12px 0 0;"><strong style="color: #047857;">Location:</strong> <span style="color: #065f46;">${owner.clinicAddress}</span></p>` : ''}
+                  </td>
+                </tr>
+              </table>
+              <p style="color: #6b7280; font-size: 15px; margin: 0; text-align: center;">We look forward to seeing you!</p>
+              ${owner.clinicPhone ? `<p style="color: #9ca3af; font-size: 14px; margin: 16px 0 0; text-align: center;">Questions? Contact us at ${owner.clinicPhone}</p>` : ''}
+            </td>
+          </tr>
+          <tr>
+            <td style="padding: 24px 40px; border-top: 1px solid #e5e7eb; text-align: center;">
+              <p style="color: #9ca3af; font-size: 13px; margin: 0;">${businessName}</p>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>
+  `;
+
+  try {
+    const response = await fetch('https://api.brevo.com/v3/smtp/email', {
+      method: 'POST',
+      headers: {
+        'accept': 'application/json',
+        'api-key': process.env.BREVO_API_KEY,
+        'content-type': 'application/json'
+      },
+      body: JSON.stringify({
+        sender: { name: businessName, email: process.env.BREVO_SENDER_EMAIL },
+        to: [{ email: booking.email, name: booking.name }],
+        subject: `${reminderSubject} - ${formattedDate} at ${booking.time}`,
+        htmlContent: emailHtml
+      })
+    });
+
+    if (response.ok) {
+      console.log(`Reminder email sent to ${booking.email}`);
+      return true;
+    }
+    return false;
+  } catch (error) {
+    console.error('Reminder email error:', error.message);
+    return false;
+  }
+}
+
 // ============================================
 // SUPER ADMIN ROUTES
 // ============================================
@@ -767,6 +963,26 @@ app.post('/dashboard/add-booking', authenticateToken, async (req, res) => {
     const owner = await Owner.findById(req.owner.id);
     const { date, time, name, email, phone, service, notes, type } = req.body;
     
+    // Get bookingdb collection
+    const bookingDb = mongoose.connection.useDb('bookingdb');
+    const BookingsCollection = bookingDb.collection('bookings');
+    
+    // Check for double-booking (slot already taken)
+    const slotsPerHour = owner.settings?.slotsPerHour || 1;
+    const existingBookings = await BookingsCollection.countDocuments({
+      date,
+      time,
+      clinicEmail: owner.email,
+      status: { $nin: ['cancelled', 'no-show'] }
+    });
+    
+    if (existingBookings >= slotsPerHour) {
+      return res.render('add-booking', { 
+        owner, 
+        error: `This time slot is already fully booked (${existingBookings}/${slotsPerHour} slots taken). Please choose another time.` 
+      });
+    }
+    
     const bookingData = {
       id: Date.now(),
       date,
@@ -780,17 +996,14 @@ app.post('/dashboard/add-booking', authenticateToken, async (req, res) => {
       status: 'confirmed',
       cancelToken: crypto.randomBytes(16).toString('hex'),
       clinicName: owner.clinicName,
-      clinicEmail: owner.email, // Use owner's email for filtering
+      clinicEmail: owner.email,
       clinicPhone: owner.clinicPhone,
       clinicAddress: owner.clinicAddress,
       websiteUrl: owner.websiteUrl,
       createdAt: new Date(),
-      source: 'dashboard' // Mark as created from dashboard
+      source: 'dashboard'
     };
     
-    // Save to bookingdb collection (same as booking-api) for Shopify sync
-    const bookingDb = mongoose.connection.useDb('bookingdb');
-    const BookingsCollection = bookingDb.collection('bookings');
     await BookingsCollection.insertOne(bookingData);
     
     // Send confirmation email to client (if not a blocked slot)
@@ -839,6 +1052,11 @@ app.post('/dashboard/cancel-booking/:id', authenticateToken, async (req, res) =>
       { $set: updateData }
     );
     
+    // Send cancellation email to client
+    if (booking.email) {
+      await sendCancellationEmailToClient(booking, owner);
+    }
+    
     const message = hoursUntilAppointment >= 6 
       ? 'Booking cancelled and slot freed' 
       : 'Booking cancelled (slot not freed - less than 6 hours notice)';
@@ -846,6 +1064,39 @@ app.post('/dashboard/cancel-booking/:id', authenticateToken, async (req, res) =>
     res.redirect('/dashboard?success=' + encodeURIComponent(message));
   } catch (error) {
     console.error('Cancel booking error:', error);
+    res.redirect('/dashboard?error=' + error.message);
+  }
+});
+
+// Send Reminder Email to Client
+app.post('/dashboard/send-reminder/:id', authenticateToken, async (req, res) => {
+  try {
+    const owner = await Owner.findById(req.owner.id);
+    const bookingId = parseInt(req.params.id);
+    
+    const bookingDb = mongoose.connection.useDb('bookingdb');
+    const BookingsCollection = bookingDb.collection('bookings');
+    const booking = await BookingsCollection.findOne({ id: bookingId, clinicEmail: owner.email });
+    
+    if (!booking) {
+      return res.redirect('/dashboard?error=Booking not found');
+    }
+    
+    if (!booking.email) {
+      return res.redirect('/dashboard?error=No email address for this booking');
+    }
+    
+    await sendReminderEmail(booking, owner);
+    
+    // Mark that reminder was sent
+    await BookingsCollection.updateOne(
+      { id: bookingId },
+      { $set: { reminderSent: true, reminderSentAt: new Date() } }
+    );
+    
+    res.redirect('/dashboard?success=Reminder email sent to ' + booking.email);
+  } catch (error) {
+    console.error('Send reminder error:', error);
     res.redirect('/dashboard?error=' + error.message);
   }
 });
@@ -1076,6 +1327,65 @@ app.use((err, req, res, next) => {
   });
 });
 
+// ============================================
+// AUTOMATIC REMINDER SYSTEM (runs every hour)
+// ============================================
+async function sendAutomaticReminders() {
+  try {
+    console.log('[REMINDER] Checking for appointments tomorrow...');
+    
+    // Get tomorrow's date
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const tomorrowStr = tomorrow.toISOString().split('T')[0];
+    
+    const bookingDb = mongoose.connection.useDb('bookingdb');
+    const BookingsCollection = bookingDb.collection('bookings');
+    
+    // Find all confirmed bookings for tomorrow that haven't received a reminder
+    const bookingsForTomorrow = await BookingsCollection.find({
+      date: tomorrowStr,
+      status: { $nin: ['cancelled', 'no-show', 'completed'] },
+      reminderSent: { $ne: true },
+      email: { $exists: true, $ne: '' }
+    }).toArray();
+    
+    console.log(`[REMINDER] Found ${bookingsForTomorrow.length} bookings for tomorrow (${tomorrowStr})`);
+    
+    for (const booking of bookingsForTomorrow) {
+      try {
+        // Get the owner for this booking
+        const owner = await Owner.findOne({ email: booking.clinicEmail });
+        if (!owner) {
+          console.log(`[REMINDER] No owner found for ${booking.clinicEmail}`);
+          continue;
+        }
+        
+        // Send reminder email
+        const sent = await sendReminderEmail(booking, owner);
+        
+        if (sent) {
+          // Mark reminder as sent
+          await BookingsCollection.updateOne(
+            { id: booking.id },
+            { $set: { reminderSent: true, reminderSentAt: new Date(), reminderType: 'automatic' } }
+          );
+          console.log(`[REMINDER] Sent automatic reminder to ${booking.email} for ${booking.date} ${booking.time}`);
+        }
+      } catch (err) {
+        console.error(`[REMINDER] Error sending reminder for booking ${booking.id}:`, err.message);
+      }
+    }
+    
+    console.log('[REMINDER] Automatic reminder check completed');
+  } catch (error) {
+    console.error('[REMINDER] Error in automatic reminder system:', error.message);
+  }
+}
+
+// Run reminder check every hour
+setInterval(sendAutomaticReminders, 60 * 60 * 1000); // Every hour
+
 // Start Server
 app.listen(PORT, '0.0.0.0', () => {
   console.log(`
@@ -1085,6 +1395,7 @@ app.listen(PORT, '0.0.0.0', () => {
 ║  Port: ${PORT}                                    ║
 ║  Host: 0.0.0.0                                 ║
 ║  Status: Running                               ║
+║  Auto-Reminders: Active (hourly)               ║
 ╚════════════════════════════════════════════════╝
   `);
   console.log('Routes registered:');
@@ -1096,6 +1407,9 @@ app.listen(PORT, '0.0.0.0', () => {
   console.log('  GET  /dashboard');
   console.log('  GET  /super-admin/login');
   console.log('  POST /super-admin/login');
+  
+  // Run reminder check on startup (after 30 seconds to allow DB connection)
+  setTimeout(sendAutomaticReminders, 30000);
   console.log('  GET  /super-admin/dashboard');
   console.log('  GET  /health');
 });

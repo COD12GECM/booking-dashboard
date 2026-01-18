@@ -572,6 +572,7 @@
           <button class="view-tab" data-view="week">This Week</button>
           <button class="view-tab" data-view="month">This Month</button>
           <button class="view-tab" data-view="all">All</button>
+          <input type="date" id="date-picker" class="view-tab" style="padding: 6px 12px; cursor: pointer;" title="Choose specific date">
         </div>
       </div>
       <a href="/dashboard/add-booking" class="btn btn-primary">
@@ -649,6 +650,11 @@
                     <form method="POST" action="/dashboard/cancel-booking/<%= booking.id %>" style="display: inline;" onsubmit="return confirm('Cancel this booking?');">
                       <button type="submit" class="action-btn btn-cancel">Cancel</button>
                     </form>
+                    <% if (booking.type !== 'blocked' && booking.email) { %>
+                    <form method="POST" action="/dashboard/send-reminder/<%= booking.id %>" style="display: inline;">
+                      <button type="submit" class="action-btn" style="background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: white;" title="Send reminder email">📧</button>
+                    </form>
+                    <% } %>
                   <% } %>
                 </div>
               </div>
@@ -715,6 +721,18 @@
     
     // Initialize with "Today" view
     filterBookings('day');
+    
+    // Date picker functionality
+    const datePicker = document.getElementById('date-picker');
+    datePicker.addEventListener('change', (e) => {
+      const selectedDate = e.target.value;
+      if (selectedDate) {
+        tabs.forEach(t => t.classList.remove('active'));
+        dayGroups.forEach(group => {
+          group.style.display = group.dataset.date === selectedDate ? 'block' : 'none';
+        });
+      }
+    });
   </script>
 </body>
 </html>
