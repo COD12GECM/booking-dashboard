@@ -856,6 +856,9 @@
       
       <!-- Page Content -->
       <div class="page-content">
+        
+        <% if (tab === 'dashboard') { %>
+        <!-- DASHBOARD TAB -->
         <!-- Welcome Banner -->
         <div class="welcome-banner">
           <div class="welcome-content">
@@ -1068,6 +1071,256 @@
             </div>
           </div>
         </div>
+        <% } %>
+        
+        <% if (tab === 'bookings') { %>
+        <!-- BOOKINGS TAB -->
+        <div class="section-header" style="margin-bottom: 24px;">
+          <h2 style="font-size: 24px; font-weight: 700;">All Bookings</h2>
+          <a href="/add-booking" class="btn btn-primary">
+            <i data-feather="plus" style="width: 18px; height: 18px;"></i> New Booking
+          </a>
+        </div>
+        <div class="card">
+          <div class="card-body">
+            <% if (typeof allBookings !== 'undefined' && allBookings.length > 0) { %>
+              <div class="bookings-list">
+                <% allBookings.forEach(function(booking) { %>
+                  <div class="booking-card <%= booking.status === 'cancelled' ? 'cancelled' : '' %>">
+                    <div class="booking-time-block">
+                      <div class="booking-time"><%= booking.time %></div>
+                      <div class="booking-date"><%= booking.date %></div>
+                    </div>
+                    <div class="booking-info">
+                      <div class="booking-client"><%= booking.name %></div>
+                      <div class="booking-service"><%= booking.service || 'Consultation' %></div>
+                    </div>
+                    <div class="booking-actions">
+                      <span class="badge <%= booking.status === 'cancelled' ? 'badge-danger' : 'badge-success' %>">
+                        <%= booking.status || 'confirmed' %>
+                      </span>
+                    </div>
+                  </div>
+                <% }); %>
+              </div>
+            <% } else { %>
+              <div class="empty-state">
+                <div class="empty-state-icon"><i data-feather="calendar" style="width: 40px; height: 40px;"></i></div>
+                <h3 class="empty-state-title">No bookings yet</h3>
+                <p class="empty-state-description">Create your first booking to get started</p>
+                <a href="/add-booking" class="btn btn-primary">Add Booking</a>
+              </div>
+            <% } %>
+          </div>
+        </div>
+        <% } %>
+        
+        <% if (tab === 'calendar') { %>
+        <!-- CALENDAR TAB -->
+        <div class="section-header" style="margin-bottom: 24px;">
+          <h2 style="font-size: 24px; font-weight: 700;">Calendar View</h2>
+        </div>
+        <div class="card" style="padding: 32px;">
+          <div class="empty-state">
+            <div class="empty-state-icon"><i data-feather="calendar" style="width: 40px; height: 40px;"></i></div>
+            <h3 class="empty-state-title">Full Calendar Coming Soon</h3>
+            <p class="empty-state-description">We're working on a beautiful calendar view for your bookings</p>
+          </div>
+        </div>
+        <% } %>
+        
+        <% if (tab === 'team') { %>
+        <!-- TEAM TAB -->
+        <div class="section-header" style="margin-bottom: 24px;">
+          <h2 style="font-size: 24px; font-weight: 700;">Team Members</h2>
+          <a href="/settings?tab=team" class="btn btn-primary">
+            <i data-feather="plus" style="width: 18px; height: 18px;"></i> Add Member
+          </a>
+        </div>
+        <div class="card">
+          <div class="card-body">
+            <% if (owner.teamMembers && owner.teamMembers.length > 0) { %>
+              <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px;">
+                <% owner.teamMembers.forEach(function(member) { %>
+                  <div style="background: var(--bg-tertiary); border-radius: 12px; padding: 20px; display: flex; align-items: center; gap: 16px;">
+                    <div style="width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 18px;">
+                      <%= member.name ? member.name.charAt(0).toUpperCase() : 'T' %>
+                    </div>
+                    <div>
+                      <h4 style="font-weight: 600; margin-bottom: 4px;"><%= member.name %></h4>
+                      <p style="font-size: 13px; color: var(--text-muted);"><%= member.role || 'Specialist' %></p>
+                    </div>
+                  </div>
+                <% }); %>
+              </div>
+            <% } else { %>
+              <div class="empty-state">
+                <div class="empty-state-icon"><i data-feather="users" style="width: 40px; height: 40px;"></i></div>
+                <h3 class="empty-state-title">No team members yet</h3>
+                <p class="empty-state-description">Add your first team member to get started</p>
+                <a href="/settings?tab=team" class="btn btn-primary">Add Team Member</a>
+              </div>
+            <% } %>
+          </div>
+        </div>
+        <% } %>
+        
+        <% if (tab === 'services') { %>
+        <!-- SERVICES TAB -->
+        <div class="section-header" style="margin-bottom: 24px;">
+          <h2 style="font-size: 24px; font-weight: 700;">Services</h2>
+          <a href="/settings" class="btn btn-primary">
+            <i data-feather="settings" style="width: 18px; height: 18px;"></i> Manage Services
+          </a>
+        </div>
+        <div class="card">
+          <div class="card-body">
+            <% if (owner.settings && owner.settings.services && owner.settings.services.length > 0) { %>
+              <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px;">
+                <% owner.settings.services.forEach(function(service) { %>
+                  <div style="background: var(--bg-tertiary); border-radius: 12px; padding: 20px; text-align: center;">
+                    <div style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, rgba(102,126,234,0.1), rgba(118,75,162,0.1)); display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; color: var(--brand-primary);">
+                      <i data-feather="briefcase" style="width: 24px; height: 24px;"></i>
+                    </div>
+                    <h4 style="font-weight: 600;"><%= service %></h4>
+                  </div>
+                <% }); %>
+              </div>
+            <% } else { %>
+              <div class="empty-state">
+                <div class="empty-state-icon"><i data-feather="briefcase" style="width: 40px; height: 40px;"></i></div>
+                <h3 class="empty-state-title">No services configured</h3>
+                <p class="empty-state-description">Add your services in settings</p>
+                <a href="/settings" class="btn btn-primary">Go to Settings</a>
+              </div>
+            <% } %>
+          </div>
+        </div>
+        <% } %>
+        
+        <% if (tab === 'clients') { %>
+        <!-- CLIENTS TAB -->
+        <div class="section-header" style="margin-bottom: 24px;">
+          <h2 style="font-size: 24px; font-weight: 700;">Clients</h2>
+        </div>
+        <div class="card">
+          <div class="card-body">
+            <% 
+            const uniqueClientsMap = {};
+            if (typeof allBookings !== 'undefined') {
+              allBookings.forEach(function(b) {
+                if (b.email && !uniqueClientsMap[b.email]) {
+                  uniqueClientsMap[b.email] = { name: b.name, email: b.email, phone: b.phone };
+                }
+              });
+            }
+            const clientsList = Object.values(uniqueClientsMap);
+            %>
+            <% if (clientsList.length > 0) { %>
+              <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px;">
+                <% clientsList.forEach(function(client) { %>
+                  <div style="background: var(--bg-tertiary); border-radius: 12px; padding: 20px; display: flex; align-items: center; gap: 16px;">
+                    <div style="width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; font-size: 18px;">
+                      <%= client.name ? client.name.charAt(0).toUpperCase() : 'C' %>
+                    </div>
+                    <div>
+                      <h4 style="font-weight: 600; margin-bottom: 4px;"><%= client.name %></h4>
+                      <p style="font-size: 13px; color: var(--text-muted);"><%= client.email %></p>
+                    </div>
+                  </div>
+                <% }); %>
+              </div>
+            <% } else { %>
+              <div class="empty-state">
+                <div class="empty-state-icon"><i data-feather="user" style="width: 40px; height: 40px;"></i></div>
+                <h3 class="empty-state-title">No clients yet</h3>
+                <p class="empty-state-description">Clients will appear here after their first booking</p>
+              </div>
+            <% } %>
+          </div>
+        </div>
+        <% } %>
+        
+        <% if (tab === 'analytics') { %>
+        <!-- ANALYTICS TAB -->
+        <div class="section-header" style="margin-bottom: 24px;">
+          <h2 style="font-size: 24px; font-weight: 700;">Analytics</h2>
+        </div>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon primary"><i data-feather="calendar" style="width: 24px; height: 24px;"></i></div>
+            <div class="stat-content">
+              <div class="stat-label">Total Bookings</div>
+              <div class="stat-value"><%= typeof allBookings !== 'undefined' ? allBookings.length : 0 %></div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon success"><i data-feather="check-circle" style="width: 24px; height: 24px;"></i></div>
+            <div class="stat-content">
+              <div class="stat-label">Completed</div>
+              <div class="stat-value"><%= typeof completedBookings !== 'undefined' ? completedBookings : 0 %></div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon info"><i data-feather="users" style="width: 24px; height: 24px;"></i></div>
+            <div class="stat-content">
+              <div class="stat-label">Total Clients</div>
+              <div class="stat-value"><%= typeof totalClients !== 'undefined' ? totalClients : 0 %></div>
+            </div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon warning"><i data-feather="users" style="width: 24px; height: 24px;"></i></div>
+            <div class="stat-content">
+              <div class="stat-label">Team Members</div>
+              <div class="stat-value"><%= owner.teamMembers ? owner.teamMembers.length : 0 %></div>
+            </div>
+          </div>
+        </div>
+        <div class="card" style="padding: 32px; margin-top: 24px;">
+          <div class="empty-state">
+            <div class="empty-state-icon"><i data-feather="bar-chart-2" style="width: 40px; height: 40px;"></i></div>
+            <h3 class="empty-state-title">Advanced Analytics Coming Soon</h3>
+            <p class="empty-state-description">Charts and detailed reports will be available here</p>
+          </div>
+        </div>
+        <% } %>
+        
+        <% if (tab === 'email-templates') { %>
+        <!-- EMAIL TEMPLATES TAB -->
+        <div class="section-header" style="margin-bottom: 24px;">
+          <h2 style="font-size: 24px; font-weight: 700;">Email Templates</h2>
+          <a href="/settings?tab=email" class="btn btn-primary">
+            <i data-feather="settings" style="width: 18px; height: 18px;"></i> Customize
+          </a>
+        </div>
+        <div class="card" style="padding: 32px;">
+          <p style="color: var(--text-secondary); margin-bottom: 24px;">Your email templates are automatically styled with your brand colors. Customize them in Settings.</p>
+          <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px;">
+            <div style="background: var(--bg-tertiary); border-radius: 12px; padding: 24px; text-align: center;">
+              <div style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, rgba(16,185,129,0.1), rgba(5,150,105,0.1)); display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; color: #10b981;">
+                <i data-feather="check-circle" style="width: 24px; height: 24px;"></i>
+              </div>
+              <h4 style="font-weight: 600; margin-bottom: 4px;">Booking Confirmation</h4>
+              <p style="font-size: 13px; color: var(--text-muted);">Sent when a booking is created</p>
+            </div>
+            <div style="background: var(--bg-tertiary); border-radius: 12px; padding: 24px; text-align: center;">
+              <div style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, rgba(245,158,11,0.1), rgba(217,119,6,0.1)); display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; color: #f59e0b;">
+                <i data-feather="bell" style="width: 24px; height: 24px;"></i>
+              </div>
+              <h4 style="font-weight: 600; margin-bottom: 4px;">Reminder</h4>
+              <p style="font-size: 13px; color: var(--text-muted);">Sent before the appointment</p>
+            </div>
+            <div style="background: var(--bg-tertiary); border-radius: 12px; padding: 24px; text-align: center;">
+              <div style="width: 48px; height: 48px; border-radius: 12px; background: linear-gradient(135deg, rgba(239,68,68,0.1), rgba(220,38,38,0.1)); display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; color: #ef4444;">
+                <i data-feather="x-circle" style="width: 24px; height: 24px;"></i>
+              </div>
+              <h4 style="font-weight: 600; margin-bottom: 4px;">Cancellation</h4>
+              <p style="font-size: 13px; color: var(--text-muted);">Sent when booking is cancelled</p>
+            </div>
+          </div>
+        </div>
+        <% } %>
+        
       </div>
     </main>
   </div>
@@ -1076,8 +1329,8 @@
   <div class="toast-container" id="toastContainer"></div>
   
   <script>
-    // Initialize Lucide icons
-    lucide.createIcons();
+    // Initialize Feather icons
+    feather.replace();
     
     // Sidebar toggle
     function toggleSidebar() {
