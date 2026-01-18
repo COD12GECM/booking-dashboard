@@ -782,9 +782,46 @@ app.post('/super-admin/login', authLimiter, (req, res) => {
 app.get('/super-admin/dashboard', authenticateSuperAdmin, async (req, res) => {
   try {
     const owners = await Owner.find().sort({ createdAt: -1 });
-    res.render('super-admin-dashboard', { owners, success: req.query.success });
+    
+    // Get booking stats for each owner
+    const bookingDb = mongoose.connection.useDb('bookingdb');
+    const BookingsCollection = bookingDb.collection('bookings');
+    
+    const ownerStats = await Promise.all(owners.map(async (owner) => {
+      const totalBookings = await BookingsCollection.countDocuments({ clinicEmail: owner.email });
+      const thisMonthStart = new Date();
+      thisMonthStart.setDate(1);
+      thisMonthStart.setHours(0, 0, 0, 0);
+      const monthlyBookings = await BookingsCollection.countDocuments({ 
+        clinicEmail: owner.email,
+        createdAt: { $gte: thisMonthStart }
+      });
+      return {
+        ...owner.toObject(),
+        totalBookings,
+        monthlyBookings
+      };
+    }));
+    
+    // Global stats
+    const totalBookingsAll = await BookingsCollection.countDocuments();
+    const activeOwners = owners.filter(o => o.status === 'active').length;
+    const pendingOwners = owners.filter(o => o.status === 'pending').length;
+    
+    res.render('super-admin-dashboard', { 
+      owners: ownerStats, 
+      stats: {
+        totalOwners: owners.length,
+        activeOwners,
+        pendingOwners,
+        totalBookings: totalBookingsAll
+      },
+      success: req.query.success,
+      error: req.query.error
+    });
   } catch (error) {
-    res.render('super-admin-dashboard', { owners: [], error: error.message });
+    console.error('Super admin dashboard error:', error);
+    res.render('super-admin-dashboard', { owners: [], stats: {}, error: error.message });
   }
 });
 
@@ -816,6 +853,29 @@ app.post('/super-admin/invite', authenticateSuperAdmin, async (req, res) => {
     res.redirect('/super-admin/dashboard?success=Invitation sent to ' + email);
   } catch (error) {
     console.error('Invite error:', error);
+    res.redirect('/super-admin/dashboard?error=' + error.message);
+  }
+});
+
+// Ghost Mode - View dashboard as owner
+app.get('/super-admin/ghost/:id', authenticateSuperAdmin, async (req, res) => {
+  try {
+    const owner = await Owner.findById(req.params.id);
+    if (!owner || owner.status !== 'active') {
+      return res.redirect('/super-admin/dashboard?error=Owner not found or not active');
+    }
+    
+    // Create a temporary token for ghost mode
+    const ghostToken = jwt.sign(
+      { id: owner._id, email: owner.email, ghost: true },
+      process.env.JWT_SECRET || 'your-secret-key',
+      { expiresIn: '1h' }
+    );
+    
+    res.cookie('token', ghostToken, { httpOnly: true, secure: process.env.NODE_ENV === 'production' });
+    res.redirect('/dashboard?ghost=true&owner=' + encodeURIComponent(owner.clinicName || owner.email));
+  } catch (error) {
+    console.error('Ghost mode error:', error);
     res.redirect('/super-admin/dashboard?error=' + error.message);
   }
 });
