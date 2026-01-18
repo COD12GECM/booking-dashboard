@@ -77,6 +77,44 @@
       background: var(--neo-primary);
     }
     
+    [data-theme="dark"] .day-group {
+      background: #2c2c2e !important;
+    }
+    
+    [data-theme="dark"] .day-header {
+      background: #3a3a3c !important;
+      color: #ffffff !important;
+    }
+    
+    [data-theme="dark"] .day-header * {
+      color: #ffffff !important;
+    }
+    
+    [data-theme="dark"] .booking-card.cancelled {
+      background: #3a3a3c !important;
+      opacity: 0.7;
+    }
+    
+    [data-theme="dark"] .booking-card.cancelled * {
+      color: #a1a1a6 !important;
+    }
+    
+    [data-theme="dark"] #calendar-view {
+      background: #2c2c2e !important;
+    }
+    
+    [data-theme="dark"] #calendar-view * {
+      color: #ffffff;
+    }
+    
+    [data-theme="dark"] #cal-booking-details {
+      background: #3a3a3c !important;
+    }
+    
+    [data-theme="dark"] #cal-booking-details * {
+      color: #ffffff !important;
+    }
+    
     [data-theme="dark"] .team-member-select {
       background: #3a3a3c !important;
       color: #ffffff !important;
@@ -792,8 +830,8 @@
       <div>
         <h1 class="page-title">Bookings</h1>
         <div class="view-tabs">
-          <button class="view-tab" data-view="calendar">📅 Calendar</button>
-          <button class="view-tab active" data-view="day">Today</button>
+          <button class="view-tab active" data-view="calendar">📅 Calendar</button>
+          <button class="view-tab" data-view="day">Today</button>
           <button class="view-tab" data-view="week">This Week</button>
           <button class="view-tab" data-view="month">This Month</button>
           <button class="view-tab" data-view="all">All</button>
@@ -861,7 +899,7 @@
     </div>
     
     <!-- Calendar View -->
-    <div id="calendar-view" style="display: none;" class="card">
+    <div id="calendar-view" style="display: block;" class="card">
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
         <!-- Calendar -->
         <div>
@@ -894,7 +932,7 @@
       </div>
     </div>
     
-    <div class="card" id="bookings-container">
+    <div class="card" id="bookings-container" style="display: none;">
       <% if (bookings.length === 0) { %>
         <div class="empty-state">
           <div class="empty-icon">
@@ -1127,9 +1165,6 @@
       });
     });
     
-    // Initialize with "Today" view
-    filterBookings('day');
-    
     // Calendar View Logic
     const allBookings = <%- JSON.stringify(bookings) %>;
     let calendarDate = new Date();
@@ -1316,6 +1351,9 @@
       document.documentElement.setAttribute('data-theme', newTheme);
       localStorage.setItem('theme', newTheme);
     });
+    
+    // Initialize Calendar on page load (default view)
+    initCalendar();
   </script>
 </body>
 </html>
