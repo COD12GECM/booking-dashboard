@@ -392,11 +392,15 @@
     }
     
     .stats-summary {
-      background: white;
+      background: var(--neo-card-bg, white);
       border-radius: 16px;
       padding: 20px;
       margin-bottom: 20px;
       box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+    
+    [data-theme="dark"] .stats-summary {
+      background: #2c2c2e !important;
     }
     
     .stats-summary h3 {
@@ -419,6 +423,18 @@
       padding: 12px;
       background: #f8fafc;
       border-radius: 10px;
+    }
+    
+    [data-theme="dark"] .stat-item {
+      background: #3a3a3c !important;
+    }
+    
+    [data-theme="dark"] .stat-value {
+      color: #10b981 !important;
+    }
+    
+    [data-theme="dark"] .stat-label {
+      color: #a1a1a6 !important;
     }
     
     .stat-value {
