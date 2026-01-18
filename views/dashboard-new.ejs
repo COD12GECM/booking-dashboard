@@ -13,8 +13,8 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
   
-  <!-- Lucide Icons -->
-  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Feather Icons (CDN with better CSP support) -->
+  <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
   
   <link rel="stylesheet" href="/css/styles.css">
   
@@ -751,16 +751,16 @@
       <nav class="sidebar-nav">
         <div class="nav-section">
           <div class="nav-section-title">Overview</div>
-          <a href="/dashboard" class="nav-item active">
-            <i data-lucide="layout-dashboard" class="nav-icon"></i>
+          <a href="/dashboard" class="nav-item <%= !req || !req.query || !req.query.tab ? 'active' : '' %>">
+            <i data-feather="grid" class="nav-icon"></i>
             <span>Dashboard</span>
           </a>
           <a href="/dashboard?tab=calendar" class="nav-item">
-            <i data-lucide="calendar" class="nav-icon"></i>
+            <i data-feather="calendar" class="nav-icon"></i>
             <span>Calendar</span>
           </a>
           <a href="/dashboard?tab=bookings" class="nav-item">
-            <i data-lucide="calendar-check" class="nav-icon"></i>
+            <i data-feather="check-square" class="nav-icon"></i>
             <span>Bookings</span>
             <% if (typeof todayBookings !== 'undefined' && todayBookings.length > 0) { %>
               <span class="nav-badge"><%= todayBookings.length %></span>
@@ -771,15 +771,15 @@
         <div class="nav-section">
           <div class="nav-section-title">Management</div>
           <a href="/dashboard?tab=team" class="nav-item">
-            <i data-lucide="users" class="nav-icon"></i>
+            <i data-feather="users" class="nav-icon"></i>
             <span>Team Members</span>
           </a>
           <a href="/dashboard?tab=services" class="nav-item">
-            <i data-lucide="briefcase" class="nav-icon"></i>
+            <i data-feather="briefcase" class="nav-icon"></i>
             <span>Services</span>
           </a>
           <a href="/dashboard?tab=clients" class="nav-item">
-            <i data-lucide="user-circle" class="nav-icon"></i>
+            <i data-feather="user" class="nav-icon"></i>
             <span>Clients</span>
           </a>
         </div>
@@ -787,15 +787,15 @@
         <div class="nav-section">
           <div class="nav-section-title">Tools</div>
           <a href="/ai-assistant" class="nav-item">
-            <i data-lucide="sparkles" class="nav-icon"></i>
+            <i data-feather="zap" class="nav-icon"></i>
             <span>AI Assistant</span>
           </a>
           <a href="/dashboard?tab=analytics" class="nav-item">
-            <i data-lucide="bar-chart-3" class="nav-icon"></i>
+            <i data-feather="bar-chart-2" class="nav-icon"></i>
             <span>Analytics</span>
           </a>
           <a href="/dashboard?tab=email-templates" class="nav-item">
-            <i data-lucide="mail" class="nav-icon"></i>
+            <i data-feather="mail" class="nav-icon"></i>
             <span>Email Templates</span>
           </a>
         </div>
@@ -803,11 +803,11 @@
         <div class="nav-section">
           <div class="nav-section-title">Settings</div>
           <a href="/settings" class="nav-item">
-            <i data-lucide="settings" class="nav-icon"></i>
+            <i data-feather="settings" class="nav-icon"></i>
             <span>Settings</span>
           </a>
           <a href="/settings?tab=integrations" class="nav-item">
-            <i data-lucide="plug" class="nav-icon"></i>
+            <i data-feather="link" class="nav-icon"></i>
             <span>Integrations</span>
           </a>
         </div>
@@ -822,7 +822,7 @@
             <div class="user-name"><%= owner.clinicName || 'My Clinic' %></div>
             <div class="user-role">Owner</div>
           </div>
-          <i data-lucide="chevron-down" style="width: 16px; height: 16px; color: var(--text-muted);"></i>
+          <i data-feather="chevron-down" style="width: 16px; height: 16px; color: var(--text-muted);"></i>
         </div>
       </div>
     </aside>
@@ -833,21 +833,21 @@
       <header class="top-header">
         <div class="header-left">
           <button class="mobile-menu-btn" onclick="toggleSidebar()">
-            <i data-lucide="menu" style="width: 24px; height: 24px;"></i>
+            <i data-feather="menu" style="width: 24px; height: 24px;"></i>
           </button>
           <h1 class="page-title">Dashboard</h1>
         </div>
         
         <div class="header-right">
           <button class="header-btn" title="Search">
-            <i data-lucide="search" style="width: 18px; height: 18px;"></i>
+            <i data-feather="search" style="width: 18px; height: 18px;"></i>
           </button>
           <button class="header-btn" title="Notifications">
-            <i data-lucide="bell" style="width: 18px; height: 18px;"></i>
+            <i data-feather="bell" style="width: 18px; height: 18px;"></i>
             <span class="badge">3</span>
           </button>
           <a href="/add-booking" class="btn btn-primary">
-            <i data-lucide="plus" style="width: 18px; height: 18px;"></i>
+            <i data-feather="plus" style="width: 18px; height: 18px;"></i>
             <span>New Booking</span>
           </a>
         </div>
@@ -862,11 +862,11 @@
             <p class="welcome-subtitle">Here's what's happening with your bookings today.</p>
             <div class="quick-actions">
               <a href="/add-booking" class="quick-action-btn">
-                <i data-lucide="plus" style="width: 18px; height: 18px;"></i>
+                <i data-feather="plus" style="width: 18px; height: 18px;"></i>
                 Add Booking
               </a>
               <a href="/dashboard?tab=calendar" class="quick-action-btn">
-                <i data-lucide="calendar" style="width: 18px; height: 18px;"></i>
+                <i data-feather="calendar" style="width: 18px; height: 18px;"></i>
                 View Calendar
               </a>
             </div>
@@ -877,13 +877,13 @@
         <div class="stats-grid">
           <div class="stat-card">
             <div class="stat-icon primary">
-              <i data-lucide="calendar-check" style="width: 24px; height: 24px;"></i>
+              <i data-feather="calendar-check" style="width: 24px; height: 24px;"></i>
             </div>
             <div class="stat-content">
               <div class="stat-label">Today's Bookings</div>
               <div class="stat-value"><%= typeof todayBookings !== 'undefined' ? todayBookings.length : 0 %></div>
               <div class="stat-change positive">
-                <i data-lucide="trending-up" style="width: 12px; height: 12px;"></i>
+                <i data-feather="trending-up" style="width: 12px; height: 12px;"></i>
                 +12% from yesterday
               </div>
             </div>
@@ -891,13 +891,13 @@
           
           <div class="stat-card">
             <div class="stat-icon success">
-              <i data-lucide="check-circle" style="width: 24px; height: 24px;"></i>
+              <i data-feather="check-circle" style="width: 24px; height: 24px;"></i>
             </div>
             <div class="stat-content">
               <div class="stat-label">Completed</div>
               <div class="stat-value"><%= typeof completedBookings !== 'undefined' ? completedBookings : 0 %></div>
               <div class="stat-change positive">
-                <i data-lucide="trending-up" style="width: 12px; height: 12px;"></i>
+                <i data-feather="trending-up" style="width: 12px; height: 12px;"></i>
                 +8% this week
               </div>
             </div>
@@ -905,7 +905,7 @@
           
           <div class="stat-card">
             <div class="stat-icon warning">
-              <i data-lucide="clock" style="width: 24px; height: 24px;"></i>
+              <i data-feather="clock" style="width: 24px; height: 24px;"></i>
             </div>
             <div class="stat-content">
               <div class="stat-label">Pending</div>
@@ -915,13 +915,13 @@
           
           <div class="stat-card">
             <div class="stat-icon info">
-              <i data-lucide="users" style="width: 24px; height: 24px;"></i>
+              <i data-feather="users" style="width: 24px; height: 24px;"></i>
             </div>
             <div class="stat-content">
               <div class="stat-label">Total Clients</div>
               <div class="stat-value"><%= typeof totalClients !== 'undefined' ? totalClients : 0 %></div>
               <div class="stat-change positive">
-                <i data-lucide="trending-up" style="width: 12px; height: 12px;"></i>
+                <i data-feather="trending-up" style="width: 12px; height: 12px;"></i>
                 +5 new this week
               </div>
             </div>
@@ -982,10 +982,10 @@
                 <span class="mini-calendar-title" id="calendarTitle">January 2026</span>
                 <div class="mini-calendar-nav">
                   <button onclick="changeMonth(-1)">
-                    <i data-lucide="chevron-left" style="width: 16px; height: 16px;"></i>
+                    <i data-feather="chevron-left" style="width: 16px; height: 16px;"></i>
                   </button>
                   <button onclick="changeMonth(1)">
-                    <i data-lucide="chevron-right" style="width: 16px; height: 16px;"></i>
+                    <i data-feather="chevron-right" style="width: 16px; height: 16px;"></i>
                   </button>
                 </div>
               </div>
@@ -1008,7 +1008,7 @@
                 %>
                   <div class="activity-item">
                     <div class="activity-icon <%= booking.status === 'cancelled' ? 'cancelled' : 'new' %>">
-                      <i data-lucide="<%= booking.status === 'cancelled' ? 'x' : 'calendar-plus' %>" style="width: 18px; height: 18px;"></i>
+                      <i data-feather="<%= booking.status === 'cancelled' ? 'x' : 'calendar-plus' %>" style="width: 18px; height: 18px;"></i>
                     </div>
                     <div class="activity-content">
                       <div class="activity-text">
@@ -1057,7 +1057,7 @@
                     <div class="empty-state" style="width: 100%; padding: var(--spacing-md);">
                       <p class="text-muted" style="margin-bottom: var(--spacing-md);">No team members yet</p>
                       <a href="/dashboard?tab=team" class="btn btn-primary btn-sm">
-                        <i data-lucide="plus" style="width: 16px; height: 16px;"></i>
+                        <i data-feather="plus" style="width: 16px; height: 16px;"></i>
                         Add Team Member
                       </a>
                     </div>
@@ -1173,7 +1173,7 @@
       };
       
       toast.innerHTML = `
-        <i data-lucide="${icons[type]}" class="toast-icon"></i>
+        <i data-feather="${icons[type]}" class="toast-icon"></i>
         <div class="toast-content">
           <div class="toast-title">${title}</div>
           <div class="toast-message">${message}</div>
@@ -1181,7 +1181,7 @@
       `;
       
       container.appendChild(toast);
-      lucide.createIcons();
+      feather.replace();
       
       setTimeout(() => {
         toast.style.animation = 'slideIn 0.3s ease reverse';
@@ -1197,6 +1197,9 @@
         // TODO: Filter bookings
       });
     });
+    
+    // Initialize Feather icons
+    feather.replace();
   </script>
 </body>
 </html>
