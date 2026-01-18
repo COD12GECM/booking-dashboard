@@ -1387,6 +1387,16 @@ app.post('/dashboard/no-show/:id', authenticateToken, async (req, res) => {
   }
 });
 
+// AI Assistant Page (placeholder)
+app.get('/ai-assistant', authenticateToken, async (req, res) => {
+  try {
+    const owner = await Owner.findById(req.owner.id);
+    res.render('ai-assistant', { owner });
+  } catch (error) {
+    res.redirect('/dashboard?error=AI Assistant not available');
+  }
+});
+
 // Mark booking as completed and send review request
 app.post('/dashboard/complete/:id', authenticateToken, async (req, res) => {
   try {

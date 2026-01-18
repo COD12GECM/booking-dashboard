@@ -1387,3 +1387,120 @@ a:hover { color: var(--brand-primary-hover); }
   font-size: 12px;
   font-weight: 600;
 }
+
+.badge-primary {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+  color: #667eea;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.badge-warning {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(217, 119, 6, 0.1) 100%);
+  color: #d97706;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+/* Full booking card with actions */
+.booking-card-full {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 16px 20px;
+  background: var(--bg-tertiary);
+  border-radius: 12px;
+  transition: all 0.2s ease;
+  margin-bottom: 12px;
+}
+
+.booking-card-full:hover {
+  box-shadow: 0 4px 12px -4px rgba(0, 0, 0, 0.1);
+}
+
+.booking-card-full.cancelled {
+  opacity: 0.6;
+}
+
+.booking-card-full.cancelled .booking-client {
+  text-decoration: line-through;
+}
+
+.booking-card-full.completed {
+  border-left: 3px solid #10b981;
+}
+
+.booking-status {
+  min-width: 100px;
+  text-align: center;
+}
+
+.booking-actions-full {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+}
+
+.action-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  color: var(--text-muted);
+}
+
+.action-btn:hover {
+  transform: translateY(-2px);
+}
+
+.action-btn.success:hover {
+  background: rgba(16, 185, 129, 0.1);
+  border-color: #10b981;
+  color: #10b981;
+}
+
+.action-btn.info:hover {
+  background: rgba(59, 130, 246, 0.1);
+  border-color: #3b82f6;
+  color: #3b82f6;
+}
+
+.action-btn.warning:hover {
+  background: rgba(245, 158, 11, 0.1);
+  border-color: #f59e0b;
+  color: #f59e0b;
+}
+
+.action-btn.danger:hover {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: #ef4444;
+  color: #ef4444;
+}
+
+/* Responsive bookings */
+@media (max-width: 768px) {
+  .booking-card-full {
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  
+  .booking-actions-full {
+    width: 100%;
+    justify-content: flex-end;
+    margin-top: 8px;
+  }
+  
+  .booking-status {
+    min-width: auto;
+  }
+}

@@ -1078,7 +1078,8 @@
         <div class="section-header" style="margin-bottom: 24px;">
           <h2 style="font-size: 24px; font-weight: 700;">All Bookings</h2>
           <a href="/add-booking" class="btn btn-primary">
-            <i data-feather="plus" style="width: 18px; height: 18px;"></i> New Booking
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            New Booking
           </a>
         </div>
         <div class="card">
@@ -1086,7 +1087,7 @@
             <% if (typeof allBookings !== 'undefined' && allBookings.length > 0) { %>
               <div class="bookings-list">
                 <% allBookings.forEach(function(booking) { %>
-                  <div class="booking-card <%= booking.status === 'cancelled' ? 'cancelled' : '' %>">
+                  <div class="booking-card-full <%= booking.status === 'cancelled' ? 'cancelled' : '' %> <%= booking.status === 'completed' ? 'completed' : '' %>">
                     <div class="booking-time-block">
                       <div class="booking-time"><%= booking.time %></div>
                       <div class="booking-date"><%= booking.date %></div>
@@ -1094,18 +1095,47 @@
                     <div class="booking-info">
                       <div class="booking-client"><%= booking.name %></div>
                       <div class="booking-service"><%= booking.service || 'Consultation' %></div>
+                      <% if (booking.email) { %>
+                        <div class="booking-email" style="font-size: 12px; color: var(--text-muted);"><%= booking.email %></div>
+                      <% } %>
                     </div>
-                    <div class="booking-actions">
-                      <span class="badge <%= booking.status === 'cancelled' ? 'badge-danger' : 'badge-success' %>">
+                    <div class="booking-status">
+                      <span class="badge <%= booking.status === 'cancelled' ? 'badge-danger' : booking.status === 'completed' ? 'badge-success' : booking.status === 'no-show' ? 'badge-warning' : 'badge-primary' %>">
                         <%= booking.status || 'confirmed' %>
                       </span>
+                    </div>
+                    <div class="booking-actions-full">
+                      <% if (booking.status !== 'cancelled' && booking.status !== 'completed') { %>
+                        <form method="POST" action="/dashboard/complete/<%= booking.id %>" style="display:inline;">
+                          <button type="submit" class="action-btn success" title="Mark Complete">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+                          </button>
+                        </form>
+                        <form method="POST" action="/dashboard/send-reminder/<%= booking.id %>" style="display:inline;">
+                          <button type="submit" class="action-btn info" title="Send Reminder">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                          </button>
+                        </form>
+                        <form method="POST" action="/dashboard/no-show/<%= booking.id %>" style="display:inline;">
+                          <button type="submit" class="action-btn warning" title="Mark No-Show">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+                          </button>
+                        </form>
+                        <form method="POST" action="/dashboard/cancel-booking/<%= booking.id %>" style="display:inline;" onsubmit="return confirm('Are you sure you want to cancel this booking?');">
+                          <button type="submit" class="action-btn danger" title="Cancel Booking">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                          </button>
+                        </form>
+                      <% } %>
                     </div>
                   </div>
                 <% }); %>
               </div>
             <% } else { %>
               <div class="empty-state">
-                <div class="empty-state-icon"><i data-feather="calendar" style="width: 40px; height: 40px;"></i></div>
+                <div class="empty-state-icon">
+                  <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                </div>
                 <h3 class="empty-state-title">No bookings yet</h3>
                 <p class="empty-state-description">Create your first booking to get started</p>
                 <a href="/add-booking" class="btn btn-primary">Add Booking</a>
@@ -1119,14 +1149,69 @@
         <!-- CALENDAR TAB -->
         <div class="section-header" style="margin-bottom: 24px;">
           <h2 style="font-size: 24px; font-weight: 700;">Calendar View</h2>
+          <a href="/add-booking" class="btn btn-primary">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            New Booking
+          </a>
         </div>
-        <div class="card" style="padding: 32px;">
-          <div class="empty-state">
-            <div class="empty-state-icon"><i data-feather="calendar" style="width: 40px; height: 40px;"></i></div>
-            <h3 class="empty-state-title">Full Calendar Coming Soon</h3>
-            <p class="empty-state-description">We're working on a beautiful calendar view for your bookings</p>
+        
+        <div class="calendar-container" style="display: grid; grid-template-columns: 1fr 320px; gap: 24px;">
+          <!-- Main Calendar -->
+          <div class="card" style="padding: 24px;">
+            <div class="calendar-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+              <button onclick="changeCalendarMonth(-1)" class="btn btn-secondary" style="padding: 8px 16px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+              </button>
+              <h3 id="fullCalendarTitle" style="font-size: 20px; font-weight: 700;"></h3>
+              <button onclick="changeCalendarMonth(1)" class="btn btn-secondary" style="padding: 8px 16px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+              </button>
+            </div>
+            
+            <div class="calendar-grid" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px;">
+              <div class="calendar-day-header">Sun</div>
+              <div class="calendar-day-header">Mon</div>
+              <div class="calendar-day-header">Tue</div>
+              <div class="calendar-day-header">Wed</div>
+              <div class="calendar-day-header">Thu</div>
+              <div class="calendar-day-header">Fri</div>
+              <div class="calendar-day-header">Sat</div>
+            </div>
+            <div id="fullCalendarGrid" class="calendar-grid" style="display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px;"></div>
+          </div>
+          
+          <!-- Day Details -->
+          <div class="card" style="padding: 24px;">
+            <h4 style="font-weight: 700; margin-bottom: 16px;" id="selectedDateTitle">Today's Bookings</h4>
+            <div id="dayBookings">
+              <% 
+              const todayStr = new Date().toISOString().split('T')[0];
+              const todaysBookings = typeof allBookings !== 'undefined' ? allBookings.filter(b => b.date === todayStr && b.status !== 'cancelled') : [];
+              %>
+              <% if (todaysBookings.length > 0) { %>
+                <% todaysBookings.forEach(function(b) { %>
+                  <div style="padding: 12px; background: var(--bg-tertiary); border-radius: 8px; margin-bottom: 8px;">
+                    <div style="font-weight: 600;"><%= b.time %> - <%= b.name %></div>
+                    <div style="font-size: 13px; color: var(--text-muted);"><%= b.service %></div>
+                  </div>
+                <% }); %>
+              <% } else { %>
+                <p style="color: var(--text-muted); text-align: center; padding: 20px;">No bookings for this day</p>
+              <% } %>
+            </div>
           </div>
         </div>
+        
+        <style>
+          .calendar-day-header { text-align: center; font-weight: 600; font-size: 12px; color: var(--text-muted); padding: 12px 0; text-transform: uppercase; }
+          .calendar-day { min-height: 80px; padding: 8px; border-radius: 8px; background: var(--bg-tertiary); cursor: pointer; transition: all 0.2s; }
+          .calendar-day:hover { background: var(--bg-secondary); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+          .calendar-day.today { border: 2px solid var(--brand-primary); }
+          .calendar-day.other-month { opacity: 0.4; }
+          .calendar-day .day-number { font-weight: 600; font-size: 14px; margin-bottom: 4px; }
+          .calendar-day .booking-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--brand-primary); display: inline-block; margin-right: 2px; }
+          @media (max-width: 900px) { .calendar-container { grid-template-columns: 1fr; } }
+        </style>
         <% } %>
         
         <% if (tab === 'team') { %>
@@ -1412,6 +1497,77 @@
     
     // Initialize calendar
     renderCalendar();
+    
+    // Full Calendar for Calendar Tab
+    let fullCalendarDate = new Date();
+    
+    function renderFullCalendar() {
+      const grid = document.getElementById('fullCalendarGrid');
+      const title = document.getElementById('fullCalendarTitle');
+      if (!grid || !title) return;
+      
+      const year = fullCalendarDate.getFullYear();
+      const month = fullCalendarDate.getMonth();
+      
+      const monthNames = ['January', 'February', 'March', 'April', 'May', 'June', 
+                          'July', 'August', 'September', 'October', 'November', 'December'];
+      title.textContent = `${monthNames[month]} ${year}`;
+      
+      const firstDay = new Date(year, month, 1);
+      const lastDay = new Date(year, month + 1, 0);
+      const startDay = firstDay.getDay();
+      const daysInMonth = lastDay.getDate();
+      const today = new Date();
+      
+      let html = '';
+      
+      // Previous month days
+      const prevMonth = new Date(year, month, 0);
+      const prevDays = prevMonth.getDate();
+      for (let i = startDay - 1; i >= 0; i--) {
+        html += `<div class="calendar-day other-month"><div class="day-number">${prevDays - i}</div></div>`;
+      }
+      
+      // Current month days
+      for (let day = 1; day <= daysInMonth; day++) {
+        const isToday = day === today.getDate() && month === today.getMonth() && year === today.getFullYear();
+        const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        
+        let classes = 'calendar-day';
+        if (isToday) classes += ' today';
+        
+        html += `<div class="${classes}" onclick="selectCalendarDate('${dateStr}')">
+          <div class="day-number">${day}</div>
+        </div>`;
+      }
+      
+      // Next month days
+      const totalCells = Math.ceil((startDay + daysInMonth) / 7) * 7;
+      const nextDays = totalCells - startDay - daysInMonth;
+      for (let i = 1; i <= nextDays; i++) {
+        html += `<div class="calendar-day other-month"><div class="day-number">${i}</div></div>`;
+      }
+      
+      grid.innerHTML = html;
+    }
+    
+    function changeCalendarMonth(delta) {
+      fullCalendarDate.setMonth(fullCalendarDate.getMonth() + delta);
+      renderFullCalendar();
+    }
+    
+    function selectCalendarDate(dateStr) {
+      const title = document.getElementById('selectedDateTitle');
+      if (title) {
+        const date = new Date(dateStr);
+        title.textContent = date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+      }
+    }
+    
+    // Initialize full calendar if on calendar tab
+    if (document.getElementById('fullCalendarGrid')) {
+      renderFullCalendar();
+    }
     
     // Toast notifications
     function showToast(type, title, message) {
