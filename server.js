@@ -376,7 +376,7 @@ async function sendInvitationEmail(email, invitationCode, clinicName) {
   }
 }
 
-// Send Booking Confirmation Email to Client (uses owner's custom email settings)
+// Send Booking Confirmation Email to Client - Premium Template (identical to booking-api)
 async function sendBookingConfirmationEmail(booking, owner) {
   if (!process.env.BREVO_API_KEY || !booking.email) {
     console.log('Skipping confirmation email - no API key or client email');
@@ -385,12 +385,12 @@ async function sendBookingConfirmationEmail(booking, owner) {
 
   // Get custom email settings or defaults
   const emailSettings = owner.emailSettings || {};
-  const primaryColor = emailSettings.primaryColor || '#10b981';
-  const secondaryColor = emailSettings.secondaryColor || '#059669';
+  const primaryColor = emailSettings.primaryColor || '#059669';
+  const secondaryColor = emailSettings.secondaryColor || '#10b981';
   const businessName = emailSettings.businessName || owner.clinicName || 'Your Business';
-  const emailFooter = emailSettings.emailFooter || '';
-  const confirmationSubject = emailSettings.confirmationSubject || 'Booking Confirmed';
-  const confirmationMessage = emailSettings.confirmationMessage || 'Your appointment has been confirmed. Here are the details:';
+  const CLINIC_ADDRESS = owner.clinicAddress || '';
+  const CLINIC_EMAIL = owner.email || '';
+  const CLINIC_PHONE = owner.clinicPhone || '';
 
   const dateObj = new Date(booking.date + 'T' + booking.time);
   const formattedDate = dateObj.toLocaleDateString('en-US', { 
@@ -407,47 +407,104 @@ async function sendBookingConfirmationEmail(booking, owner) {
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
-<body style="margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #ffffff;">
-  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #ffffff; padding: 40px 20px;">
+<body style="margin: 0; padding: 0; font-family: 'Helvetica Neue', Arial, sans-serif; background-color: #f5f5f5;">
+  <table width="100%" cellpadding="0" cellspacing="0" style="background-color: #f5f5f5; padding: 40px 20px;">
     <tr>
       <td align="center">
-        <table width="100%" cellpadding="0" cellspacing="0" style="max-width: 600px; background: #ffffff; border: 1px solid #e5e7eb; border-radius: 16px;">
+        <table width="600" cellpadding="0" cellspacing="0" style="background: #ffffff; border-radius: 16px; overflow: hidden; border: 1px solid #e5e5e5;">
           
+          <!-- Header -->
           <tr>
-            <td style="background: linear-gradient(135deg, ${primaryColor} 0%, ${secondaryColor} 100%); padding: 48px 40px; text-align: center; border-radius: 16px 16px 0 0;">
-              <h1 style="color: #ffffff; margin: 0; font-size: 32px; font-weight: 700;">${confirmationSubject}</h1>
-              <p style="color: rgba(255,255,255,0.9); margin: 12px 0 0; font-size: 18px;">${businessName}</p>
+            <td style="background: linear-gradient(135deg, ${primaryColor} 0%, ${secondaryColor} 100%); padding: 50px 40px; text-align: center;">
+              <table width="70" height="70" align="center" style="background: rgba(255,255,255,0.2); border-radius: 50%;"><tr><td align="center" valign="middle" style="font-size: 32px; color: #ffffff; font-weight: bold;">&#10003;</td></tr></table>
+              <h1 style="color: #ffffff; margin: 24px 0 8px; font-size: 32px; font-weight: 600;">Booking Confirmed</h1>
+              <p style="color: rgba(255,255,255,0.9); margin: 0; font-size: 18px;">Your appointment has been scheduled</p>
             </td>
           </tr>
           
+          <!-- Greeting -->
           <tr>
-            <td style="padding: 40px;">
-              <p style="color: #374151; font-size: 20px; margin: 0 0 24px; line-height: 1.7;">
+            <td style="padding: 40px 40px 24px;">
+              <p style="color: #1a1a1a; font-size: 20px; margin: 0; line-height: 1.5;">
                 Dear <strong>${booking.name}</strong>,
               </p>
-              <p style="color: #6b7280; font-size: 18px; margin: 0 0 32px; line-height: 1.7;">
-                ${confirmationMessage}
+              <p style="color: #666666; font-size: 18px; margin: 16px 0 0; line-height: 1.6;">
+                Thank you for choosing ${businessName}. We look forward to seeing you.
               </p>
-              
-              <table width="100%" cellpadding="0" cellspacing="0" style="background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px; margin-bottom: 32px;">
+            </td>
+          </tr>
+          
+          <!-- Appointment Details -->
+          <tr>
+            <td style="padding: 0 40px 32px;">
+              <table width="100%" cellpadding="0" cellspacing="0" style="background: #f8f9fa; border-radius: 12px; border: 1px solid #e9ecef;">
                 <tr>
                   <td style="padding: 28px;">
-                    <p style="margin: 0 0 14px;"><strong style="color: #374151; font-size: 16px;">Date:</strong> <span style="color: #6b7280; font-size: 20px; font-weight: 600;">${formattedDate}</span></p>
-                    <p style="margin: 0 0 14px;"><strong style="color: #374151; font-size: 16px;">Time:</strong> <span style="color: #6b7280; font-size: 20px; font-weight: 600;">${booking.time}</span></p>
-                    <p style="margin: 0 0 14px;"><strong style="color: #374151; font-size: 16px;">Service:</strong> <span style="color: #6b7280; font-size: 20px; font-weight: 600;">${booking.service}</span></p>
-                    ${owner.clinicAddress ? `<p style="margin: 0;"><strong style="color: #374151; font-size: 16px;">Location:</strong> <span style="color: #6b7280; font-size: 18px;">${owner.clinicAddress}</span></p>` : ''}
+                    <p style="color: #6c757d; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; margin: 0 0 24px; border-bottom: 2px solid #e9ecef; padding-bottom: 12px;">Appointment Details</p>
+                    
+                    <table width="100%" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td style="padding: 16px 0; border-bottom: 1px solid #e9ecef;">
+                          <p style="color: #6c757d; font-size: 14px; margin: 0 0 6px; text-transform: uppercase; letter-spacing: 1px;">Date</p>
+                          <p style="color: #1a1a1a; font-size: 20px; font-weight: 600; margin: 0;">${formattedDate}</p>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 16px 0; border-bottom: 1px solid #e9ecef;">
+                          <p style="color: #6c757d; font-size: 14px; margin: 0 0 6px; text-transform: uppercase; letter-spacing: 1px;">Time</p>
+                          <p style="color: #1a1a1a; font-size: 20px; font-weight: 600; margin: 0;">${booking.time}</p>
+                        </td>
+                      </tr>
+                      <tr>
+                        <td style="padding: 16px 0;${CLINIC_ADDRESS ? ' border-bottom: 1px solid #e9ecef;' : ''}">
+                          <p style="color: #6c757d; font-size: 14px; margin: 0 0 6px; text-transform: uppercase; letter-spacing: 1px;">Service</p>
+                          <p style="color: #1a1a1a; font-size: 20px; font-weight: 600; margin: 0;">${booking.service}</p>
+                        </td>
+                      </tr>
+                      ${CLINIC_ADDRESS ? `<tr>
+                        <td style="padding: 16px 0;">
+                          <p style="color: #6c757d; font-size: 14px; margin: 0 0 6px; text-transform: uppercase; letter-spacing: 1px;">Location</p>
+                          <p style="color: #1a1a1a; font-size: 20px; font-weight: 600; margin: 0;">${CLINIC_ADDRESS}</p>
+                        </td>
+                      </tr>` : ''}
+                    </table>
                   </td>
                 </tr>
               </table>
-              
-              ${owner.clinicPhone ? `<p style="color: #6b7280; font-size: 16px; margin: 0;">Questions? Contact us at ${owner.clinicPhone}</p>` : ''}
-              ${emailFooter ? `<p style="color: #9ca3af; font-size: 14px; margin: 24px 0 0; padding-top: 16px; border-top: 1px solid #e5e7eb;">${emailFooter}</p>` : ''}
             </td>
           </tr>
           
+          <!-- Reference Number -->
           <tr>
-            <td style="padding: 24px 40px; border-top: 1px solid #e5e7eb; text-align: center;">
-              <p style="color: #9ca3af; font-size: 13px; margin: 0;">${businessName}</p>
+            <td style="padding: 0 40px 32px;">
+              <table width="100%" cellpadding="0" cellspacing="0" style="background: linear-gradient(135deg, ${primaryColor} 0%, ${secondaryColor} 100%); border-radius: 12px;">
+                <tr>
+                  <td style="padding: 28px; text-align: center;">
+                    <p style="color: rgba(255,255,255,0.9); font-size: 14px; margin: 0 0 8px; text-transform: uppercase; letter-spacing: 2px; font-weight: 600;">Booking Reference</p>
+                    <p style="color: #ffffff; font-size: 28px; font-weight: 700; margin: 0; letter-spacing: 1px;">#${booking.id}</p>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+          
+          <!-- Contact -->
+          <tr>
+            <td style="padding: 28px 40px; background: #f8f9fa; border-top: 1px solid #e9ecef;">
+              <p style="color: #6c757d; font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px; margin: 0 0 16px;">Contact Us</p>
+              ${CLINIC_EMAIL ? `<p style="color: #1a1a1a; font-size: 16px; margin: 0 0 8px;">
+                <a href="mailto:${CLINIC_EMAIL}" style="color: #059669; text-decoration: none;">${CLINIC_EMAIL}</a>
+              </p>` : ''}
+              ${CLINIC_PHONE ? `<p style="color: #1a1a1a; font-size: 16px; margin: 0;">
+                <a href="tel:${CLINIC_PHONE}" style="color: #059669; text-decoration: none;">${CLINIC_PHONE}</a>
+              </p>` : ''}
+            </td>
+          </tr>
+          
+          <!-- Footer -->
+          <tr>
+            <td style="padding: 24px 40px; text-align: center; background: #f8f9fa;">
+              <p style="color: #999999; font-size: 14px; margin: 0;">${new Date().getFullYear()} ${businessName}. All rights reserved.</p>
             </td>
           </tr>
           
