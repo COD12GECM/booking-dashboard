@@ -877,14 +877,15 @@
                     <div class="booking-client"><a href="#" class="client-history-link" data-email="<%= booking.email %>" data-name="<%= booking.name %>" style="color: inherit; text-decoration: none; border-bottom: 1px dashed var(--neo-text-muted);"><%= booking.name %></a></div>
                     <div class="booking-service"><%= booking.service %> &bull; <%= booking.email %><% if (booking.phone) { %> &bull; <%= booking.phone %><% } %></div>
                     <% if (owner.teamMembers && owner.teamMembers.length > 0) { %>
-                    <div style="margin-top: 6px;">
-                      <select class="team-member-select" data-booking-id="<%= booking.id %>" onchange="assignTeamMember(this)" style="padding: 4px 8px; border-radius: 6px; border: 1px solid #ddd; font-size: 12px; background: var(--neo-bg); color: var(--neo-text); cursor: pointer;">
+                    <div style="margin-top: 6px; display: flex; align-items: center; gap: 6px;">
+                      <select class="team-member-select" data-booking-id="<%= booking.id %>" style="padding: 4px 8px; border-radius: 6px; border: 1px solid #ddd; font-size: 12px; background: var(--neo-bg); color: var(--neo-text); cursor: pointer;">
                         <option value="">Assign specialist...</option>
                         <% owner.teamMembers.filter(m => m.isActive !== false).forEach(member => { %>
                           <option value="<%= member._id %>" data-name="<%= member.name %>" <%= booking.teamMemberId == member._id.toString() ? 'selected' : '' %> style="color: <%= member.color || '#10b981' %>;"><%= member.name %></option>
                         <% }) %>
                       </select>
-                      <% if (booking.teamMemberName) { %><span style="font-size: 11px; color: var(--neo-primary); margin-left: 6px;">✓ <%= booking.teamMemberName %></span><% } %>
+                      <button type="button" onclick="assignTeamMember(this.previousElementSibling)" style="padding: 4px 10px; border-radius: 6px; border: none; background: var(--neo-primary); color: white; font-size: 11px; cursor: pointer; font-weight: 500;">✓ Save</button>
+                      <% if (booking.teamMemberName) { %><span class="team-badge" style="font-size: 11px; color: var(--neo-primary);">✓ <%= booking.teamMemberName %></span><% } %>
                     </div>
                     <% } %>
                   <% } %>
