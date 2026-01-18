@@ -4,70 +4,206 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link rel="icon" type="image/png" href="https://cdn.shopify.com/s/files/1/0940/5274/5549/files/Untitled_design-100_550ad869-e845-4877-9844-37e6bd98b2a0.png?v=1766876822">
-  <title>Login - Booking Dashboard</title>
+  <title>Login - BuildHaze Dashboard</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
     
     :root {
-      --neo-bg: #e0e5ec;
-      --neo-shadow-dark: #a3b1c6;
-      --neo-shadow-light: #ffffff;
-      --neo-primary: #10b981;
-      --neo-danger: #ef4444;
-      --neo-text: #1e293b;
-      --neo-text-muted: #64748b;
+      --bg-primary: #f6f9fc;
+      --bg-secondary: #ffffff;
+      --text-primary: #0a2540;
+      --text-secondary: #425466;
+      --text-muted: #8898aa;
+      --brand-primary: #667eea;
+      --brand-secondary: #764ba2;
+      --danger: #ff5252;
+      --border-color: #e6ebf1;
     }
     
     body {
       min-height: 100vh;
-      background: var(--neo-bg);
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: 20px;
+      position: relative;
+      overflow: hidden;
     }
     
-    .login-card {
-      width: 100%;
-      max-width: 420px;
-      background: var(--neo-bg);
-      border-radius: 32px;
-      padding: 48px 40px;
-      box-shadow: 20px 20px 60px var(--neo-shadow-dark), -20px -20px 60px var(--neo-shadow-light);
+    /* Animated background shapes */
+    body::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 50%);
+      animation: rotate 30s linear infinite;
     }
     
-    .login-icon {
-      width: 80px;
-      height: 80px;
-      background: var(--neo-bg);
+    @keyframes rotate {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    
+    .floating-shape {
+      position: absolute;
       border-radius: 50%;
-      margin: 0 auto 24px;
+      background: rgba(255,255,255,0.1);
+      animation: float 6s ease-in-out infinite;
+    }
+    
+    .shape-1 { width: 300px; height: 300px; top: 10%; left: 5%; animation-delay: 0s; }
+    .shape-2 { width: 200px; height: 200px; top: 60%; right: 10%; animation-delay: 2s; }
+    .shape-3 { width: 150px; height: 150px; bottom: 10%; left: 20%; animation-delay: 4s; }
+    
+    @keyframes float {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-30px) rotate(10deg); }
+    }
+    
+    .login-container {
+      display: flex;
+      width: 100%;
+      max-width: 1000px;
+      min-height: 600px;
+      background: var(--bg-secondary);
+      border-radius: 24px;
+      box-shadow: 0 25px 80px -20px rgba(0,0,0,0.3);
+      overflow: hidden;
+      position: relative;
+      z-index: 1;
+      animation: slideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(40px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Left side - Branding */
+    .login-branding {
+      flex: 1;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 60px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .login-branding::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 60%);
+    }
+    
+    .branding-content {
+      position: relative;
+      z-index: 1;
+    }
+    
+    .brand-logo {
+      width: 60px;
+      height: 60px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 16px;
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 8px 8px 16px var(--neo-shadow-dark), -8px -8px 16px var(--neo-shadow-light);
+      margin-bottom: 32px;
+      backdrop-filter: blur(10px);
     }
     
-    .login-icon svg {
-      width: 40px;
-      height: 40px;
-      stroke: var(--neo-primary);
+    .brand-logo span {
+      color: white;
+      font-size: 28px;
+      font-weight: 800;
     }
     
-    .login-title {
-      text-align: center;
-      color: var(--neo-text);
+    .branding-title {
+      color: white;
+      font-size: 36px;
+      font-weight: 800;
+      margin-bottom: 16px;
+      line-height: 1.2;
+    }
+    
+    .branding-subtitle {
+      color: rgba(255,255,255,0.85);
+      font-size: 18px;
+      line-height: 1.6;
+      margin-bottom: 40px;
+    }
+    
+    .branding-features {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    
+    .feature-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: rgba(255,255,255,0.9);
+      font-size: 15px;
+    }
+    
+    .feature-icon {
+      width: 24px;
+      height: 24px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .feature-icon svg {
+      width: 14px;
+      height: 14px;
+      stroke: white;
+      stroke-width: 3;
+    }
+    
+    /* Right side - Form */
+    .login-form-container {
+      flex: 1;
+      padding: 60px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+    
+    .form-header {
+      margin-bottom: 40px;
+    }
+    
+    .form-title {
+      color: var(--text-primary);
       font-size: 28px;
       font-weight: 700;
       margin-bottom: 8px;
     }
     
-    .login-subtitle {
-      text-align: center;
-      color: var(--neo-text-muted);
+    .form-subtitle {
+      color: var(--text-muted);
       font-size: 16px;
-      margin-bottom: 32px;
     }
     
     .form-group {
@@ -76,113 +212,243 @@
     
     .form-label {
       display: block;
-      color: var(--neo-text);
+      color: var(--text-primary);
       font-size: 14px;
       font-weight: 600;
-      margin-bottom: 10px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
+      margin-bottom: 8px;
+    }
+    
+    .input-wrapper {
+      position: relative;
+    }
+    
+    .input-icon {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+    }
+    
+    .input-icon svg {
+      width: 20px;
+      height: 20px;
     }
     
     .form-input {
       width: 100%;
-      padding: 16px 20px;
-      background: var(--neo-bg);
-      border: none;
-      border-radius: 16px;
+      padding: 16px 16px 16px 48px;
+      background: var(--bg-primary);
+      border: 2px solid var(--border-color);
+      border-radius: 12px;
       font-size: 16px;
-      color: var(--neo-text);
-      box-shadow: inset 4px 4px 8px var(--neo-shadow-dark), inset -4px -4px 8px var(--neo-shadow-light);
-      transition: all 0.3s ease;
+      font-family: inherit;
+      color: var(--text-primary);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
     }
     
     .form-input:focus {
       outline: none;
-      box-shadow: inset 6px 6px 12px var(--neo-shadow-dark), inset -6px -6px 12px var(--neo-shadow-light);
+      border-color: var(--brand-primary);
+      background: var(--bg-secondary);
+      box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
     }
     
     .form-input::placeholder {
-      color: var(--neo-text-muted);
+      color: var(--text-muted);
     }
     
-    .btn {
+    .btn-primary {
       width: 100%;
-      padding: 18px;
+      padding: 16px 24px;
       border: none;
-      border-radius: 16px;
-      font-size: 17px;
+      border-radius: 12px;
+      font-size: 16px;
       font-weight: 600;
+      font-family: inherit;
       cursor: pointer;
-      transition: all 0.3s ease;
-      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-      color: #ffffff;
-      box-shadow: 6px 6px 12px var(--neo-shadow-dark), -6px -6px 12px var(--neo-shadow-light);
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 0 4px 15px -3px rgba(102, 126, 234, 0.4);
     }
     
-    .btn:hover {
+    .btn-primary:hover {
       transform: translateY(-2px);
-      box-shadow: 8px 8px 16px var(--neo-shadow-dark), -8px -8px 16px var(--neo-shadow-light);
+      box-shadow: 0 8px 25px -5px rgba(102, 126, 234, 0.5);
+    }
+    
+    .btn-primary:active {
+      transform: translateY(0);
     }
     
     .error-msg {
-      background: linear-gradient(135deg, #fee2e2, #fecaca);
-      color: #991b1b;
-      padding: 16px 20px;
+      background: linear-gradient(135deg, #fff5f5, #fed7d7);
+      border: 1px solid #feb2b2;
+      color: #c53030;
+      padding: 14px 18px;
       border-radius: 12px;
       margin-bottom: 24px;
       font-size: 14px;
-      text-align: center;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      animation: shake 0.5s ease;
+    }
+    
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-5px); }
+      75% { transform: translateX(5px); }
+    }
+    
+    .error-icon {
+      width: 20px;
+      height: 20px;
+      flex-shrink: 0;
     }
     
     .footer-text {
       text-align: center;
-      margin-top: 24px;
-      color: var(--neo-text-muted);
+      margin-top: 32px;
+      color: var(--text-muted);
       font-size: 14px;
     }
     
     .footer-text a {
-      color: var(--neo-primary);
+      color: var(--brand-primary);
       text-decoration: none;
       font-weight: 600;
+      transition: color 0.2s;
+    }
+    
+    .footer-text a:hover {
+      color: var(--brand-secondary);
+    }
+    
+    /* Responsive */
+    @media (max-width: 900px) {
+      .login-branding {
+        display: none;
+      }
+      
+      .login-container {
+        max-width: 450px;
+      }
+    }
+    
+    @media (max-width: 500px) {
+      .login-container {
+        border-radius: 20px;
+      }
+      
+      .login-form-container {
+        padding: 40px 24px;
+      }
+      
+      .form-title {
+        font-size: 24px;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="login-card">
-    <div class="login-icon">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"/>
-        <line x1="16" y1="2" x2="16" y2="6"/>
-        <line x1="8" y1="2" x2="8" y2="6"/>
-        <line x1="3" y1="10" x2="21" y2="10"/>
-      </svg>
+  <!-- Floating shapes -->
+  <div class="floating-shape shape-1"></div>
+  <div class="floating-shape shape-2"></div>
+  <div class="floating-shape shape-3"></div>
+  
+  <div class="login-container">
+    <!-- Left side - Branding -->
+    <div class="login-branding">
+      <div class="branding-content">
+        <div class="brand-logo">
+          <span>B</span>
+        </div>
+        <h1 class="branding-title">Welcome to<br>BuildHaze</h1>
+        <p class="branding-subtitle">The all-in-one booking management platform for modern businesses.</p>
+        
+        <div class="branding-features">
+          <div class="feature-item">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+            </div>
+            <span>Smart booking management</span>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+            </div>
+            <span>Team collaboration tools</span>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                <polyline points="20 6 9 17 4 12"/>
+              </svg>
+            </div>
+            <span>Google Calendar integration</span>
+          </div>
+        </div>
+      </div>
     </div>
     
-    <h1 class="login-title">Welcome Back</h1>
-    <p class="login-subtitle">Sign in to your dashboard</p>
-    
-    <% if (error) { %>
-      <div class="error-msg"><%= error %></div>
-    <% } %>
-    
-    <form method="POST" action="/login">
-      <div class="form-group">
-        <label class="form-label">Email</label>
-        <input type="email" name="email" class="form-input" placeholder="your@email.com" required>
+    <!-- Right side - Form -->
+    <div class="login-form-container">
+      <div class="form-header">
+        <h2 class="form-title">Sign in to your account</h2>
+        <p class="form-subtitle">Enter your credentials to access your dashboard</p>
       </div>
       
-      <div class="form-group">
-        <label class="form-label">Password</label>
-        <input type="password" name="password" class="form-input" placeholder="Enter your password" required>
-      </div>
+      <% if (typeof error !== 'undefined' && error) { %>
+        <div class="error-msg">
+          <svg class="error-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="8" x2="12" y2="12"/>
+            <line x1="12" y1="16" x2="12.01" y2="16"/>
+          </svg>
+          <%= error %>
+        </div>
+      <% } %>
       
-      <button type="submit" class="btn">Sign In</button>
-    </form>
-    
-    <p class="footer-text">
-      Don't have an account? Contact your administrator.
-    </p>
+      <form method="POST" action="/login">
+        <div class="form-group">
+          <label class="form-label">Email address</label>
+          <div class="input-wrapper">
+            <span class="input-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/>
+                <polyline points="22,6 12,13 2,6"/>
+              </svg>
+            </span>
+            <input type="email" name="email" class="form-input" placeholder="you@example.com" required autocomplete="email">
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Password</label>
+          <div class="input-wrapper">
+            <span class="input-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+                <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+              </svg>
+            </span>
+            <input type="password" name="password" class="form-input" placeholder="Enter your password" required autocomplete="current-password">
+          </div>
+        </div>
+        
+        <button type="submit" class="btn-primary">Sign In</button>
+      </form>
+      
+      <p class="footer-text">
+        Don't have an account? <a href="mailto:support@buildhaze.com">Contact support</a>
+      </p>
+    </div>
   </div>
 </body>
 </html>
