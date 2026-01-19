@@ -1179,24 +1179,8 @@ app.get('/dashboard', authenticateToken, async (req, res) => {
     // Get unique clients
     const uniqueClients = new Set(allBookings.map(b => b.email)).size;
     
-    // Use new UI by default, old UI with ?ui=old
-    const useOldUI = req.query.ui === 'old';
-    const activeTab = req.query.tab || 'dashboard';
-    
-    if (useOldUI) {
-      res.render('dashboard', { owner, bookings: allBookings, success: req.query.success });
-    } else {
-      res.render('dashboard-new', { 
-        owner, 
-        allBookings,
-        todayBookings,
-        completedBookings,
-        pendingBookings,
-        totalClients: uniqueClients,
-        activeTab,
-        success: req.query.success 
-      });
-    }
+    // Use old UI by default
+    res.render('dashboard', { owner, bookings: allBookings, success: req.query.success });
   } catch (error) {
     console.error('Dashboard error:', error);
     res.render('dashboard', { owner: null, bookings: [], error: error.message });
