@@ -14,6 +14,9 @@ const hpp = require('hpp');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Trust proxy for Render.com (fixes X-Forwarded-For warning)
+app.set('trust proxy', 1);
+
 // ===========================================
 // SECURITY MIDDLEWARE - Professional Grade
 // ===========================================
