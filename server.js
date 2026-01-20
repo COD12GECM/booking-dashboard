@@ -40,10 +40,14 @@ app.use(helmet({
 // 2. Rate Limiting - Prevent brute force attacks
 const generalLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 100, // 100 requests per 15 min per IP
+  max: 500, // 500 requests per 15 min per IP
   message: { error: 'Too many requests, please try again later.' },
   standardHeaders: true,
-  legacyHeaders: false
+  legacyHeaders: false,
+  skip: (req) => {
+    // Skip rate limiting for static assets
+    return req.path.startsWith('/css') || req.path.startsWith('/js') || req.path.startsWith('/images');
+  }
 });
 
 const authLimiter = rateLimit({
